@@ -8,12 +8,12 @@ namespace rtpreempt_tools {
     this->target_frequency = target_frequency;
     this->started = false;
     this->ticks = 0;
-    this->witchs = 0;
+    this->switchs = 0;
     this->worse_frequency = std::numeric_limits<float>::max();
 
   }
 
-  Realtime_check::was_realtime_lost(){
+  bool Realtime_check::was_realtime_lost(){
     
     if(!this->started) {
       return false;
@@ -28,17 +28,20 @@ namespace rtpreempt_tools {
   }
 
 
-  Realtime_check::tick(){
+  void Realtime_check::tick(){
     
-    std::chrono::time_point t = std::chrono::system_clock::now();
+    std::chrono::high_resolution_clock::time_point t = std::chrono::high_resolution_clock::now();
     this->ticks +=1;
 
+    if(this->ticks>=std::numeric_limits<uint>::max()-1){
+      this->started = false;
+      return;
+    }
+
     if(!this->started){
-      
       this->start_time = t;
       this->last_tick = t;
       return;
-
     }
 
     this->started = true;
@@ -71,7 +74,22 @@ namespace rtpreempt_tools {
 
   }
 
-  
+
+
+  bool Realtime_check::get_statistics(int &ticks,int &switchs,
+				      float &average_frequency, 
+				      float &worse_frequency){
+
+    if(!this->started){
+      return false;
+    }
+
+    ticks = this->ticks;
+    switchs = this->switchs;
+    average_frequency = this->average_frequency;
+    worse_frequency = this->worse_frequency;
+
+  }
 
 
 

@@ -22,7 +22,9 @@ namespace rtpreempt_tools {
     // return true if statistics are available, false otherwise
     // (false is returned is tick has never been called or if ticks reached 
     // maximum integer value)
-    bool get_statistics(int &ticks,int &switchs,float &average_frequency, float &worse_frequency);
+    bool get_statistics(int &ticks,int &switchs,
+			float &average_frequency, 
+			float &worse_frequency);
 
   private:
     
@@ -30,10 +32,10 @@ namespace rtpreempt_tools {
     bool started;
 
     // time at which tick was called first
-    std::chrono::time_point start_time;
+    std::chrono::high_resolution_clock::time_point start_time;
 
     // last time system was ticked
-    std::chrono::time_point last_tick;
+    std::chrono::high_resolution_clock::time_point last_tick;
 
     // frequency at which ticks are expected
     float target_frequency;

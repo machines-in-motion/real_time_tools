@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+  <name>rtpreempt_tools</name>
+  <version>1.0.0</version>
+  <description>various tools for testing realtime on rtpreempt</description>
+  <license>undeterminded</license>
+  <author email="vberenz@tuebingen.mpg.de">Vincent Berenz</author>
+  <maintainer email="vberenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>cmake_modules</build_depend>
+
+  <export>
+  </export>
+</package>
