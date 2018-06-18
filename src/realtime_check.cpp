@@ -41,10 +41,9 @@ namespace rtpreempt_tools {
     if(!this->started){
       this->start_time = t;
       this->last_tick = t;
+      this->started = true;
       return;
     }
-
-    this->started = true;
 
     // checking if current frequency (as of previous tick) is fine
 
@@ -52,7 +51,7 @@ namespace rtpreempt_tools {
     
     double one = 1.0;
 
-    float current_frequency = one / static_cast<float>(nanos);
+    float current_frequency = one / ( pow(10.0,-9.0) * static_cast<float>(nanos) );
 
     if (current_frequency<this->target_frequency) {
       this->switchs += 1;
@@ -66,7 +65,7 @@ namespace rtpreempt_tools {
     
     nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(t-this->start_time).count();
     
-    this->average_frequency = one / static_cast<float>(nanos);
+    this->average_frequency = static_cast<float>(this->ticks) / ( pow(10.0,-9.0) * static_cast<float>(nanos) );
 
     // preparing for next iteration
 
@@ -89,8 +88,30 @@ namespace rtpreempt_tools {
     average_frequency = this->average_frequency;
     worse_frequency = this->worse_frequency;
 
+    return true;
+
   }
 
+
+  void print_realtime_check(Realtime_check &rc){
+
+    int ticks,switchs;
+    float average_frequency;
+    float worse_frequency;
+
+    bool ret = rc.get_statistics(ticks,switchs,
+				 average_frequency, 
+				 worse_frequency);
+
+    if (!ret){
+      printf("failed to get results from realtime check\n");
+      return;
+    }
+    
+    printf("nb ticks: %d\tnb switchs: %d\taverage: %f\t worse: %f\n",
+	   ticks,switchs,average_frequency,worse_frequency);
+
+  }
 
 
 }

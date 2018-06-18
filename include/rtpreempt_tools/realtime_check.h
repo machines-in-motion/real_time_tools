@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <limits>
-
+#include <math.h>
 
 namespace rtpreempt_tools {
 
@@ -59,7 +59,7 @@ namespace rtpreempt_tools {
   };
 
 
-
+  void print_realtime_check(Realtime_check &rc);
 
 
 }
