@@ -14,7 +14,7 @@ find_package (Threads)
 
 include_directories(include)
 
-add_library(rtpreempt_tools src/realtime_check.cpp)
+add_library(rtpreempt_tools src/realtime_check.cpp src/realtime_thread_creation.cpp)
 
 add_executable(realtime_check_realtime_example src/realtime_check_realtime_example.cpp)
 target_link_libraries(realtime_check_realtime_example ${CMAKE_THREAD_LIBS_INIT} rtpreempt_tools)
