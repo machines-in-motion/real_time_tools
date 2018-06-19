@@ -5,6 +5,8 @@
 
 namespace rtpreempt_tools {
 
+  // super simple class for checking if thread ever lost realtime. 
+  // simply measure frequency between two calls to the tick function.
 
 
   class Realtime_check {
@@ -17,11 +19,13 @@ namespace rtpreempt_tools {
     void tick();
 
     // true if realtime was lost at least once
+    // (frequency between two ticks was below target frequencies)
     bool was_realtime_lost();
 
     // return true if statistics are available, false otherwise
     // (false is returned is tick has never been called or if ticks reached 
     // maximum integer value)
+    // switchs in the number of time realtime was lost.
     bool get_statistics(int &ticks,int &switchs,
 			float &average_frequency, 
 			float &worse_frequency);
