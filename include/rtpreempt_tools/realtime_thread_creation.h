@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 
-namespace rtpreempt_tools {
+namespace real_time_tools {
 
   // warning : initial version, copy pasted from : https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
   // I did not study things now, so this likely needs improvement
@@ -15,14 +15,17 @@ namespace rtpreempt_tools {
 
   // note: if failed as mlockall, run executable with sudo.
 
+  typedef pthread_t RealTimeThread;
+
   /**
    * @brief create_realtime_thread spawns a real time thread.
    * @param[in][out] thread is the c++ object that represents the threads.
    * @param[in] thread_function is the executing function for the thread.
    * @return the error code.
    */
-  int create_realtime_thread(pthread_t &thread,
-                             void*(*thread_function)(void*));
+  int create_realtime_thread(RealTimeThread &thread,
+                             void*(*thread_function)(void*),
+                             void* args = nullptr);
 
   /**
    * @brief create_realtime_thread spawns a real time thread and block the
@@ -31,7 +34,7 @@ namespace rtpreempt_tools {
    * @param[in] thread_function is the executing function for the thread.
    * @return the error code.
    */
-  int create_realtime_thread_and_block_memory(pthread_t &thread,
+  int create_realtime_thread_and_block_memory(RealTimeThread &thread,
                                               void*(*thread_function)(void*));
 
   /**
@@ -39,7 +42,7 @@ namespace rtpreempt_tools {
    * @param thread is the C++ thread object to join
    * @return the error code.
    */
-  int join_thread(pthread_t &thread);
+  int join_thread(RealTimeThread &thread);
 
   /**
    * @brief block_memory block the current and futur memory pages
@@ -47,4 +50,5 @@ namespace rtpreempt_tools {
    * for further explanation.
    */
   void block_memory();
-}
+
+} // namespace real_time_tools

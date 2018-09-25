@@ -17,7 +17,7 @@
 void *thread_function(void *data)
 {
 
-  rtpreempt_tools::Realtime_check rc(1000.0);
+  real_time_tools::Realtime_check rc(1000.0);
 
   int a = 0;
   for(int i=0;i<1000;i++){
@@ -27,7 +27,7 @@ void *thread_function(void *data)
   }
 
   printf("\n");
-  rtpreempt_tools::print_realtime_check(rc);
+  real_time_tools::print_realtime_check(rc);
   printf("\n");
 
   return nullptr;
@@ -36,9 +36,9 @@ void *thread_function(void *data)
 int main(int argc, char* argv[]) {
 
   pthread_t thread;
-  rtpreempt_tools::block_memory();
-  rtpreempt_tools::create_realtime_thread(thread,thread_function);
-  rtpreempt_tools::join_thread(thread);
+  real_time_tools::block_memory();
+  real_time_tools::create_realtime_thread(thread,thread_function);
+  real_time_tools::join_thread(thread);
   
 }
 

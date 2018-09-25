@@ -1,6 +1,6 @@
 #include "rtpreempt_tools/realtime_check.h"
 
-namespace rtpreempt_tools {
+namespace real_time_tools {
 
 
   Realtime_check::Realtime_check(float target_frequency){

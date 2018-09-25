@@ -1,10 +1,8 @@
 #include "rtpreempt_tools/realtime_thread_creation.h"
 
-#ifdef RT_PREEMPT
+namespace real_time_tools {
 
-namespace rtpreempt_tools {
-
-  int create_realtime_thread_and_block_memory(pthread_t &thread,
+  int create_realtime_thread_and_block_memory(RealTimeThread &thread,
                                               void*(*thread_function)(void*)){
 
     struct sched_param param;
@@ -58,8 +56,9 @@ namespace rtpreempt_tools {
     }
   }
 
-  int create_realtime_thread(pthread_t &thread,
-                             void*(*thread_function)(void*)){
+  int create_realtime_thread(RealTimeThread &thread,
+                             void*(*thread_function)(void*),
+                             void* args){
     // Based on:
     // https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
 
@@ -100,7 +99,7 @@ namespace rtpreempt_tools {
     }
 
     /* Create a pthread with specified attributes */
-    ret = pthread_create(&thread, &attr, thread_function, nullptr);
+    ret = pthread_create(&thread, &attr, thread_function, args);
     if (ret) {
       printf("create pthread failed. Ret=%d\n", ret);
       if (ret == 1) {
@@ -121,7 +120,7 @@ namespace rtpreempt_tools {
     }
   }
 
-  int join_thread(pthread_t &thread)
+  int join_thread(RealTimeThread &thread)
   {
     int ret ;
     /* Join the thread and wait until it is done */
@@ -131,6 +130,4 @@ namespace rtpreempt_tools {
     return ret;
   }
 
-} // namespace rtpreempt_tools
-
-#endif
+} // namespace real_time_tools
