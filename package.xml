@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>rtpreempt_tools</name>
+  <name>real_time_tools</name>
   <version>1.0.0</version>
   <description>various tools for testing realtime on rtpreempt</description>
   <license>undeterminded</license>

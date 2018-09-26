@@ -1,8 +1,8 @@
-/*                                                                  
+/*
  * POSIX Real Time Example
  * using a single pthread as RT thread
  */
- 
+
 #include <limits.h>
 #include <pthread.h>
 #include <sched.h>
@@ -11,9 +11,9 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "rtpreempt_tools/realtime_check.h"
-#include "rtpreempt_tools/realtime_thread_creation.h"
- 
+#include "real_time_tools/realtime_check.h"
+#include "real_time_tools/realtime_thread_creation.h"
+
 void *thread_function(void *data)
 {
 
@@ -32,13 +32,12 @@ void *thread_function(void *data)
 
   return nullptr;
 }
- 
+
 int main(int argc, char* argv[]) {
 
   pthread_t thread;
-  real_time_tools::block_memory();
-  real_time_tools::create_realtime_thread(thread,thread_function);
+  real_time_tools::create_realtime_thread_and_block_memory(thread,
+                                                           thread_function);
   real_time_tools::join_thread(thread);
-  
 }
 

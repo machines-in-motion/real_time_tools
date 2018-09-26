@@ -4,12 +4,12 @@ include(cmake/os_detection.cmake)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-project(rtpreempt_tools)
+project(real_time_tools)
 
 find_package (catkin)
 
 catkin_package(
-  LIBRARIES rtpreempt_tools
+  LIBRARIES real_time_tools
   INCLUDE_DIRS include
 )
 
@@ -22,24 +22,16 @@ DEFINE_OS()
 
 include_directories(include)
 
-add_library(rtpreempt_tools
+set(LIBRARY_NAME ${PROJECT_NAME})
+add_library(${LIBRARY_NAME}
   src/realtime_check.cpp
   src/realtime_thread_creation.cpp
 )
-target_link_libraries(rtpreempt_tools ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(real_time_tools ${CMAKE_THREAD_LIBS_INIT})
 
-set(RT_CHECK_EX realtime_check_realtime_example)
-add_executable(${RT_CHECK_EX}
-  src/realtime_check_realtime_example.cpp
-)
-target_link_libraries(${RT_CHECK_EX}
-  rtpreempt_tools
-)
-
-set(RT_CHECK_BLOCKING_EX realtime_check_realtime_blocking_example)
-add_executable(${RT_CHECK_BLOCKING_EX}
-  src/realtime_check_realtime_example_blocking.cpp
-)
-target_link_libraries(${RT_CHECK_BLOCKING_EX}
-  rtpreempt_tools
-)
+#########
+# DEMOS #
+#########
+set(DEMO1 demo_realtime_check)
+add_executable(${DEMO1} demos/demo_realtime_check.cpp)
+target_link_libraries(${DEMO1} ${LIBRARY_NAME})
