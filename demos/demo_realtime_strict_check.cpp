@@ -26,23 +26,33 @@ void* thread_function(void*)
   my_clock::duration clock_period(period);
   real_time_tools::Realtime_check rc(freq);
   int a = 0;
-  my_clock::time_point tic, tac;
+  my_clock::time_point start, stop, mid;
+  my_clock::duration sleep_duration_diff;
   struct timespec sleep_duration, out_sleep;
 
   printf("reference period is %ld\n", clock_period.count());
 
   for(int i=0 ; i<nb_iteration ; ++i){
+    start = my_clock::now();
+
     rc.tick();
-    tic = my_clock::now();
+
 
     a++;
-    printf("sleeping time is %ld\n", sleep_duration.tv_nsec);
+    //printf("%d %d", sleep_duration.tv_nsec, out_sleep.tv_nsec);
+    printf("%ld ; %ld ; ", sleep_duration.tv_nsec, sleep_duration_diff.count());
+    printf("sleeping time is %ld  \n", sleep_duration.tv_nsec);
 
-    tac = my_clock::now();
-    sleep_duration.tv_nsec = static_cast<unsigned>(
-                               0.95 * static_cast<double>(
-                                 (clock_period - (tac - tic)).count()));
+    mid = my_clock::now();
+    sleep_duration.tv_nsec = (clock_period -
+                              sleep_duration_diff -
+                              (mid - start)).count();
+
     nanosleep(&sleep_duration, &out_sleep); // microseconds, so in Ghz
+
+    stop = my_clock::now();
+    sleep_duration_diff = my_clock::duration(
+          (unsigned) ((stop - mid) - my_clock::duration(sleep_duration.tv_nsec)).count());
   }
 
   printf("\n");
