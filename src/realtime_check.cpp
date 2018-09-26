@@ -30,7 +30,8 @@ namespace real_time_tools {
 
   void Realtime_check::tick(){
     
-    std::chrono::high_resolution_clock::time_point t = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point t =
+        std::chrono::high_resolution_clock::now();
     this->ticks +=1;
 
     if(this->ticks>=std::numeric_limits<uint>::max()-1){

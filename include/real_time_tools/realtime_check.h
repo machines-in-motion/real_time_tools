@@ -7,8 +7,6 @@ namespace real_time_tools {
 
   // super simple class for checking if thread ever lost realtime. 
   // simply measure frequency between two calls to the tick function.
-
-
   class Realtime_check {
 
   public:

@@ -35,3 +35,7 @@ target_link_libraries(real_time_tools ${CMAKE_THREAD_LIBS_INIT})
 set(DEMO1 demo_realtime_check)
 add_executable(${DEMO1} demos/demo_realtime_check.cpp)
 target_link_libraries(${DEMO1} ${LIBRARY_NAME})
+
+set(DEMO2 demo_realtime_strict_check)
+add_executable(${DEMO2} demos/demo_realtime_strict_check.cpp)
+target_link_libraries(${DEMO2} ${LIBRARY_NAME})
