@@ -52,7 +52,8 @@ void* thread_function(void*)
 
     stop = my_clock::now();
     sleep_duration_diff = my_clock::duration(
-          (unsigned) ((stop - mid) - my_clock::duration(sleep_duration.tv_nsec)).count());
+          (unsigned) ((stop - mid) - my_clock::duration(
+                        sleep_duration.tv_nsec)).count());
   }
 
   printf("\n");
