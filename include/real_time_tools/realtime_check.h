@@ -13,7 +13,7 @@ namespace real_time_tools {
 
   public:
 
-    Realtime_check(float target_frequency);
+    Realtime_check(double target_frequency);
 
     // inform the instance of this class that an iteration passed
     void tick();
@@ -27,8 +27,9 @@ namespace real_time_tools {
     // maximum integer value)
     // switchs in the number of time realtime was lost.
     bool get_statistics(int &ticks,int &switchs,
-			float &average_frequency, 
-			float &worse_frequency);
+                        double &target_frequency,
+                        double &average_frequency,
+                        double &worse_frequency);
 
   private:
     
@@ -42,7 +43,10 @@ namespace real_time_tools {
     std::chrono::high_resolution_clock::time_point last_tick;
 
     // frequency at which ticks are expected
-    float target_frequency;
+    double target_frequency;
+
+    // small quantity
+    double epsilon;
 
     // number of iterations
     uint ticks;
@@ -53,10 +57,10 @@ namespace real_time_tools {
     uint switchs;
 
     // average frequency
-    float average_frequency;
+    double average_frequency;
 
     // worse frequency ever experienced
-    float worse_frequency;
+    double worse_frequency;
     
 
 

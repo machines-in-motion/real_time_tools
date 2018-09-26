@@ -14,16 +14,21 @@
 #include "real_time_tools/realtime_check.h"
 #include "real_time_tools/realtime_thread_creation.h"
 
-void *thread_function(void *data)
+void* thread_function(void*)
 {
-
-  real_time_tools::Realtime_check rc(1000.0);
-
+  double freq = 1000.0; // 1kz
+  useconds_t usec_period = static_cast<useconds_t>(
+                             round((1.0/freq) * pow(10.0, 6.0)));
+  real_time_tools::Realtime_check rc(freq);
+  int nb_iteration = 10000;
   int a = 0;
-  for(int i=0;i<1000;i++){
+
+  printf("sleeping time is %dus", usec_period);
+
+  for(int i=0 ; i<nb_iteration ; ++i){
     rc.tick();
     a++;
-    usleep(2000); // microseconds, so 1Ghz
+    usleep(usec_period); // microseconds, so in Ghz
   }
 
   printf("\n");
@@ -33,9 +38,9 @@ void *thread_function(void *data)
   return nullptr;
 }
 
-int main(int argc, char* argv[]) {
+int main(int , char* []) {
 
-  pthread_t thread;
+  real_time_tools::RealTimeThread thread;
   real_time_tools::create_realtime_thread(thread, thread_function);
   real_time_tools::join_thread(thread);
 }
