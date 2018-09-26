@@ -40,8 +40,8 @@ void* thread_function(void*)
 
     a++;
     //printf("%d %d", sleep_duration.tv_nsec, out_sleep.tv_nsec);
-    printf("%ld ; %ld ; ", sleep_duration.tv_nsec, sleep_duration_diff.count());
-    printf("sleeping time is %ld  \n", sleep_duration.tv_nsec);
+    //printf("%ld ; %ld ; ", sleep_duration.tv_nsec, sleep_duration_diff.count());
+    //printf("sleeping time is %ld  \n", sleep_duration.tv_nsec);
 
     mid = my_clock::now();
     sleep_duration.tv_nsec = (clock_period -
@@ -65,6 +65,7 @@ void* thread_function(void*)
 int main(int , char* []) {
 
   real_time_tools::RealTimeThread thread;
+  real_time_tools::block_memory();
   real_time_tools::create_realtime_thread(thread, thread_function);
   real_time_tools::join_thread(thread);
 }
