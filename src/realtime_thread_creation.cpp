@@ -1,66 +1,26 @@
+#include <string>
+#include <stdexcept>
 #include "real_time_tools/realtime_thread_creation.h"
 
 namespace real_time_tools {
 
-  int create_realtime_thread_and_block_memory(RealTimeThread &thread,
-                                              void*(*thread_function)(void*)){
-
-    struct sched_param param;
-    pthread_attr_t attr;
-    int ret;
-
-    block_memory();
-
-    /* Initialize pthread attributes (default values) */
-    ret = pthread_attr_init(&attr);
-    if (ret) {
-      printf("init pthread attributes failed. Ret=%d\n", ret);
-      return ret;
-    }
-
-    /* Set a specific stack size  */
-    ret = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
-    if (ret) {
-      printf("pthread setstacksize failed. Ret=%d\n", ret);
-      return ret;
-    }
-
-    /* Set scheduler policy and priority of pthread */
-    ret = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
-    if (ret) {
-      printf("pthread setschedpolicy failed. Ret=%d\n", ret);
-      return ret;
-    }
-    param.sched_priority = 80;
-    ret = pthread_attr_setschedparam(&attr, &param);
-    if (ret) {
-      printf("pthread setschedparam failed. Ret=%d\n", ret);
-      return ret;
-    }
-    /* Use scheduling parameters of attr */
-    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    if (ret) {
-      printf("pthread setinheritsched failed. Ret=%d\n", ret);
-      return ret;
-    }
-
-    /* Create a pthread with specified attributes */
-    ret = pthread_create(&thread, &attr, thread_function, nullptr);
-    if (ret) {
-      printf("create pthread failed. Ret=%d\n", ret);
-      if (ret == 1) {
-        printf("NOTE: This program must be executed as root to get the "
-               "required realtime permissions.\n");
-      }
-      return ret;
-    }
-  }
+  /****************************************
+   * RT PREEMPT REAL TIME THREAD CREATION *
+   ****************************************/
+#if defined RT_PREEMPT
+  /**
+   * @brief rt_preempt_error_message id common message for all things that could
+   * go wrong.
+   */
+  const std::string rt_preempt_error_message(
+        "NOTE: This program must be executed with special permission to get "
+        "the required real time permissions.\n"
+        "Either use sudo or be part of the \'real_time\' group"
+        "Aborting thread creation.");
 
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args){
-    // Based on:
-    // https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
 
     struct sched_param param;
     pthread_attr_t attr;
@@ -68,56 +28,49 @@ namespace real_time_tools {
 
     ret = pthread_attr_init(&attr);
     if (ret) {
-      printf("init pthread attributes failed\n");
+      printf("%s %d\n", ("init pthread attributes failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
       return ret;
     }
 
     /* Set a specific stack size  */
     ret = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
     if (ret) {
-      printf("pthread setstacksize failed\n");
+      printf("%s %d\n", ("pthread setstacksize failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
       return ret;
     }
 
     /* Set scheduler policy and priority of pthread */
     ret = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
     if (ret) {
-      printf("pthread setschedpolicy failed\n");
+      printf("%s %d\n", ("pthread setschedpolicy failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
       return ret;
     }
     param.sched_priority = 80;
     ret = pthread_attr_setschedparam(&attr, &param);
     if (ret) {
-      printf("pthread setschedparam failed\n");
+      printf("%s %d\n", ("pthread setschedparam failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
       return ret;
     }
     /* Use scheduling parameters of attr */
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     if (ret) {
-      printf("pthread setinheritsched failed\n");
+      printf("%s %d\n", ("pthread setinheritsched failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
       return ret;
     }
 
     /* Create a pthread with specified attributes */
     ret = pthread_create(&thread, &attr, thread_function, args);
     if (ret) {
-      printf("create pthread failed. Ret=%d\n", ret);
-      if (ret == 1) {
-        printf("NOTE: This program must be executed as root to get the "
-               "required realtime permissions.\n");
-      }
+      printf("%s %d\n", ("create pthread failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
       return ret;
     }
     return ret;
-  }
-
-  void block_memory()
-  {
-    /* Lock memory */
-    if(mlockall(MCL_CURRENT|MCL_FUTURE) == -1) {
-      printf("mlockall failed: %m\n");
-      exit(-2);
-    }
   }
 
   int join_thread(RealTimeThread &thread)
@@ -129,5 +82,79 @@ namespace real_time_tools {
       printf("join pthread failed.\n");
     return ret;
   }
+
+  void block_memory()
+  {
+    /* Lock memory */
+    if(mlockall(MCL_CURRENT|MCL_FUTURE) == -1) {
+      printf("mlockall failed: %m\n");
+      exit(-2);
+    }
+  }
+#endif // Defined RT_PREEMPT
+
+  /**********************************************************
+   * TODO: Check the implementation of this thread creation *
+   **********************************************************/
+#if defined XENOMAI
+  int create_realtime_thread(RealTimeThread &thread,
+                             void*(*thread_function)(void*),
+                             void* args){
+    int ret=0;
+    throw std::runtime_error("create_realtime_thread: "
+                             "Please implement this for xenomai");
+    return ret;
+  }
+
+  int join_thread(RealTimeThread &thread)
+  {
+    int ret=0;
+    throw std::runtime_error("join_thread: "
+                             "Please implement this for xenomai");
+    return ret;
+  }
+
+  void block_memory()
+  {
+    throw std::runtime_error("block_memory: "
+                             "Please implement this for xenomai");
+  }
+#endif // Defined XENOMAI
+
+  /**********************************************************
+   * TODO: Check the implementation of this thread creation *
+   **********************************************************/
+#if defined UBUNTU
+  int create_realtime_thread(RealTimeThread &thread,
+                             void*(*thread_function)(void*),
+                             void* args){
+    printf("Warning this thread is not going to be real time");
+    int ret = 0;
+    pthread_attr_t attr;
+
+    /* Create a pthread with specified attributes */
+    ret = pthread_create(&thread, &attr, thread_function, args);
+    if (ret) {
+      printf("create pthread failed. Ret=%d\n", ret);
+      return ret;
+    }
+    return ret;
+  }
+
+  int join_thread(RealTimeThread &thread)
+  {
+    int ret ;
+    /* Join the thread and wait until it is done */
+    ret = pthread_join(thread, nullptr);
+    if (ret)
+      printf("join pthread failed.\n");
+    return ret;
+  }
+
+  void block_memory()
+  {
+    // do nothing
+  }
+#endif // Defined UBUNTU
 
 } // namespace real_time_tools
