@@ -1,4 +1,3 @@
-#include <string>
 #include <stdexcept>
 #include "real_time_tools/realtime_thread_creation.h"
 
@@ -129,26 +128,19 @@ namespace real_time_tools {
                              void*(*thread_function)(void*),
                              void* args){
     printf("Warning this thread is not going to be real time");
-    int ret = 0;
-    pthread_attr_t attr;
 
     /* Create a pthread with specified attributes */
-    ret = pthread_create(&thread, &attr, thread_function, args);
-    if (ret) {
-      printf("create pthread failed. Ret=%d\n", ret);
-      return ret;
-    }
-    return ret;
+    thread = RealTimeThread(thread_function, args);
+    return 0;
   }
 
   int join_thread(RealTimeThread &thread)
   {
-    int ret ;
-    /* Join the thread and wait until it is done */
-    ret = pthread_join(thread, nullptr);
-    if (ret)
-      printf("join pthread failed.\n");
-    return ret;
+    if(thread.joinable())
+    {
+      thread.join();
+    }
+    return 1;
   }
 
   void block_memory()

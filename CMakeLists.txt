@@ -38,3 +38,10 @@ target_link_libraries(${DEMO1} ${LIBRARY_NAME})
 set(DEMO2 demo_realtime_strict_check)
 add_executable(${DEMO2} demos/demo_realtime_strict_check.cpp)
 target_link_libraries(${DEMO2} ${LIBRARY_NAME})
+
+############################
+# install the cmake macros #
+############################
+
+install (FILES cmake/os_detection.cmake DESTINATION
+  ${CATKIN_PACKAGE_SHARE_DESTINATION}/cmake)

@@ -1,11 +1,18 @@
-#include <limits.h>
-#include <pthread.h>
-#include <sched.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <unistd.h>
+#include <string>
 
+#if defined(RT_PREEMPT)
+  #include <pthread.h>
+  #include <limits.h>
+  #include <sched.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <sys/mman.h>
+  #include <unistd.h>
+#elif defined(UBUNTU)
+  #include <thread>
+#elif defined(XENOMAI)
+  // include xenomai stuff here
+#endif
 
 namespace real_time_tools {
 
@@ -14,8 +21,14 @@ namespace real_time_tools {
   // (alternative: https://rt.wiki.kernel.org/index.php/Threaded_RT-application_with_memory_locking_and_stack_handling_example)
   // note: if failed as mlockall, run executable with sudo or be part of the
   // real_time group or xenomai group.
-
+#if defined(RT_PREEMPT)
   typedef pthread_t RealTimeThread;
+#elif defined(UBUNTU)
+  typedef std::thread RealTimeThread;
+#elif defined(XENOMAI)
+  // include xenomai stuff here
+#endif
+
 
   /**
    * @brief create_realtime_thread spawns a real time thread.
