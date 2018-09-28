@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "real_time_tools")
+set(real_time_tools_MAINTAINER "Vincent Berenz <vberenz@tuebingen.mpg.de>")
+set(real_time_tools_DEPRECATED "")
+set(real_time_tools_VERSION "1.0.0")
+set(real_time_tools_BUILD_DEPENDS "cmake_modules")
+set(real_time_tools_RUN_DEPENDS )
+set(real_time_tools_BUILDTOOL_DEPENDS "catkin")

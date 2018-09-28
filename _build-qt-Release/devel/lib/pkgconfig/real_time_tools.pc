@@ -1,0 +1,8 @@
+prefix=/home/mnaveau/devel/workspace/src/catkin/system/real_time_tools/_build-qt-Release/devel
+
+Name: real_time_tools
+Description: Description of real_time_tools
+Version: 1.0.0
+Cflags: -I/home/mnaveau/devel/workspace/src/catkin/system/real_time_tools/include
+Libs: -L/home/mnaveau/devel/workspace/src/catkin/system/real_time_tools/_build-qt-Release/devel/lib -lreal_time_tools
+Requires: 

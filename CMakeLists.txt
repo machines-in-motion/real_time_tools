@@ -15,9 +15,8 @@ catkin_package(
 
 find_package (Threads)
 
-# fill in the CURRENT_OS variable which contains the informations about the
-# current operating system we need. It sets respectively the C++ preprocessor
-# flags: XENOMAI, RT_PREEMPT, or UBUNTU accordingly.
+# This macro sets the C++ preprocessor flags "XENOMAI", "RT_PREEMPT", or
+# "UBUNTU" according to the current operating system.
 DEFINE_OS()
 
 include_directories(include)
