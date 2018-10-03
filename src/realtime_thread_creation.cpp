@@ -127,7 +127,7 @@ namespace real_time_tools {
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args){
-    printf("Warning this thread is not going to be real time");
+    printf("Warning this thread is not going to be real time.\n");
 
     /* Create a pthread with specified attributes */
     thread = RealTimeThread(thread_function, args);

@@ -11,6 +11,7 @@ find_package (catkin)
 catkin_package(
   LIBRARIES real_time_tools
   INCLUDE_DIRS include
+  CFG_EXTRAS os_detection.cmake
 )
 
 find_package (Threads)
@@ -42,6 +43,6 @@ target_link_libraries(${DEMO2} ${LIBRARY_NAME})
 ############################
 # install the cmake macros #
 ############################
-
-install (FILES cmake/os_detection.cmake DESTINATION
-  ${CATKIN_PACKAGE_SHARE_DESTINATION}/cmake)
+configure_file(cmake/os_detection.cmake
+  ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_SHARE_DESTINATION}/cmake/os_detection.cmake
+  COPYONLY)
