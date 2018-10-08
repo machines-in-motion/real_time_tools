@@ -30,7 +30,7 @@ void* thread_function(void*)
   my_clock::duration sleep_duration_diff;
   struct timespec sleep_duration, out_sleep;
 
-  printf("reference period is %ld\n", clock_period.count());
+  printf("reference period is %lld\n", clock_period.count());
 
   for(int i=0 ; i<nb_iteration ; ++i){
     start = my_clock::now();

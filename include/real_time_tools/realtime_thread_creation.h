@@ -2,7 +2,7 @@
 
 #ifdef  XENOMAI
   // include xenomai stuff here
-#elif defined UBUNTU
+#elif defined NON_REAL_TIME
   #include <thread>
 #elif defined RT_PREEMPT
   #include <pthread.h>
@@ -23,7 +23,7 @@ namespace real_time_tools {
   // real_time group or xenomai group.
 #ifdef  XENOMAI
   // include xenomai stuff here
-#elif defined UBUNTU
+#elif defined NON_REAL_TIME
   typedef std::thread RealTimeThread;
 #elif defined RT_PREEMPT
   typedef pthread_t RealTimeThread;

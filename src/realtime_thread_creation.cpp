@@ -123,7 +123,7 @@ namespace real_time_tools {
   /**********************************************************
    * TODO: Check the implementation of this thread creation *
    **********************************************************/
-#if defined UBUNTU
+#if defined NON_REAL_TIME
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args){
@@ -147,6 +147,6 @@ namespace real_time_tools {
   {
     // do nothing
   }
-#endif // Defined UBUNTU
+#endif // Defined NON_REAL_TIME
 
 } // namespace real_time_tools
