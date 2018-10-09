@@ -5,15 +5,17 @@
 # functions to use
 #
 macro(DEFINE_OS)
-  #
+  # Add an option not used yet
   set(CURRENT_OS "ubuntu" CACHE STRING
-      "Set it to \"xenomai\" or \"rt-preempt\" or \"non-real-time\" to specify the OS")
+      "DEPRECATED: Set it to \"xenomai\" or \"rt-preempt\" or \"non-real-time\" to specify the OS")
+
   # Update submodules as needed
   execute_process(
       COMMAND uname -a
       OUTPUT_VARIABLE UNAME_OUT)
   string(TOLOWER "${UNAME_OUT}" OS_VERSION)
-  #
+
+
   if(OS_VERSION MATCHES "xenomai")
     set(CURRENT_OS "xenomai")
     add_definitions("-DXENOMAI")
@@ -25,13 +27,17 @@ macro(DEFINE_OS)
   elseif(OS_VERSION MATCHES "ubuntu" OR OS_VERSION MATCHES "non-real-time" OR OS_VERSION MATCHES "darwin" )
     set(CURRENT_OS "non-real-time")
     add_definitions("-DNON_REAL_TIME")
-    
   else()
     message(FATAL_ERROR "Could not detect the OS version please "
       "fix os_detection.cmake")
-      
   endif()
   #
   message(STATUS "OS found is " ${CURRENT_OS})
+  
+  if(OS_VERSION MATCHES "darwin")
+    add_definitions("-DMAC_OS")
+    message(STATUS "OS found is MAC_OS")
+  endif()
+
 endmacro(DEFINE_OS)
 
