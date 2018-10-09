@@ -44,5 +44,6 @@ int main(int , char* []) {
   real_time_tools::block_memory();
   real_time_tools::create_realtime_thread(thread, thread_function);
   real_time_tools::join_thread(thread);
+
 }
 
