@@ -4,6 +4,7 @@
   // include xenomai stuff here
 #elif defined NON_REAL_TIME
   #include <thread>
+  #include <iostream>
 #elif defined RT_PREEMPT
   #include <pthread.h>
   #include <limits.h>

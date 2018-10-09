@@ -18,7 +18,7 @@ namespace real_time_tools {
 
     // true if realtime was lost at least once
     // (frequency between two ticks was below target frequencies)
-    bool was_realtime_lost();
+    bool was_realtime_lost() const;
 
     // return true if statistics are available, false otherwise
     // (false is returned is tick has never been called or if ticks reached 
@@ -27,7 +27,8 @@ namespace real_time_tools {
     bool get_statistics(int &ticks,int &switchs,
                         double &target_frequency,
                         double &average_frequency,
-                        double &worse_frequency);
+                        double &worse_frequency) const ;
+
 
   private:
     
@@ -65,7 +66,7 @@ namespace real_time_tools {
   };
 
 
-  void print_realtime_check(Realtime_check &rc);
+  void print_realtime_check(const Realtime_check &rc);
 
 
 }

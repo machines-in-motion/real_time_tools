@@ -13,7 +13,7 @@ namespace real_time_tools {
     this->epsilon = pow(10, -8);
   }
 
-  bool Realtime_check::was_realtime_lost(){
+  bool Realtime_check::was_realtime_lost() const {
     
     if(!this->started) {
       return false;
@@ -80,7 +80,7 @@ namespace real_time_tools {
               int &ticks,int &switchs,
               double &target_frequency,
               double &average_frequency,
-              double &worse_frequency){
+              double &worse_frequency) const {
 
     if(!this->started){
       return false;
@@ -97,7 +97,7 @@ namespace real_time_tools {
   }
 
 
-  void print_realtime_check(Realtime_check &rc){
+  void print_realtime_check(const Realtime_check &rc){
 
     int ticks,switchs;
     double average_frequency;
