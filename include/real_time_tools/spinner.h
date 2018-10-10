@@ -20,7 +20,8 @@ namespace real_time_tools {
   private:
 
     double frequency_;
-    std::chrono::high_resolution_clock::time_point next_tick_; 
+
+    std::chrono::time_point<std::chrono::system_clock> next_tick_; 
     std::chrono::microseconds time_between_spins_;
 
   };

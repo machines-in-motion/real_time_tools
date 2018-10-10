@@ -17,8 +17,7 @@ namespace real_time_tools {
   }
 
   void Spinner::spin(){
-
-    std::chrono::high_resolution_clock::time_point tick = std::chrono::system_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> tick = std::chrono::system_clock::now();
     std::chrono::nanoseconds diff_nanos = this->next_tick_ - tick;
     this->next_tick_ = this->next_tick_+this->time_between_spins_;
     std::chrono::microseconds diff_micros =  std::chrono::duration_cast<std::chrono::microseconds>(diff_nanos);

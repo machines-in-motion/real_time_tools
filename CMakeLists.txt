@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 2.8.3)
 
 include(cmake/os_detection.cmake)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wl,--no-as-needed")
+# required to use std::shared_ptr in code and to link the python bindings
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wl,--no-as-needed")
+else()
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
 
 project(real_time_tools)
 
