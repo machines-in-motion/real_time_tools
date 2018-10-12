@@ -29,6 +29,8 @@ namespace real_time_tools {
 
 
   void Realtime_check::tick(){
+
+    std::lock_guard<std::mutex> guard(this->mutex);
     
     std::chrono::high_resolution_clock::time_point t =
         std::chrono::high_resolution_clock::now();
@@ -76,12 +78,13 @@ namespace real_time_tools {
 
 
 
-  bool Realtime_check::get_statistics(
-              int &ticks,int &switchs,
-              double &target_frequency,
-              double &average_frequency,
-              double &worse_frequency) const {
+  bool Realtime_check::get_statistics(int &ticks,int &switchs,
+				      double &target_frequency,
+				      double &average_frequency,
+				      double &worse_frequency) {
 
+    std::lock_guard<std::mutex> guard(this->mutex);
+    
     if(!this->started){
       return false;
     }
@@ -97,7 +100,7 @@ namespace real_time_tools {
   }
 
 
-  void print_realtime_check(const Realtime_check &rc){
+  void print_realtime_check(Realtime_check &rc){
 
     int ticks,switchs;
     double average_frequency;
