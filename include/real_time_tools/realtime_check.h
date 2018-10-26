@@ -2,6 +2,7 @@
 #include <chrono>
 #include <limits>
 #include <math.h>
+#include <mutex>
 
 namespace real_time_tools {
 
@@ -27,7 +28,7 @@ namespace real_time_tools {
     bool get_statistics(int &ticks,int &switchs,
                         double &target_frequency,
                         double &average_frequency,
-                        double &worse_frequency) const ;
+                        double &worse_frequency) ;
 
 
   private:
@@ -60,13 +61,15 @@ namespace real_time_tools {
 
     // worse frequency ever experienced
     double worse_frequency;
-    
 
+    // multithreading safety
+    std::mutex mutex;
+    
 
   };
 
 
-  void print_realtime_check(const Realtime_check &rc);
+  void print_realtime_check(Realtime_check &rc);
 
 
 }
