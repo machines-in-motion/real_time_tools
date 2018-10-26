@@ -21,10 +21,13 @@ namespace real_time_tools {
 
     double frequency_;
 
-    std::chrono::time_point<std::chrono::system_clock> next_tick_; 
+#if defined RT_PREEMPT
+    struct timespec next_;
+    long time_between_spins_ns_;
+#else
+    std::chrono::time_point<std::chrono::system_clock> next_tick_;
     std::chrono::microseconds time_between_spins_;
-
+#endif
   };
 
 }
-

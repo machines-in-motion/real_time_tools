@@ -42,6 +42,7 @@ namespace real_time_tools {
 
     /* Set scheduler policy and priority of pthread */
     ret = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+    // ret = pthread_attr_setschedpolicy(&attr, SCHED_RR);
     if (ret) {
       printf("%s %d\n", ("pthread setschedpolicy failed. Ret=" +
                     rt_preempt_error_message).c_str(), ret);
