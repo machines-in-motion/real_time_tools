@@ -21,7 +21,7 @@ namespace real_time_tools {
 
     double frequency_;
 
-#if defined RT_PREEMPT
+#ifndef MAC_OS
     struct timespec next_;
     long time_between_spins_ns_;
 #else

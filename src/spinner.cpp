@@ -6,7 +6,7 @@ namespace real_time_tools {
 
   struct timespec next;
 
-#if defined RT_PREEMPT
+#ifndef MAC_OS
   void
   timespec_add_ns(struct timespec* t, long ns)
   {
@@ -23,7 +23,7 @@ namespace real_time_tools {
     // time to pass between two spins (in microseconds)
     long double time_between_spins_ld = ( (1.0 / frequency) * 1000000.0 );
 
-#if defined RT_PREEMPT
+#ifndef MAC_OS
     time_between_spins_ns_ = time_between_spins_ld * 1000.;
     clock_gettime(CLOCK_REALTIME, &next_);
 #else
@@ -37,7 +37,7 @@ namespace real_time_tools {
   }
 
   void Spinner::spin() {
-#if defined RT_PREEMPT
+#ifndef MAC_OS
     timespec_add_ns(&next_, time_between_spins_ns_);
     clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next_, NULL);
 #else
