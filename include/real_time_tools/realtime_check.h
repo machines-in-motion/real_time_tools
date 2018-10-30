@@ -12,7 +12,7 @@ namespace real_time_tools {
 
   public:
 
-    Realtime_check(double target_frequency);
+    Realtime_check(double target_frequency, double switch_frequency);
 
     // inform the instance of this class that an iteration passed
     void tick();
@@ -27,7 +27,9 @@ namespace real_time_tools {
     // switchs in the number of time realtime was lost.
     bool get_statistics(int &ticks,int &switchs,
                         double &target_frequency,
+			double &switch_frequency,
                         double &average_frequency,
+			double &current_frequency,
                         double &worse_frequency) ;
 
 
@@ -62,6 +64,14 @@ namespace real_time_tools {
     // worse frequency ever experienced
     double worse_frequency;
 
+    // nb of switches will increase by 1
+    // each time measured frequency below this
+    // value
+    double switch_frequency;
+    
+    // latest frequency that was measured
+    double current_frequency;
+    
     // multithreading safety
     std::mutex mutex;
     

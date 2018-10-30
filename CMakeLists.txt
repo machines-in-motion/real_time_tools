@@ -11,7 +11,10 @@ endif()
 
 project(real_time_tools)
 
-find_package (catkin)
+
+find_package(catkin REQUIRED COMPONENTS
+  shared_memory
+)
 
 catkin_package(
   LIBRARIES real_time_tools
@@ -25,7 +28,7 @@ find_package (Threads)
 # "UBUNTU" according to the current operating system.
 DEFINE_OS()
 
-include_directories(include)
+include_directories(include ${catkin_INCLUDE_DIRS})
 
 set(LIBRARY_NAME ${PROJECT_NAME})
 add_library(${LIBRARY_NAME}
@@ -35,6 +38,7 @@ add_library(${LIBRARY_NAME}
 )
 
 target_link_libraries(real_time_tools ${CMAKE_THREAD_LIBS_INIT})
+
 
 #########
 # DEMOS #
@@ -50,6 +54,18 @@ target_link_libraries(${DEMO2} ${LIBRARY_NAME})
 set(DEMO3 demo_spinner)
 add_executable(${DEMO3} demos/demo_spinner.cpp)
 target_link_libraries(${DEMO3} ${LIBRARY_NAME})
+
+
+###############
+# EXECUTABLES #
+###############
+set(EXE1 realtime_test)
+add_executable(${EXE1} src/bin/realtime_test.cpp)
+target_link_libraries(${EXE1} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+set(EXE2 realtime_test_display)
+add_executable(${EXE2} src/bin/realtime_test_display.cpp)
+target_link_libraries(${EXE2} ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 
 ############################

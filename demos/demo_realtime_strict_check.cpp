@@ -20,11 +20,12 @@ typedef std::chrono::high_resolution_clock my_clock;
 void* thread_function(void*)
 {
   double freq = 1000.0; // 1kz
+  double switch_freq = 990;
   int nb_iteration = 1000;
 
   unsigned period = static_cast<unsigned>(round((1.0/freq) * pow(10.0, 9.0)));
   my_clock::duration clock_period(period);
-  real_time_tools::Realtime_check rc(freq);
+  real_time_tools::Realtime_check rc(freq,switch_freq);
   int a = 0;
   my_clock::time_point start, stop, mid;
   my_clock::duration sleep_duration_diff;

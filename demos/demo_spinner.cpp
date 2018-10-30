@@ -6,8 +6,10 @@
 void* thread_function(void*) {
 
   double frequency = 300.0;
-
-  real_time_tools::Realtime_check realtime_check(frequency);
+  double switch_frequency = 290;
+  
+  real_time_tools::Realtime_check realtime_check(frequency,
+						 switch_frequency);
   real_time_tools::Spinner spinner(frequency);
   
   

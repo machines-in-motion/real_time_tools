@@ -17,9 +17,10 @@
 void* thread_function(void*)
 {
   double freq = 1000.0; // 1kz
+  double switch_freq = 990;
   useconds_t usec_period = static_cast<useconds_t>(
                              round((1.0/freq) * pow(10.0, 6.0)));
-  real_time_tools::Realtime_check rc(freq);
+  real_time_tools::Realtime_check rc(freq,switch_freq);
   int nb_iteration = 10000;
   int a = 0;
 
