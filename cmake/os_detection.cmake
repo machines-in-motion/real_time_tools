@@ -20,7 +20,7 @@ macro(DEFINE_OS)
     set(CURRENT_OS "xenomai")
     add_definitions("-DXENOMAI")
     
-  elseif(OS_VERSION MATCHES "preempt-rt")
+  elseif(OS_VERSION MATCHES "preempt rt" OR OS_VERSION MATCHES "preempt-rt")
     set(CURRENT_OS "rt-preempt")
     add_definitions("-DRT_PREEMPT")
     
@@ -28,6 +28,7 @@ macro(DEFINE_OS)
     set(CURRENT_OS "non-real-time")
     add_definitions("-DNON_REAL_TIME")
   else()
+    message(STATUS "output of \"uname -a\": ${OS_VERSION}")
     message(FATAL_ERROR "Could not detect the OS version please "
       "fix os_detection.cmake")
   endif()

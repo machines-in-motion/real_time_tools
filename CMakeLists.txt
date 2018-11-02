@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   LIBRARIES real_time_tools
   INCLUDE_DIRS include
+  CATKIN_DEPENDS shared_memory
   CFG_EXTRAS os_detection.cmake
 )
 
