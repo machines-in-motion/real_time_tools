@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: real_time_tools
-Description: Description of real_time_tools
-Version: 1.0.0
-Cflags: -I/usr/local/include
-Libs: -L/usr/local/lib -lreal_time_tools
-Requires: 
