@@ -14,7 +14,7 @@ namespace real_time_tools {
   const std::string rt_preempt_error_message(
         "NOTE: This program must be executed with special permission to get "
         "the required real time permissions.\n"
-        "Either use sudo or be part of the \'real_time\' group"
+        "Either use sudo or be part of the \'realtime\' group"
         "Aborting thread creation.");
 
   int create_realtime_thread(RealTimeThread &thread,
