@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "real_time_tools/realtime_thread_creation.h"
+#include "real_time_tools/realtime_thread_creation.hpp"
 
 namespace real_time_tools {
 

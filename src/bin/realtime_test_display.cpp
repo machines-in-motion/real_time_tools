@@ -1,6 +1,6 @@
-#include "real_time_tools/realtime_test.h"
+#include "real_time_tools/realtime_test.hpp"
 #include "shared_memory/shared_memory.hpp"
-#include "real_time_tools/spinner.h"
+#include "real_time_tools/spinner.hpp"
 #include <signal.h>
 
 

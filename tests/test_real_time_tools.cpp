@@ -9,6 +9,7 @@
  */
 
 #include <gtest/gtest.h>
+#include "real_time_tools/timer.hpp"
 
 /**
  * @brief The DISABLED_TestRealTimeTools class is used to disable test.

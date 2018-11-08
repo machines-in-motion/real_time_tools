@@ -1,4 +1,4 @@
-#include "real_time_tools/spinner.h"
+#include "real_time_tools/spinner.hpp"
 #include <iostream>
 #include <pthread.h>
 

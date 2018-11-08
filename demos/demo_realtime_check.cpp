@@ -11,8 +11,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "real_time_tools/realtime_check.h"
-#include "real_time_tools/realtime_thread_creation.h"
+#include "real_time_tools/realtime_check.hpp"
+#include "real_time_tools/realtime_thread_creation.hpp"
 
 void* thread_function(void*)
 {

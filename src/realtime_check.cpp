@@ -1,4 +1,4 @@
-#include "real_time_tools/realtime_check.h"
+#include "real_time_tools/realtime_check.hpp"
 #include <fstream>
 
 namespace real_time_tools {

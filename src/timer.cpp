@@ -1,7 +1,7 @@
 #include <fstream>
 
-#include <real_time_tools/realtime_iostream.h>
-#include <real_time_tools/timer.hh>
+#include <real_time_tools/realtime_iostream.hpp>
+#include <real_time_tools/timer.hpp>
 
 namespace real_time_tools {
 

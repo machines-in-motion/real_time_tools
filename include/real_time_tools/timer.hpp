@@ -6,7 +6,7 @@
 #include <deque>
 #include <cmath>
 
-#include "real_time_tools/realtime_iostream.h"
+#include "real_time_tools/realtime_iostream.hpp"
 
 namespace real_time_tools {
 

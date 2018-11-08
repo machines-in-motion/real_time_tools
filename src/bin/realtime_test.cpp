@@ -1,7 +1,7 @@
-#include "real_time_tools/realtime_test.h"
-#include "real_time_tools/realtime_check.h"
-#include "real_time_tools/spinner.h"
-#include "real_time_tools/realtime_thread_creation.h"
+#include "real_time_tools/realtime_test.hpp"
+#include "real_time_tools/realtime_check.hpp"
+#include "real_time_tools/spinner.hpp"
+#include "real_time_tools/realtime_thread_creation.hpp"
 #include "shared_memory/shared_memory.hpp"
 #include <atomic>
 #include <memory>
