@@ -15,14 +15,6 @@ namespace real_time_tools {
     this->current_frequency = std::numeric_limits<double>::max();
     this->switch_frequency = switch_frequency;
     this->average_frequency = -1.0;
-
-    // manage the time measurement buffer
-    time_measurement_buffer_.clear();
-    unsigned buffer_size = 60000; // number of time measurement saved
-    time_measurement_buffer_.resize(buffer_size, 0.0);
-    count_time_buffer_ = 0;
-
-    tic();
   }
 
   bool Realtime_check::was_realtime_lost() const {
@@ -147,45 +139,5 @@ namespace real_time_tools {
            average_frequency,current_frequency,
 	   worse_frequency);
 
-  }
-
-  void Realtime_check::tic()
-  {
-    // get the current time
-    tic_time_ = std::chrono::high_resolution_clock::now();
-  }
-
-  double Realtime_check::tac()
-  {
-    // get the current time
-    tac_time_ = std::chrono::high_resolution_clock::now();
-    // getting the time elapsed
-    double time_ellapsed = seconds(tac_time_ - tic_time_).count();
-    // check if the buffer is full
-    if (count_time_buffer_ >= time_measurement_buffer_.size())
-    {
-      time_measurement_buffer_.pop_front();
-      time_measurement_buffer_.push_back(time_ellapsed);
-    }else{
-      // save the current time ellapsed
-      time_measurement_buffer_[count_time_buffer_] = time_ellapsed;
-      // increase the count
-      ++count_time_buffer_;
-    }
-    return time_ellapsed;
-  }
-
-  void Realtime_check::dump_tic_tac_measurements(std::string file_name)
-  {
-    try{
-      std::ofstream log_file(file_name, std::ofstream::out);
-      for (unsigned i=0 ; time_measurement_buffer_.size() ; ++i)
-      {
-        log_file << i << " " << time_measurement_buffer_[i] << std::endl;
-      }
-    }catch(...){
-      std::cout << "fstream Error in dump_tic_tac_measurements():"
-                   " no time measurment saved\n"<< std::endl;
-    }
   }
 }

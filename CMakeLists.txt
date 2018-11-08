@@ -36,6 +36,7 @@ add_library(${LIBRARY_NAME}
   src/realtime_check.cpp
   src/realtime_thread_creation.cpp
   src/spinner.cpp
+  src/timer.cpp
 )
 
 target_link_libraries(real_time_tools ${CMAKE_THREAD_LIBS_INIT})
@@ -68,10 +69,44 @@ set(EXE2 realtime_test_display)
 add_executable(${EXE2} src/bin/realtime_test_display.cpp)
 target_link_libraries(${EXE2} ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+###################################################
+## Set a general config folder path for all tests #
+###################################################
+set(TEST_CONFIG_PATH ${PROJECT_SOURCE_DIR}/tests/config/)
 
-############################
-# install the cmake macros #
-############################
-configure_file(cmake/os_detection.cmake
-  ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_SHARE_DESTINATION}/cmake/os_detection.cmake
-  COPYONLY)
+###################
+## add unit tests #
+###################
+
+# create the executable
+catkin_add_gtest(test_real_time_tools
+  tests/main.cpp
+  tests/test_real_time_tools.cpp
+)
+# link the dependecies to it
+target_link_libraries(test_real_time_tools
+    real_time_tools
+    ${catkin_LIBRARIES}
+    ${Boost_LIBRARIES}
+)
+# add some preprocessor variable
+target_compile_definitions(test_real_time_tools PUBLIC
+  TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}"
+)
+
+###############################################
+# Add custom (non compiling) targets          #
+# so non cpp files show up in QT_CREATOR IDE. #
+###############################################
+set(USE_QTCREATOR_${PROJECT_NAME} OFF CACHE BOOL
+    "Set to ON if you want QtCreator to display all files in the project tree")
+if(USE_QTCREATOR_${PROJECT_NAME})
+    file(GLOB_RECURSE EXTRA_FILES
+        ../*.h ../*.hh ../*.hpp ../*.py
+        ../*.cf  ../*.yaml ../*.txt ../*.xml
+        ../start ../*.launch ../*.urdf ../CATKIN_IGNORE ../*.in
+    )
+    #list(FILTER EXTRA_FILES EXCLUDE REGEX "build")
+    add_custom_target(${PROJECT_NAME}_OTHER_FILES ALL WORKING_DIRECTORY
+        ${PROJECT_SOURCE_DIR} SOURCES ${EXTRA_FILES})
+endif()

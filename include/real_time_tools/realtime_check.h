@@ -3,7 +3,6 @@
 #include <limits>
 #include <math.h>
 #include <mutex>
-#include <deque>
 
 namespace real_time_tools {
 
@@ -33,32 +32,6 @@ namespace real_time_tools {
 			double &current_frequency,
                         double &worse_frequency) ;
 
-
-
-
-
-
-    /**
-     * @brief tic measures the time when it is called. This is to be used with
-     * the tac method that will return the time ellapsed between tic and tac.
-     * this tic is called at least once at construction time.
-     */
-    void tic();
-
-    /**
-     * @brief tac is to be used after tic has been called.
-     * @return the duration in seconds between the call of tic() and the call of
-     * tac()
-     */
-    double tac();
-
-    /**
-     * @brief dump_tic_tac_measurements writes in a file the time elapsed
-     * between every tick
-     * @param file_name is the path to the file.
-     */
-    void dump_tic_tac_measurements(std::string file_name);
-
   private:
     
     // true if tick has been called once
@@ -69,12 +42,6 @@ namespace real_time_tools {
 
     // last time system was ticked
     std::chrono::high_resolution_clock::time_point last_tick;
-
-    // time at which tic() was called
-    std::chrono::high_resolution_clock::time_point tic_time_;
-
-    // time at which tac() was called
-    std::chrono::high_resolution_clock::time_point tac_time_;
 
     // frequency at which ticks are expected
     double target_frequency;
@@ -106,19 +73,6 @@ namespace real_time_tools {
     
     // multithreading safety
     std::mutex mutex;
-
-    typedef std::chrono::duration<double> seconds;
-
-    /**
-     * @brief time_measurement_buffer_ this is a chained list of double
-     */
-    std::deque<double> time_measurement_buffer_;
-
-    /**
-     * @brief count_time_buffer_ is a counter that manages the
-     * time_measurement_buffer_ fill in.
-     */
-    uint count_time_buffer_;
 
   };
 
