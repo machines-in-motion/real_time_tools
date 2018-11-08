@@ -9,7 +9,13 @@
  */
 
 #include <gtest/gtest.h>
+#include <memory>
+#include <fstream>
 #include "real_time_tools/timer.hpp"
+#include "real_time_tools/realtime_thread_creation.hpp"
+
+// We use this in the unnittest for code simplicity
+using namespace real_time_tools;
 
 /**
  * @brief The DISABLED_TestRealTimeTools class is used to disable test.
@@ -48,5 +54,89 @@ protected:
  */
 TEST_F(TestRealTimeTools, test_timer_constructor)
 {
-
+  Timer my_timer;
+  ASSERT_EQ(my_timer.get_avg_elapsed_sec(), 0.0);
+  ASSERT_EQ(my_timer.get_std_dev_elapsed_sec(), 0.0);
+  ASSERT_EQ(my_timer.get_min_elapsed_sec(),
+            std::numeric_limits<double>::infinity());
+  ASSERT_EQ(my_timer.get_max_elapsed_sec(),
+            -std::numeric_limits<double>::infinity());
 }
+
+TEST_F(TestRealTimeTools, test_timer_setters)
+{
+  Timer my_timer;
+  my_timer.set_memory_size(1);
+  // I do not know what to test here should I access the size of the buffer?
+}
+
+#ifndef MAC_OS
+TEST_F(TestRealTimeTools, test_timer_timespec_add_sec)
+{
+  struct timespec t;
+  t.tv_sec = 1;
+  t.tv_nsec = 1005601;
+  Timer::timespec_add_sec(t, 0.0);
+  ASSERT_EQ(t.tv_sec, 1);
+  ASSERT_EQ(t.tv_nsec, 1005601);
+}
+#endif // MAC_OS
+
+TEST_F(TestRealTimeTools, test_timer_tic_and_tac_and_sleep)
+{
+  Timer my_timer;
+  my_timer.tic();
+  my_timer.sleep_sec(1.0);
+  double time_slept = my_timer.tac();
+  // This works we got basycally 500 micro sec of error in the sleeping time in
+  // non real time.
+  ASSERT_NEAR(time_slept, 1.0, 0.0005);
+}
+
+struct TmpData{
+  Timer timer_;
+  double duration_;
+};
+
+void* rt_thread_for_test(void* my_timer_pointer)
+{
+  TmpData* tmp_data = static_cast<TmpData*>(my_timer_pointer);
+  tmp_data->timer_.tic();
+  tmp_data->timer_.sleep_sec(1.0);
+  tmp_data->duration_ = tmp_data->timer_.tac();
+}
+
+TEST_F(TestRealTimeTools, test_timer_tic_and_tac_and_sleep_in_real_time)
+{
+  TmpData tmp_data ;
+  RealTimeThread thread;
+  block_memory();
+  create_realtime_thread(thread, &rt_thread_for_test, &tmp_data);
+  join_thread(thread);
+  // This works we got basycally 50 micro sec of error in the sleeping time in
+  // real time. It is 10 times lower than the non real time test.
+  ASSERT_NEAR(tmp_data.duration_, 1.0, 0.00005);
+}
+
+TEST_F(TestRealTimeTools, test_timer_dump)
+{
+  Timer my_timer;
+  my_timer.set_memory_size(1);
+  my_timer.tic();
+  my_timer.sleep_sec(1.0);
+  double time_slept = my_timer.tac();
+  my_timer.dump_measurements("/tmp/test_timer_dump.dat");
+  std::ifstream is ("/tmp/test_timer_dump.dat");
+  double duration = 0.0;
+  int count = 0;
+  while(is >> duration)  // Attempt read into x, return false if it fails
+  {
+      ++count;
+  }
+  ASSERT_EQ(count, 1);
+  ASSERT_EQ(duration, time_slept);
+  ASSERT_NEAR(time_slept, 1.0, 0.0005);
+}
+
+
+

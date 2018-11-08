@@ -37,11 +37,16 @@ namespace real_time_tools {
     double tac();
 
     /**
-     * @brief get_time_sec
+     * @brief get_current_time_sec give the current time in double and in
+     * seconds
      * @return
      */
-    static long double get_current_time_sec();
+    static double get_current_time_sec();
 
+    /**
+     * @brief sleep_sec
+     * @param sleep_time_sec
+     */
     static void sleep_sec(const double& sleep_time_sec);
 
 #ifndef MAC_OS
@@ -75,11 +80,14 @@ namespace real_time_tools {
       * /
 
     /**
-     * @brief set_memory_size !! WARNING non real time method. !!
-     * @param memory_buffer_size
+     * @brief set_memory_size sets the buffer size. It resets all value of the
+     * buffer to zero.
+     * !! WARNING non real time method. !!
+     * @param memory_buffer_size is the size use to reset the size of the
      */
     void set_memory_size(const unsigned memory_buffer_size)
     {
+      count_ = 0;
       memory_buffer_size_ = memory_buffer_size;
       time_measurement_buffer_.resize(memory_buffer_size_, 0.0);      
     }
@@ -125,19 +133,14 @@ namespace real_time_tools {
   private:
 
     /**
-     * @brief seconds is a simple shortcut.
-     */
-    typedef std::chrono::duration<double> seconds;
-
-    /**
      * @brief tic_time_ time at which tic() was called
      */
-    std::chrono::high_resolution_clock::time_point tic_time_;
+    double tic_time_;
 
     /**
      * @brief tac_time_  time at which tac() was called
      */
-    std::chrono::high_resolution_clock::time_point tac_time_;
+    double tac_time_;
 
     /**
      * @brief time_measurement_buffer_ this is a chained list of double

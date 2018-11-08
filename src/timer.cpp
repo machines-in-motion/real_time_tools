@@ -8,7 +8,7 @@ namespace real_time_tools {
 Timer::Timer()
 {
   // initialize the tic and tac times by the current time
-  tic_time_ = std::chrono::high_resolution_clock::now();
+  tic_time_ = Timer::get_current_time_sec();
   tac_time_ = tic_time_;
   // initialize the memory buffer size
   memory_buffer_size_ = 60000;
@@ -28,15 +28,15 @@ Timer::Timer()
 void Timer::tic()
 {
   // get the current time
-  tic_time_ = std::chrono::high_resolution_clock::now();
+  tic_time_ = Timer::get_current_time_sec();
 }
 
 double Timer::tac()
 {
   // get the current time
-  tac_time_ = std::chrono::high_resolution_clock::now();
+  tac_time_ = Timer::get_current_time_sec();
   // getting the time elapsed
-  double time_elapsed = seconds(tac_time_ - tic_time_).count();
+  double time_elapsed = tac_time_ - tic_time_;
   // check if the buffer is full
   if (count_ >= time_measurement_buffer_.size())
   {
@@ -94,17 +94,18 @@ void Timer::print_statistics() const
 void Timer::timespec_add_sec(struct timespec& t,
                              const double duration_sec)
 {
-  double delta_time_sec = duration_sec + t.tv_nsec / 1e9;
-  t.tv_nsec = 0;
-
-  t.tv_sec += static_cast<long>(delta_time_sec);
-  t.tv_nsec += static_cast<long>((delta_time_sec -
+  double total_time_sec = duration_sec +
+                          static_cast<double>(t.tv_nsec) / 1e9 +
+                          static_cast<double>(t.tv_sec);
+  total_time_sec += 0.5e-9;
+  t.tv_sec = static_cast<long>(total_time_sec);
+  t.tv_nsec = static_cast<long>((total_time_sec -
                                   static_cast<double>(t.tv_sec)) * 1e9);
 }
 
-long double Timer::get_current_time_sec()
+double Timer::get_current_time_sec()
 {
-#ifdef __MAC_OS__
+#ifdef MAC_OS
   throw
   return std::nan();
 #else
@@ -117,7 +118,7 @@ long double Timer::get_current_time_sec()
 
 void Timer::sleep_sec(const double& sleep_duration_sec)
 {
-#ifdef __MAC_OS__
+#ifdef MAC_OS
   throw
 #else
   struct timespec abs_target_time;
@@ -129,7 +130,7 @@ void Timer::sleep_sec(const double& sleep_duration_sec)
 
 //void Timer::sleep_until_sec(const double& date_sec)
 //{
-//#ifdef __MAC_OS__
+//#ifdef MAC_OS
 //  throw
 //#else
 //  struct timespec abs_target_time;
