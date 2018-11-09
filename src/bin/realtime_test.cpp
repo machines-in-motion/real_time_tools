@@ -112,7 +112,8 @@ void* thread_function(void* v) {
     computation.reset(new Matrix_computation_no_eigen(64));
   } 
 
-  real_time_tools::Spinner spinner(config->frequency);
+  real_time_tools::Spinner spinner;
+  spinner.set_frequency(config->frequency);
   real_time_tools::Realtime_check checker(config->frequency,
 					  config->switch_frequency);
   

@@ -22,7 +22,8 @@ int main(int nb_args, char** argv) {
   sigaction(SIGINT, &stopping, nullptr);
 
 
-  real_time_tools::Spinner spinner(2.0);
+  real_time_tools::Spinner spinner;
+  spinner.set_frequency(2.0);
   running = true;
   double shared[7];
   

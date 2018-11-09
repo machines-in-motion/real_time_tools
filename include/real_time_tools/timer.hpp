@@ -44,10 +44,18 @@ namespace real_time_tools {
     static double get_current_time_sec();
 
     /**
-     * @brief sleep_sec
-     * @param sleep_time_sec
+     * @brief sleep_sec puts the current thread to sleep for the duration
+     * of "sleep_time_sec" seconds.
+     * @param sleep_time_sec is the sleeping duration asked in seconds.
      */
     static void sleep_sec(const double& sleep_time_sec);
+
+    /**
+     * @brief sleep_until_sec puts the threads to sleep until the date
+     * "date_sec" is reached.
+     * @param date_sec is the date until when to sleep in seconds.
+     */
+    static void sleep_until_sec(const double& date_sec);
 
 #ifndef MAC_OS
     /**
@@ -55,7 +63,25 @@ namespace real_time_tools {
      * @param t is the date to be changed
      * @param duration_sec the duration to be added to "t" in seconds
      */
-    static void timespec_add_sec(struct timespec& t, const double duration_sec);
+    static void timespec_add_sec(struct timespec& date_spec,
+                                 const double duration_sec);
+
+    /**
+     * @brief sec_to_timespec convert a double representing the time in seconds
+     * to a struct timespec.
+     * @param t is the structure to be converted
+     * @return the converted time in seconds
+     */
+
+    /**
+     * @brief sec_to_timespec converts a double representing the time in seconds
+     * to a struct timespec.
+     * @param[in] date_sec is the time in sec to be converted.
+     * @param[out] date_spec is the converted structure.
+     */
+    static void sec_to_timespec(double date_sec,
+                                struct timespec& date_spec);
+
 #endif // MAC_OS
 
 
@@ -71,7 +97,8 @@ namespace real_time_tools {
     void dump_measurements(std::string file_name)  const;
 
     /**
-     * @brief print_statistics
+     * @brief print_statistics display in real time the statistics of the time
+     * measurements acquiered so far.
      */
     void print_statistics() const;
 
@@ -93,8 +120,8 @@ namespace real_time_tools {
     }
 
     /**
-     * @brief set_name
-     * @param name
+     * @brief set_name modify the name of the object for display purposes.
+     * @param name is the new name of the object.
      */
     void set_name(std::string name)
     {
@@ -107,30 +134,42 @@ namespace real_time_tools {
 
     /**
      * @brief get_min_elapsed_sec
-     * @return
+     * @return a copy of the minimum elapsed times
      */
     double get_min_elapsed_sec() const
     {
       return min_elapsed_time_;
     }
 
+    /**
+     * @brief get_max_elapsed_sec
+     * @return a copy of the maximum elapsed times
+     */
     double get_max_elapsed_sec() const
     {
       return max_elapsed_time_;
     }
 
+    /**
+     * @brief get_avg_elapsed_sec
+     * @return a copy of the average elapsed time
+     */
     double get_avg_elapsed_sec() const
     {
       return avg_elapsed_time_;
     }
 
+    /**
+     * @brief get_std_dev_elapsed_sec
+     * @return a copy of the standard deviation of the elapsed times
+     */
     double get_std_dev_elapsed_sec() const
     {
       return std::sqrt(second_moment_elapsed_time_ -
                        avg_elapsed_time_ * avg_elapsed_time_);
     }
 
-  private:
+  protected:
 
     /**
      * @brief tic_time_ time at which tic() was called

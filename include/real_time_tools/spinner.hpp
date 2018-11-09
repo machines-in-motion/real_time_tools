@@ -11,23 +11,39 @@ namespace real_time_tools {
   public :
 
     // create a spinner for the desired frequency
-    Spinner(double frequency);
+    Spinner();
 
-    // wait for the time such that successive calls to spin
-    // will result in spin being called at the desired frequency
+    /**
+     * @brief set_period sets the period of the loop in !!seconds!!
+     * @param period in seconds.
+     */
+    void set_period(double period)
+    {
+      period_sec_ = period;
+    }
+
+    void set_frequency(double frequency)
+    {
+      period_sec_ = 1.0/frequency;
+    }
+
+    /**
+     * @brief spin waits for the time such that successive calls to spin
+     * will result in spin being called at the desired frequency
+     */
     void spin();
 
   private:
 
-    double frequency_;
+    /**
+     * @brief period_sec_ is the period of the loop in seconds
+     */
+    double period_sec_;
 
-#ifndef MAC_OS
-    struct timespec next_;
-    long time_between_spins_ns_;
-#else
-    std::chrono::time_point<std::chrono::system_clock> next_tick_;
-    std::chrono::microseconds time_between_spins_;
-#endif
+    /**
+     * @brief next_date_sec_ is the date when the loop needs to wake up.
+     */
+    double next_date_sec_;
   };
 
 }

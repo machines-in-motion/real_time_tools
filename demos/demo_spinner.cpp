@@ -10,7 +10,8 @@ void* thread_function(void*) {
   
   real_time_tools::Realtime_check realtime_check(frequency,
 						 switch_frequency);
-  real_time_tools::Spinner spinner(frequency);
+  real_time_tools::Spinner spinner;
+  spinner.set_frequency(frequency);
   
   
   for(int i=0;i<500;i++){

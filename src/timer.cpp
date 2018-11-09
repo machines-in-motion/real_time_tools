@@ -64,7 +64,8 @@ double Timer::tac()
 void Timer::dump_measurements(std::string file_name) const
 {
   try{
-    std::ofstream log_file(file_name, std::ofstream::out);
+    std::ofstream log_file(file_name, std::ios::binary | std::ios::out);
+    log_file.precision(10);
     for (unsigned i=0 ; i<time_measurement_buffer_.size() ; ++i)
     {
       log_file << i << " " << time_measurement_buffer_[i] << std::endl;
@@ -91,17 +92,26 @@ void Timer::print_statistics() const
   rt_printf("--------------------------------------------\n");
 }
 
-void Timer::timespec_add_sec(struct timespec& t,
+#ifndef MAC_OS
+void Timer::timespec_add_sec(struct timespec& date_spec,
                              const double duration_sec)
 {
   double total_time_sec = duration_sec +
-                          static_cast<double>(t.tv_nsec) / 1e9 +
-                          static_cast<double>(t.tv_sec);
-  total_time_sec += 0.5e-9;
-  t.tv_sec = static_cast<long>(total_time_sec);
-  t.tv_nsec = static_cast<long>((total_time_sec -
-                                  static_cast<double>(t.tv_sec)) * 1e9);
+                          static_cast<double>(date_spec.tv_nsec) / 1e9 +
+                          static_cast<double>(date_spec.tv_sec);
+  sec_to_timespec(total_time_sec, date_spec);
 }
+
+void Timer::sec_to_timespec(double date_sec, struct timespec& date_spec)
+{
+  date_sec += 0.5e-9;
+  date_spec.tv_sec = static_cast<long>(date_sec);
+  date_spec.tv_nsec =
+      static_cast<long>((date_sec -
+                         static_cast<double>(date_spec.tv_sec)) * 1e9);
+}
+
+#endif
 
 double Timer::get_current_time_sec()
 {
@@ -124,20 +134,19 @@ void Timer::sleep_sec(const double& sleep_duration_sec)
   struct timespec abs_target_time;
   clock_gettime(CLOCK_REALTIME, &abs_target_time);
   timespec_add_sec(abs_target_time, sleep_duration_sec);
-  clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &abs_target_time, NULL);
+  clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &abs_target_time, nullptr);
 #endif
 }
 
-//void Timer::sleep_until_sec(const double& date_sec)
-//{
-//#ifdef MAC_OS
-//  throw
-//#else
-//  struct timespec abs_target_time;
-//  clock_gettime(CLOCK_REALTIME, &abs_target_time);
-//  timespec_add_sec(&abs_target_time, sleep_duration_sec);
-//  clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &abs_target_time, NULL);
-//#endif
-//}
+void Timer::sleep_until_sec(const double& date_sec)
+{
+#ifdef MAC_OS
+  throw
+#else
+  struct timespec abs_target_time;
+  sec_to_timespec(date_sec, abs_target_time);
+  clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &abs_target_time, nullptr);
+#endif
+}
 
 } // namespace real_time_tools

@@ -115,28 +115,61 @@ TEST_F(TestRealTimeTools, test_timer_tic_and_tac_and_sleep_in_real_time)
   join_thread(thread);
   // This works we got basycally 50 micro sec of error in the sleeping time in
   // real time. It is 10 times lower than the non real time test.
-  ASSERT_NEAR(tmp_data.duration_, 1.0, 0.00005);
+  ASSERT_NEAR(tmp_data.duration_, 1.0, 0.0001);
 }
 
 TEST_F(TestRealTimeTools, test_timer_dump)
 {
-  Timer my_timer;
-  my_timer.set_memory_size(1);
-  my_timer.tic();
-  my_timer.sleep_sec(1.0);
-  double time_slept = my_timer.tac();
-  my_timer.dump_measurements("/tmp/test_timer_dump.dat");
-  std::ifstream is ("/tmp/test_timer_dump.dat");
-  double duration = 0.0;
-  int count = 0;
-  while(is >> duration)  // Attempt read into x, return false if it fails
+  for(unsigned i=0 ; i<1000 ; ++i)
   {
+    Timer my_timer;
+    my_timer.set_memory_size(1);
+    my_timer.tic();
+    double desired_sleeping_time = 0.0001;
+    my_timer.sleep_sec(desired_sleeping_time);
+    double time_slept = my_timer.tac();
+    my_timer.dump_measurements("/tmp/test_timer_dump.dat");
+    std::ifstream is ("/tmp/test_timer_dump.dat");
+    double data = -1.0;
+    double duration = -1.0;
+    int index = -1;
+    int count = 0;
+    while(is >> data)  // Attempt read into x, return false if it fails
+    {
+      if(count%2==0)
+      {
+        index = data;
+      }else{
+        duration = data;
+      }
       ++count;
+    }
+    ASSERT_EQ(index, 0);
+    ASSERT_EQ(count, 2);
+    ASSERT_NEAR(duration, time_slept, 1e-8);
   }
-  ASSERT_EQ(count, 1);
-  ASSERT_EQ(duration, time_slept);
-  ASSERT_NEAR(time_slept, 1.0, 0.0005);
 }
 
-
+TEST_F(TestRealTimeTools, test_time_statistics)
+{
+  Timer my_timer;
+  my_timer.set_memory_size(2);
+  my_timer.tic();
+  my_timer.sleep_sec(0.0001);
+  double time_slept = my_timer.tac();
+  ASSERT_EQ(my_timer.get_avg_elapsed_sec(), time_slept);
+  ASSERT_EQ(my_timer.get_std_dev_elapsed_sec(), 0.0);
+  ASSERT_EQ(my_timer.get_min_elapsed_sec(), time_slept);
+  ASSERT_EQ(my_timer.get_max_elapsed_sec(), time_slept);
+  my_timer.tic();
+  my_timer.sleep_sec(0.01);
+  double time_slept2 = my_timer.tac();
+  double mean = 0.5 * (time_slept + time_slept2);
+  double std_dev = std::sqrt(0.5 * (std::pow(time_slept-mean,2) +
+                                    std::pow(time_slept2-mean,2)));
+  ASSERT_EQ(my_timer.get_avg_elapsed_sec(), mean);
+  ASSERT_EQ(my_timer.get_std_dev_elapsed_sec(), std_dev);
+  ASSERT_EQ(my_timer.get_min_elapsed_sec(), time_slept);
+  ASSERT_EQ(my_timer.get_max_elapsed_sec(), time_slept2);
+}
 
