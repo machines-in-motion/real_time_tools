@@ -11,6 +11,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <fstream>
+#include "real_time_tools/realtime_iostream.hpp"
 #include "real_time_tools/timer.hpp"
 #include "real_time_tools/realtime_thread_creation.hpp"
 
@@ -173,3 +174,22 @@ TEST_F(TestRealTimeTools, test_time_statistics)
   ASSERT_EQ(my_timer.get_max_elapsed_sec(), time_slept2);
 }
 
+TEST_F(TestRealTimeTools, test_iostream_create_directory)
+{
+  std::string folder = "/tmp/.real_time_tools_test";
+  real_time_tools::create_directory(folder);
+  ASSERT_TRUE(boost::filesystem::exists(folder));
+}
+
+TEST_F(TestRealTimeTools, test_iostream_get_home_dir)
+{
+  std::string home_dir = real_time_tools::get_home_dir();
+  std::cout << home_dir << std::endl;
+  ASSERT_TRUE(home_dir != "");
+}
+
+TEST_F(TestRealTimeTools, test_iostream_get_current_date_str)
+{
+  // visual check performed, it seems correct on rt_preempt
+  std::cout << real_time_tools::Timer::get_current_date_str() << std::endl;
+}

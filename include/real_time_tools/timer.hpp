@@ -37,56 +37,7 @@ namespace real_time_tools {
     double tac();
 
     /**
-     * @brief get_current_time_sec give the current time in double and in
-     * seconds
-     * @return
-     */
-    static double get_current_time_sec();
-
-    /**
-     * @brief sleep_sec puts the current thread to sleep for the duration
-     * of "sleep_time_sec" seconds.
-     * @param sleep_time_sec is the sleeping duration asked in seconds.
-     */
-    static void sleep_sec(const double& sleep_time_sec);
-
-    /**
-     * @brief sleep_until_sec puts the threads to sleep until the date
-     * "date_sec" is reached.
-     * @param date_sec is the date until when to sleep in seconds.
-     */
-    static void sleep_until_sec(const double& date_sec);
-
-#ifndef MAC_OS
-    /**
-     * @brief timespec_add_sec posix type of a date in time.
-     * @param t is the date to be changed
-     * @param duration_sec the duration to be added to "t" in seconds
-     */
-    static void timespec_add_sec(struct timespec& date_spec,
-                                 const double duration_sec);
-
-    /**
-     * @brief sec_to_timespec convert a double representing the time in seconds
-     * to a struct timespec.
-     * @param t is the structure to be converted
-     * @return the converted time in seconds
-     */
-
-    /**
-     * @brief sec_to_timespec converts a double representing the time in seconds
-     * to a struct timespec.
-     * @param[in] date_sec is the time in sec to be converted.
-     * @param[out] date_spec is the converted structure.
-     */
-    static void sec_to_timespec(double date_sec,
-                                struct timespec& date_spec);
-
-#endif // MAC_OS
-
-
-    /**
-      * UTILITIES
+      * IOSTREAM functions
       * /
 
     /**
@@ -222,6 +173,66 @@ namespace real_time_tools {
      * @brief name_ of the timer object
      */
     std::string name_;
+
+    /**
+      * Some utilities
+      */
+  public:
+
+
+    /**
+     * @brief get_current_time_sec give the current time in double and in
+     * seconds
+     * @return
+     */
+    static double get_current_time_sec();
+
+    /**
+     * @brief sleep_sec puts the current thread to sleep for the duration
+     * of "sleep_time_sec" seconds.
+     * @param sleep_time_sec is the sleeping duration asked in seconds.
+     */
+    static void sleep_sec(const double& sleep_time_sec);
+
+    /**
+     * @brief sleep_until_sec puts the threads to sleep until the date
+     * "date_sec" is reached.
+     * @param date_sec is the date until when to sleep in seconds.
+     */
+    static void sleep_until_sec(const double& date_sec);
+
+#ifndef MAC_OS
+    /**
+     * @brief timespec_add_sec posix type of a date in time.
+     * @param t is the date to be changed
+     * @param duration_sec the duration to be added to "t" in seconds
+     */
+    static void timespec_add_sec(struct timespec& date_spec,
+                                 const double duration_sec);
+
+    /**
+     * @brief sec_to_timespec convert a double representing the time in seconds
+     * to a struct timespec.
+     * @param t is the structure to be converted
+     * @return the converted time in seconds
+     */
+
+    /**
+     * @brief sec_to_timespec converts a double representing the time in seconds
+     * to a struct timespec.
+     * @param[in] date_sec is the time in sec to be converted.
+     * @param[out] date_spec is the converted structure.
+     */
+    static void sec_to_timespec(double date_sec,
+                                struct timespec& date_spec);
+
+#endif // MAC_OS
+
+    /**
+     * @brief get_current_date_str get the current date and format it in a string
+     * with "year_month_day_hour_minute_sec"
+     */
+    static std::string get_current_date_str();
 
   };
 

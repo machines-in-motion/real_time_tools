@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-include(cmake/os_detection.cmake)
-
 # required to use std::shared_ptr in code and to link the python bindings
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wl,--no-as-needed")
@@ -16,14 +14,19 @@ find_package(catkin REQUIRED COMPONENTS
   shared_memory
 )
 
+include(cmake/os_detection.cmake)
+include(cmake/boost.cmake)
+include(cmake/pthread.cmake)
+search_for_boost()
+search_for_pthread()
+
+set(LIBRARY_NAME ${PROJECT_NAME})
 catkin_package(
-  LIBRARIES real_time_tools
+  LIBRARIES ${LIBRARY_NAME}
   INCLUDE_DIRS include
   CATKIN_DEPENDS shared_memory
   CFG_EXTRAS os_detection.cmake
 )
-
-find_package (Threads)
 
 # This macro sets the C++ preprocessor flags "XENOMAI", "RT_PREEMPT", or
 # "UBUNTU" according to the current operating system.
@@ -31,15 +34,18 @@ DEFINE_OS()
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-set(LIBRARY_NAME ${PROJECT_NAME})
 add_library(${LIBRARY_NAME}
   src/realtime_check.cpp
   src/realtime_thread_creation.cpp
   src/spinner.cpp
   src/timer.cpp
+  src/realtime_iostream.cpp
 )
 
-target_link_libraries(real_time_tools ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(real_time_tools
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${Boost_LIBRARIES}
+)
 
 
 #########

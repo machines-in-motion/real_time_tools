@@ -1,9 +1,30 @@
 #include <fstream>
-
+#include <sstream>
+#include <time.h>
 #include <real_time_tools/realtime_iostream.hpp>
 #include <real_time_tools/timer.hpp>
 
 namespace real_time_tools {
+
+
+typedef std::chrono::duration<
+  int, std::ratio_multiply<std::chrono::hours::period,
+  std::ratio<24> >::type> days;
+
+std::string Timer::get_current_date_str()
+{
+  std::ostringstream oss;
+  auto now = std::chrono::system_clock::now();
+  std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+  struct tm *parts = std::localtime(&now_c);
+  oss << (int)(1900 + parts->tm_year) << "_";
+  oss << 1 + parts->tm_mon << "_";
+  oss << parts->tm_mday << "_";
+  oss << parts->tm_hour << "_";
+  oss << parts->tm_min << "_";
+  oss << parts->tm_sec;
+  return oss.str();
+}
 
 Timer::Timer()
 {

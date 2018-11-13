@@ -1,6 +1,8 @@
 #ifndef RT_IOSTREAM_HH
 #define RT_IOSTREAM_HH
 
+#include <boost/filesystem.hpp>
+
 #ifdef __XENO__
 
 #include <native/task.h>
@@ -20,6 +22,15 @@
 #define rt_printf printf
 
 #endif // __XENO__
+
+
+namespace real_time_tools {
+
+bool create_directory(std::string path);
+
+std::string get_home_dir();
+
+} // namespace real_time_tools
 
 #endif // RT_IOSTREAM_HH
 
