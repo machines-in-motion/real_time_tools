@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <time.h>
 #include <real_time_tools/realtime_iostream.hpp>
 #include <real_time_tools/timer.hpp>
@@ -18,11 +19,11 @@ std::string Timer::get_current_date_str()
   std::time_t now_c = std::chrono::system_clock::to_time_t(now);
   struct tm *parts = std::localtime(&now_c);
   oss << (int)(1900 + parts->tm_year) << "_";
-  oss << 1 + parts->tm_mon << "_";
-  oss << parts->tm_mday << "_";
-  oss << parts->tm_hour << "_";
-  oss << parts->tm_min << "_";
-  oss << parts->tm_sec;
+  oss << std::setfill('0') << std::setw(2) << 1 + parts->tm_mon << "_";
+  oss << std::setfill('0') << std::setw(2) << parts->tm_mday << "_";
+  oss << std::setfill('0') << std::setw(2) << parts->tm_hour << "_";
+  oss << std::setfill('0') << std::setw(2) << parts->tm_min << "_";
+  oss << std::setfill('0') << std::setw(2) << parts->tm_sec;
   return oss.str();
 }
 
