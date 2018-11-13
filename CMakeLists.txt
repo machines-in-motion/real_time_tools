@@ -25,7 +25,7 @@ catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   INCLUDE_DIRS include
   CATKIN_DEPENDS shared_memory
-  CFG_EXTRAS os_detection.cmake
+  CFG_EXTRAS os_detection.cmake boost.cmake pthread.cmake
 )
 
 # This macro sets the C++ preprocessor flags "XENOMAI", "RT_PREEMPT", or
