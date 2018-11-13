@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPINNER_HPP
+#define SPINNER_HPP
 
 #include <chrono>
 #include <unistd.h>
@@ -47,3 +48,5 @@ namespace real_time_tools {
   };
 
 }
+
+#endif // SPINNER_HPP

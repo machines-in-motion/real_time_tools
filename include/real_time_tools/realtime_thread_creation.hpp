@@ -1,3 +1,6 @@
+#ifndef REALTIME_THREAD_CREATION_HPP
+#define REALTIME_THREAD_CREATION_HPP
+
 #include <string>
 
 #ifdef  XENOMAI
@@ -58,3 +61,5 @@ namespace real_time_tools {
   void block_memory();
 
 } // namespace real_time_tools
+
+#endif // REALTIME_THREAD_CREATION_HPP

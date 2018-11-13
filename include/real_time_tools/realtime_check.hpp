@@ -1,3 +1,6 @@
+#ifndef REALTIME_CHECK_HPP
+#define REALTIME_CHECK_HPP
+
 #include <iostream>
 #include <chrono>
 #include <limits>
@@ -81,3 +84,5 @@ namespace real_time_tools {
 
 
 }
+
+#endif // REALTIME_CHECK_HPP
