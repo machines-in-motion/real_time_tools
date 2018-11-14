@@ -100,6 +100,10 @@ target_compile_definitions(test_real_time_tools PUBLIC
   TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}"
 )
 
+catkin_install_python(PROGRAMS
+  src/bin/compute_statistics
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 ###############################################
 # Add custom (non compiling) targets          #
 # so non cpp files show up in QT_CREATOR IDE. #
