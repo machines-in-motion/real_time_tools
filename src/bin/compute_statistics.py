@@ -4,18 +4,18 @@ import sys
 import argparse
 import numpy as np
 from os import listdir
-from os.path import isfile, join, splitext
+from os.path import isfile, join
+from time import localtime, strftime
 
 def _get_all_dat_files(folder):
     return [f for f in listdir(folder)
             if (isfile(join(folder, f)) and len(f) >= 4 and '.dat' in f[-4:])]
 
 
-def _get_data_from_file(file):
-    print("Parsing: " + file)
+def _get_data_from_file(in_file_name):
     data=[]
-    with open(file, 'rb') as file:
-        for row in file:
+    with open(in_file_name, 'rb') as in_file:
+        for row in in_file:
             txt_row = row.split()
             float_row = [float(i) for i in txt_row]
             data.append(float_row)
@@ -51,25 +51,32 @@ def main(sys_args):
 
     # get files path
     if 'in_dir' in args:
-        files = _get_all_dat_files(args.in_dir)
+        in_dir = args.in_dir
     else:
-        files = _get_all_dat_files(".")
+        in_dir = "."
 
+    files = _get_all_dat_files(in_dir)
     output = ""
-    for file in files:
+    for in_file in files:
         # read the file
-        data = _get_data_from_file(file)
+        data = _get_data_from_file(in_file)
         # compute the statistics
         _min, _max, _mean, _std_dev = _compute_statitics(data)
         # prepare the output
         output += (
-                "The parsed file is: " + file + "\n"
+                "The parsed file is: " + in_file + "\n"
                 "The computed statistics are the following:\n"
                 "    - min: " + str(_min)   + "\n"
                 "    - max: " + str(_max)   + "\n"
                 "    - mean: " + str(_mean) + "\n"
-                "    - standard deviation: " + str(_std_dev)) + "\n"
+                "    - standard deviation: " + str(_std_dev)) + "\n\n"
+
+    out_file_name = join(in_dir, "statistics_results_" +
+                    strftime("%Y_%m_%d_%H_%M_%S", localtime()) + ".txt")
+
     print(output)
+    with open(out_file_name, 'w') as out_file:
+        out_file.write(output)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
