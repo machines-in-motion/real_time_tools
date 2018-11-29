@@ -26,6 +26,8 @@
 
 namespace real_time_tools {
 
+std::string get_log_dir(std::string app_name);
+
 bool create_directory(std::string path);
 
 std::string get_home_dir();

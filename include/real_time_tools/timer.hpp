@@ -181,11 +181,21 @@ namespace real_time_tools {
 
 
     /**
-     * @brief get_current_time_sec give the current time in double and in
+     * @brief get_current_time_sec gives the current time in double and in
      * seconds
      * @return
      */
     static double get_current_time_sec();
+
+    /**
+     * @brief get_current_time_milli_sec gives the current time in double and in
+     * milli seconds
+     * @return
+     */
+    static double get_current_time_milli_sec()
+    {
+      return 1e3 * get_current_time_sec();
+    }
 
     /**
      * @brief sleep_sec puts the current thread to sleep for the duration
