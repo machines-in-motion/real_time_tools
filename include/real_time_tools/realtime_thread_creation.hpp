@@ -4,10 +4,12 @@
 #include <string>
 
 #ifdef  XENOMAI
+#define THREAD_FUNCTION_RETURN_TYPE void
   // include xenomai stuff here
 #elif defined NON_REAL_TIME
   #include <thread>
   #include <iostream>
+  #define THREAD_FUNCTION_RETURN_TYPE void*
 #elif defined RT_PREEMPT
   #include <pthread.h>
   #include <limits.h>
@@ -16,6 +18,7 @@
   #include <stdlib.h>
   #include <sys/mman.h>
   #include <unistd.h>
+  #define THREAD_FUNCTION_RETURN_TYPE void*
 #endif
 
 namespace real_time_tools {
