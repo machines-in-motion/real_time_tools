@@ -67,7 +67,7 @@ namespace real_time_tools {
     {
       count_ = 0;
       memory_buffer_size_ = memory_buffer_size;
-      time_measurement_buffer_.resize(memory_buffer_size_, 0.0);      
+      time_measurement_buffer_.resize(memory_buffer_size_, 0.0);
     }
 
     /**
