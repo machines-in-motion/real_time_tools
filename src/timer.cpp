@@ -18,11 +18,11 @@ std::string Timer::get_current_date_str()
   auto now = std::chrono::system_clock::now();
   std::time_t now_c = std::chrono::system_clock::to_time_t(now);
   struct tm *parts = std::localtime(&now_c);
-  oss << (int)(1900 + parts->tm_year) << "_";
-  oss << std::setfill('0') << std::setw(2) << 1 + parts->tm_mon << "_";
+  oss << (int)(1900 + parts->tm_year) << "-";
+  oss << std::setfill('0') << std::setw(2) << 1 + parts->tm_mon << "-";
   oss << std::setfill('0') << std::setw(2) << parts->tm_mday << "_";
-  oss << std::setfill('0') << std::setw(2) << parts->tm_hour << "_";
-  oss << std::setfill('0') << std::setw(2) << parts->tm_min << "_";
+  oss << std::setfill('0') << std::setw(2) << parts->tm_hour << "-";
+  oss << std::setfill('0') << std::setw(2) << parts->tm_min << "-";
   oss << std::setfill('0') << std::setw(2) << parts->tm_sec;
   return oss.str();
 }
