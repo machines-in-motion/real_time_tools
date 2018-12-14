@@ -205,6 +205,16 @@ namespace real_time_tools {
     static void sleep_sec(const double& sleep_time_sec);
 
     /**
+     * @brief sleep_milli_sec puts the current thread to sleep for the duration
+     * of "sleep_time_sec" seconds.
+     * @param sleep_time_sec is the sleeping duration asked in seconds.
+     */
+    static void sleep_milli_sec(const double& sleep_time_milli_sec)
+    {
+      sleep_sec(1e-3 * sleep_time_milli_sec);
+    }
+
+    /**
      * @brief sleep_until_sec puts the threads to sleep until the date
      * "date_sec" is reached.
      * @param date_sec is the date until when to sleep in seconds.
