@@ -188,11 +188,11 @@ namespace real_time_tools {
     static double get_current_time_sec();
 
     /**
-     * @brief get_current_time_milli_sec gives the current time in double and in
+     * @brief get_current_time_ms gives the current time in double and in
      * milli seconds
      * @return
      */
-    static double get_current_time_milli_sec()
+    static double get_current_time_ms()
     {
       return 1e3 * get_current_time_sec();
     }
@@ -205,13 +205,13 @@ namespace real_time_tools {
     static void sleep_sec(const double& sleep_time_sec);
 
     /**
-     * @brief sleep_milli_sec puts the current thread to sleep for the duration
+     * @brief sleep_ms puts the current thread to sleep for the duration
      * of "sleep_time_sec" seconds.
-     * @param sleep_time_sec is the sleeping duration asked in seconds.
+     * @param sleep_time_ms is the sleeping duration asked in seconds.
      */
-    static void sleep_milli_sec(const double& sleep_time_milli_sec)
+    static void sleep_ms(const double& sleep_time_ms)
     {
-      sleep_sec(1e-3 * sleep_time_milli_sec);
+      sleep_sec(1e-3 * sleep_time_ms);
     }
 
     /**
