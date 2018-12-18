@@ -63,6 +63,9 @@ set(DEMO3 demo_spinner)
 add_executable(${DEMO3} demos/demo_spinner.cpp)
 target_link_libraries(${DEMO3} ${LIBRARY_NAME})
 
+add_executable(demo_timing demos/demo_timing.cpp)
+target_link_libraries(demo_timing ${LIBRARY_NAME})
+
 
 ###############
 # EXECUTABLES #
