@@ -14,12 +14,11 @@ void* thread_function(void*)
 
     real_time_tools::Timer timer;
 
-    spinner.spin();
 
-    for(int i=0;i<3;i++){
-        timer.tic();
+    for(int i=0;i<1000;i++){
         spinner.spin();
-        timer.tac();
+//        real_time_tools::Timer::sleep_sec(0.001);
+        timer.tac_tic();
     }
 
     timer.print_statistics();
