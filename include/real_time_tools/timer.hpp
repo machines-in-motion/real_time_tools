@@ -25,16 +25,24 @@ namespace real_time_tools {
     /**
      * @brief tic measures the time when it is called. This is to be used with
      * the tac method that will return the time elapsed between tic and tac.
-     * this tic is called at least once at construction time.
      */
     void tic();
 
     /**
      * @brief tac is to be used after tic has been called.
      * @return the duration in seconds between the call of tic() and the call of
-     * tac()
+     * tac(). if tic() has not been called previously this will return nan
      */
     double tac();
+
+    /**
+     * @brief this is like a tac() followed by a tic(), making sure the
+     * previous tac_time becomes the tic_time
+     */
+    double tac_tic();
+
+
+    void log_time_interval(double time_interval);
 
     /**
       * IOSTREAM functions
@@ -126,11 +134,6 @@ namespace real_time_tools {
      * @brief tic_time_ time at which tic() was called
      */
     double tic_time_;
-
-    /**
-     * @brief tac_time_  time at which tac() was called
-     */
-    double tac_time_;
 
     /**
      * @brief time_measurement_buffer_ this is a chained list of double

@@ -30,8 +30,7 @@ std::string Timer::get_current_date_str()
 Timer::Timer()
 {
   // initialize the tic and tac times by the current time
-  tic_time_ = Timer::get_current_time_sec();
-  tac_time_ = tic_time_;
+  tic_time_ = std::numeric_limits<double>::quiet_NaN();
   // initialize the memory buffer size, allocate memory and set counter to zero.
   set_memory_size(60000);
   // default name
@@ -51,38 +50,60 @@ void Timer::tic()
 
 double Timer::tac()
 {
-  // get the current time
-  tac_time_ = Timer::get_current_time_sec();
-  // getting the time elapsed
-  double time_elapsed = tac_time_ - tic_time_;
+  double tac_time = Timer::get_current_time_sec();
+  double time_interval = tac_time - tic_time_;
 
-  // Only store into the buffer if the buffer is non-zero.
-  if (memory_buffer_size_ != 0) {
-    // check if the buffer is full
-    if (count_ >= time_measurement_buffer_.size())
-    {
-      time_measurement_buffer_.pop_front();
-      time_measurement_buffer_.push_back(time_elapsed);
-    } else {
-      // save the current time elapsed
-      time_measurement_buffer_[count_] = time_elapsed;
-    }
-  }
+  log_time_interval(time_interval);
 
-  // increase the count
-  ++count_;
-  // compute some statistics
-  min_elapsed_time_ = time_elapsed < min_elapsed_time_ ?
-                         time_elapsed : min_elapsed_time_;
-  max_elapsed_time_ = time_elapsed > max_elapsed_time_ ?
-                        time_elapsed : max_elapsed_time_;
-  avg_elapsed_time_ = (double(count_ - 1) * avg_elapsed_time_ + time_elapsed) /
-                      double(count_);
-  second_moment_elapsed_time_ =
-      (double(count_ - 1) * second_moment_elapsed_time_ +
-       time_elapsed * time_elapsed) / double(count_);
-  return time_elapsed;
+  return time_interval;
 }
+
+double Timer::tac_tic()
+{
+    double tac_time = Timer::get_current_time_sec();
+    double time_interval = tac_time - tic_time_;
+
+    log_time_interval(time_interval);
+
+    tic_time_ = tac_time;
+
+    return time_interval;
+}
+
+
+void Timer::log_time_interval(double time_interval)
+{
+    if(std::isnan(time_interval))
+        return;
+
+    // Only store into the buffer if the buffer is non-zero.
+    if (memory_buffer_size_ != 0) {
+      // check if the buffer is full
+      if (count_ >= time_measurement_buffer_.size())
+      {
+        time_measurement_buffer_.pop_front();
+        time_measurement_buffer_.push_back(time_interval);
+      } else {
+        // save the current time elapsed
+        time_measurement_buffer_[count_] = time_interval;
+      }
+    }
+
+    // increase the count
+    ++count_;
+    // compute some statistics
+    min_elapsed_time_ = time_interval < min_elapsed_time_ ?
+                           time_interval : min_elapsed_time_;
+    max_elapsed_time_ = time_interval > max_elapsed_time_ ?
+                          time_interval : max_elapsed_time_;
+    avg_elapsed_time_ = (double(count_ - 1) * avg_elapsed_time_ + time_interval) /
+                        double(count_);
+    second_moment_elapsed_time_ =
+        (double(count_ - 1) * second_moment_elapsed_time_ +
+         time_interval * time_interval) / double(count_);
+}
+
+
 
 void Timer::dump_measurements(std::string file_name) const
 {
