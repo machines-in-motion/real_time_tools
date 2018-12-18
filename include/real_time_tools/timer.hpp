@@ -67,7 +67,7 @@ namespace real_time_tools {
     {
       count_ = 0;
       memory_buffer_size_ = memory_buffer_size;
-      time_measurement_buffer_.resize(memory_buffer_size_, 0.0);      
+      time_measurement_buffer_.resize(memory_buffer_size_, 0.0);
     }
 
     /**
@@ -188,11 +188,11 @@ namespace real_time_tools {
     static double get_current_time_sec();
 
     /**
-     * @brief get_current_time_milli_sec gives the current time in double and in
+     * @brief get_current_time_ms gives the current time in double and in
      * milli seconds
      * @return
      */
-    static double get_current_time_milli_sec()
+    static double get_current_time_ms()
     {
       return 1e3 * get_current_time_sec();
     }
@@ -203,6 +203,16 @@ namespace real_time_tools {
      * @param sleep_time_sec is the sleeping duration asked in seconds.
      */
     static void sleep_sec(const double& sleep_time_sec);
+
+    /**
+     * @brief sleep_ms puts the current thread to sleep for the duration
+     * of "sleep_time_sec" seconds.
+     * @param sleep_time_ms is the sleeping duration asked in seconds.
+     */
+    static void sleep_ms(const double& sleep_time_ms)
+    {
+      sleep_sec(1e-3 * sleep_time_ms);
+    }
 
     /**
      * @brief sleep_until_sec puts the threads to sleep until the date
