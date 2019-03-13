@@ -41,7 +41,11 @@ namespace real_time_tools {
      */
     double tac_tic();
 
-
+    /**
+     * @brief Save the time interval measured
+     * 
+     * @param time_interval 
+     */
     void log_time_interval(double time_interval);
 
     /**
