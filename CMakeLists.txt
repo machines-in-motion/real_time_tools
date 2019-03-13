@@ -9,14 +9,10 @@ endif()
 
 project(real_time_tools)
 
-
 find_package(catkin REQUIRED COMPONENTS
-  shared_memory
+  mpi_cmake_modules
 )
 
-include(cmake/os_detection.cmake)
-include(cmake/boost.cmake)
-include(cmake/pthread.cmake)
 search_for_boost()
 search_for_pthread()
 
@@ -24,7 +20,7 @@ set(LIBRARY_NAME ${PROJECT_NAME})
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   INCLUDE_DIRS include
-  CATKIN_DEPENDS shared_memory
+  CATKIN_DEPENDS mpi_cmake_modules
   CFG_EXTRAS os_detection.cmake boost.cmake pthread.cmake
 )
 
@@ -70,13 +66,13 @@ target_link_libraries(demo_timing ${LIBRARY_NAME})
 ###############
 # EXECUTABLES #
 ###############
-set(EXE1 realtime_test)
-add_executable(${EXE1} src/bin/realtime_test.cpp)
-target_link_libraries(${EXE1} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+#set(EXE1 realtime_test)
+#add_executable(${EXE1} src/bin/realtime_test.cpp)
+#target_link_libraries(${EXE1} ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
-set(EXE2 realtime_test_display)
-add_executable(${EXE2} src/bin/realtime_test_display.cpp)
-target_link_libraries(${EXE2} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+#set(EXE2 realtime_test_display)
+#add_executable(${EXE2} src/bin/realtime_test_display.cpp)
+#target_link_libraries(${EXE2} ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 ###################################################
 ## Set a general config folder path for all tests #

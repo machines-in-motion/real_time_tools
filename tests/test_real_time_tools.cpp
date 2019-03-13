@@ -107,15 +107,19 @@ void* rt_thread_for_test(void* my_timer_pointer)
   tmp_data->duration_ = tmp_data->timer_.tac();
 }
 
+#ifdef NON_REAL_TIME 
+TEST_F(DISABLED_TestRealTimeTools, test_timer_tic_and_tac_and_sleep_in_real_time)
+#else // NON_REAL_TIME 
 TEST_F(TestRealTimeTools, test_timer_tic_and_tac_and_sleep_in_real_time)
+#endif // NON_REAL_TIME 
 {
   TmpData tmp_data ;
   RealTimeThread thread;
   block_memory();
   create_realtime_thread(thread, &rt_thread_for_test, &tmp_data);
   join_thread(thread);
-  // This works we got basycally 50 micro sec of error in the sleeping time in
-  // real time. It is 10 times lower than the non real time test.
+  // This works we got basycally 100 micro sec of error in the sleeping time in
+  // real time. It is 5 times lower than the non real time test.
   ASSERT_NEAR(tmp_data.duration_, 1.0, 0.0001);
 }
 
