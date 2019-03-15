@@ -24,13 +24,13 @@ macro(DEFINE_OS)
     set(CURRENT_OS "rt-preempt")
     add_definitions("-DRT_PREEMPT")
     
-  elseif(OS_VERSION MATCHES "ubuntu" OR OS_VERSION MATCHES "non-real-time" OR OS_VERSION MATCHES "darwin" )
+  elseif(OS_VERSION MATCHES "ubuntu" OR OS_VERSION MATCHES "non-real-time" OR OS_VERSION MATCHES "darwin" OR OS_VERSION MATCHES "el7.x86_64")
     set(CURRENT_OS "non-real-time")
     add_definitions("-DNON_REAL_TIME")
   else()
     message(STATUS "output of \"uname -a\": ${OS_VERSION}")
     message(FATAL_ERROR "Could not detect the OS version please "
-      "fix os_detection.cmake")
+      "fix os_detection.cmake in package real_time_tools folder cmake")
   endif()
   #
   message(STATUS "OS found is " ${CURRENT_OS})
