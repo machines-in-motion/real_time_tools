@@ -10,9 +10,10 @@ endif()
 project(real_time_tools)
 
 find_package(catkin REQUIRED COMPONENTS
-  mpi_cmake_modules
+    mpi_cmake_modules
 )
 
+search_for_eigen()
 search_for_boost()
 search_for_pthread()
 
@@ -21,7 +22,6 @@ catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   INCLUDE_DIRS include
   CATKIN_DEPENDS mpi_cmake_modules
-  CFG_EXTRAS os_detection.cmake boost.cmake pthread.cmake
 )
 
 # This macro sets the C++ preprocessor flags "XENOMAI", "RT_PREEMPT", or
@@ -33,6 +33,7 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 add_library(${LIBRARY_NAME}
   src/realtime_check.cpp
   src/realtime_thread_creation.cpp
+
   src/spinner.cpp
   src/timer.cpp
   src/realtime_iostream.cpp

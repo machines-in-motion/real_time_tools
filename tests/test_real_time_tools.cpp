@@ -4,7 +4,7 @@
  * \author Maximilien Naveau
  * \date 2018
  *
- * This file implements a suit of unit tests for the Device class.
+ * This file implements a suit of unit tests for the real time tools.
  * @see https://git-amd.tuebingen.mpg.de/amd-clmc/ci_example/wikis/catkin:-how-to-implement-unit-tests
  */
 
