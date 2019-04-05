@@ -29,10 +29,21 @@ namespace real_time_tools {
     }
 
     /**
+     * @brief To be called at the beginning of the loop if the spinner is not
+     * created just before.
+     */
+    void initialize();
+
+    /**
      * @brief spin waits for the time such that successive calls to spin
      * will result in spin being called at the desired frequency
      */
     void spin();
+
+    /**
+     * @brief Predict the time the current thread is going to sleep.
+     */
+    double predict_sleeping_time();
 
   private:
 

@@ -197,3 +197,9 @@ TEST_F(TestRealTimeTools, test_iostream_get_current_date_str)
   // visual check performed, it seems correct on rt_preempt
   std::cout << real_time_tools::Timer::get_current_date_str() << std::endl;
 }
+
+TEST_F(TestRealTimeTools, test_iostream_get_current_date_str)
+{
+  // visual check performed, it seems correct on rt_preempt
+  std::cout << real_time_tools::Timer::get_current_date_str() << std::endl;
+}
