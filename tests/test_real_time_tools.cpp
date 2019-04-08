@@ -21,7 +21,7 @@ using namespace real_time_tools;
 /**
  * @brief The DISABLED_TestRealTimeTools class is used to disable test.
  */
-class DISABLED_TestRealTimeTools : public ::testing::Test {};
+class DISABLED_TestRealTimeTools : public ::testing::Test{};
 
 /**
  * @brief The TestRealTimeTools class: test suit template for setting up
@@ -198,8 +198,7 @@ TEST_F(TestRealTimeTools, test_iostream_get_current_date_str)
   std::cout << real_time_tools::Timer::get_current_date_str() << std::endl;
 }
 
-TEST_F(TestRealTimeTools, test_iostream_get_current_date_str)
+TEST_F(DISABLED_TestRealTimeTools, test_spinner)
 {
-  // visual check performed, it seems correct on rt_preempt
-  std::cout << real_time_tools::Timer::get_current_date_str() << std::endl;
+  // TODO: create unittests for the spinner
 }
