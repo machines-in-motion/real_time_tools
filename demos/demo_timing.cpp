@@ -31,7 +31,6 @@ void* thread_function(void*)
 int main(int , char* []) {
 
     real_time_tools::RealTimeThread thread;
-    real_time_tools::block_memory();
     real_time_tools::create_realtime_thread(thread, thread_function);
     real_time_tools::join_thread(thread);
 

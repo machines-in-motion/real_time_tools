@@ -115,7 +115,6 @@ TEST_F(TestRealTimeTools, test_timer_tic_and_tac_and_sleep_in_real_time)
 {
   TmpData tmp_data ;
   RealTimeThread thread;
-  block_memory();
   create_realtime_thread(thread, &rt_thread_for_test, &tmp_data);
   join_thread(thread);
   // This works we got basycally 100 micro sec of error in the sleeping time in
