@@ -47,7 +47,8 @@ namespace real_time_tools {
    */
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
-                             void* args = nullptr);
+                             void* args = nullptr,
+                             bool call_block_memory = true);
 
   /**
    * @brief join_thread join the real time thread

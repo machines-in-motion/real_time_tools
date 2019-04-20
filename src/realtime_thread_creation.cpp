@@ -19,7 +19,12 @@ namespace real_time_tools {
 
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
-                             void* args){
+                             void* args,
+                             bool call_block_memory){
+    if(call_block_memory)
+    {
+        block_memory();
+    }
 
     struct sched_param param;
     pthread_attr_t attr;
