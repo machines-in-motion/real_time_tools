@@ -22,6 +22,8 @@ void* thread_function(void*)
     }
 
     timer.print_statistics();
+
+    return NULL;
 }
 
 

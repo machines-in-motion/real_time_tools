@@ -23,6 +23,7 @@ void* thread_function(void*) {
   real_time_tools::print_realtime_check(realtime_check);
   std::cout << "\n";
 
+  return NULL;
 }
 
 
