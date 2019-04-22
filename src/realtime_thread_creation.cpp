@@ -104,7 +104,8 @@ namespace real_time_tools {
 #if defined XENOMAI
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
-                             void* args){
+                             void* args,
+                             bool call_block_memory){
     int ret=0;
     throw std::runtime_error("create_realtime_thread: "
                              "Please implement this for xenomai");
@@ -132,7 +133,8 @@ namespace real_time_tools {
 #if defined NON_REAL_TIME
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
-                             void* args){
+                             void* args,
+                             bool call_block_memory){
     printf("Warning this thread is not going to be real time.\n");
 
     /* Create a pthread with specified attributes */
