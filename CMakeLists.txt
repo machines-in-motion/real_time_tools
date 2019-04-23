@@ -63,6 +63,10 @@ target_link_libraries(${DEMO3} ${LIBRARY_NAME})
 add_executable(demo_timing demos/demo_timing.cpp)
 target_link_libraries(demo_timing ${LIBRARY_NAME})
 
+add_executable(demo_segfault demos/demo_segfault.cpp)
+target_link_libraries(demo_segfault ${LIBRARY_NAME})
+
+
 
 ###############
 # EXECUTABLES #
