@@ -46,12 +46,16 @@ namespace real_time_tools {
    * https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
    * @param[in][out] thread is the c++ object that represents the threads.
    * @param[in] thread_function is the executing function for the thread.
+   * @param[in] arguments to be passed to the thread.
+   * @param[in] if true, block_memory() will be called at thread creation.
+   * @param[in] stack size available to the thread will be factor*PTHREAD_STACK_MIN (rt preempt only)
    * @return the error code.
    */
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args = nullptr,
-                             bool call_block_memory = true);
+                             bool call_block_memory = true,
+			     int stack_memory_factor=50);
 
   /**
    * @brief join_thread join the real time thread

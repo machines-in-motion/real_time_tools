@@ -20,7 +20,8 @@ namespace real_time_tools {
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args,
-                             bool call_block_memory){
+                             bool call_block_memory,
+			     int stack_memory_factor){
     if(call_block_memory)
     {
         block_memory();
@@ -38,7 +39,7 @@ namespace real_time_tools {
     }
 
     /* Set a specific stack size  */
-    ret = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
+    ret = pthread_attr_setstacksize(&attr, stack_memory_factor*PTHREAD_STACK_MIN);
     if (ret) {
       printf("%s %d\n", ("pthread setstacksize failed. Ret=" +
                     rt_preempt_error_message).c_str(), ret);
@@ -105,7 +106,8 @@ namespace real_time_tools {
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args,
-                             bool call_block_memory){
+                             bool call_block_memory,
+			     int stack_factor){
     int ret=0;
     throw std::runtime_error("create_realtime_thread: "
                              "Please implement this for xenomai");
@@ -134,7 +136,8 @@ namespace real_time_tools {
   int create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args,
-                             bool call_block_memory){
+                             bool call_block_memory,
+			     int stack_factor){
     printf("Warning this thread is not going to be real time.\n");
 
     /* Create a pthread with specified attributes */
