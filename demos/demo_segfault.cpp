@@ -143,4 +143,28 @@ int main(int argc, char **argv)
     real_time_tools::create_realtime_thread(thread, &thread_function);
     real_time_tools::join_thread(thread);
     return 0;
+
+    /* Version that crashes my 16.04 machine (non realtime) after a while */
+
+    /*
+    for (int i=0;i<2000;i++){
+
+      for (int j=1;j<10;j++){
+
+	real_time_tools::RealTimeThread* threads = new real_time_tools::RealTimeThread[j];
+
+	for (int k=0;k<j;k++){
+	  real_time_tools::create_realtime_thread(threads[k], &thread_function);
+	}
+
+	for (int k=0;k<j;k++){
+	  real_time_tools::join_thread(threads[k]);
+	}
+	
+	delete[] threads;
+
+      }
+      
+      }*/
+
 }
