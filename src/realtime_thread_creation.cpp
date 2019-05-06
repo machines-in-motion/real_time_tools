@@ -21,7 +21,7 @@ namespace real_time_tools {
                              void*(*thread_function)(void*),
                              void* args,
                              bool call_block_memory,
-			     int stack_memory_factor){
+                             int stack_memory_factor){
     if(call_block_memory)
     {
         block_memory();
