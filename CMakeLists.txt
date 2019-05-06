@@ -37,6 +37,8 @@ add_library(${LIBRARY_NAME}
   src/spinner.cpp
   src/timer.cpp
   src/realtime_iostream.cpp
+
+  src/process_manager.cpp
 )
 
 target_link_libraries(real_time_tools
