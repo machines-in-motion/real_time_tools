@@ -2,6 +2,7 @@
 #define REALTIME_THREAD_CREATION_HPP
 
 #include <string>
+#include <vector>
 
 #ifdef  XENOMAI
   #define THREAD_FUNCTION_RETURN_TYPE void
@@ -55,7 +56,8 @@ namespace real_time_tools {
                              void*(*thread_function)(void*),
                              void* args = nullptr,
                              bool call_block_memory = true,
-                             int stack_memory_factor=50);
+                             int stack_memory_factor=50,
+                             std::vector<int> cpu_affinities=std::vector<int>(0));
 
   /**
    * @brief join_thread join the real time thread

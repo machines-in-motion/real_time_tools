@@ -21,7 +21,8 @@ namespace real_time_tools {
                              void*(*thread_function)(void*),
                              void* args,
                              bool call_block_memory,
-                             int stack_memory_factor){
+                             int stack_memory_factor,
+                             std::vector<int> cpu_affinities){
     if(call_block_memory)
     {
         block_memory();
@@ -76,6 +77,38 @@ namespace real_time_tools {
                     rt_preempt_error_message).c_str(), ret);
       return ret;
     }
+
+    if(cpu_affinities.size()>0)
+    {
+      cpu_set_t cpuset;
+      CPU_ZERO(&cpuset);
+      for (unsigned i=0 ; i<cpu_affinities.size() ; ++i)
+      {
+        CPU_SET(cpu_affinities[i], &cpuset);
+      }
+      ret = pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpuset);
+      if (ret)
+      {
+        printf("%s %d\n", ("Associate thread to a specific cpu failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
+      }
+
+      int get_aff_error = 0;
+      get_aff_error = pthread_getaffinity_np(thread, sizeof(cpu_set_t), &cpuset);
+      if (get_aff_error)
+      {
+        printf("%s %d\n", ("Check the thread cpu affinity failed. Ret=" +
+                    rt_preempt_error_message).c_str(), ret);
+      }
+      printf("Set returned by pthread_getaffinity_np() contained:\n");
+      for (j = 0; j < CPU_SETSIZE; j++)
+      {
+        if (CPU_ISSET(j, &cpuset))
+        {
+          printf("    CPU %d\n", j);
+        }
+      }
+    }
     return ret;
   }
 
@@ -107,7 +140,8 @@ namespace real_time_tools {
                              void*(*thread_function)(void*),
                              void* args,
                              bool call_block_memory,
-			     int stack_factor){
+			                       int stack_factor,
+                             std::vector<int> cpu_affinities{
     int ret=0;
     throw std::runtime_error("create_realtime_thread: "
                              "Please implement this for xenomai");
@@ -137,7 +171,8 @@ namespace real_time_tools {
                              void*(*thread_function)(void*),
                              void* args,
                              bool call_block_memory,
-			     int stack_factor){
+			                       int stack_factor,
+                             std::vector<int> cpu_affinities){
     printf("Warning this thread is not going to be real time.\n");
 
     /* Create a pthread with specified attributes */
