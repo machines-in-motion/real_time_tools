@@ -101,7 +101,7 @@ namespace real_time_tools {
                     rt_preempt_error_message).c_str(), ret);
       }
       printf("Set returned by pthread_getaffinity_np() contained:\n");
-      for (j = 0; j < CPU_SETSIZE; j++)
+      for (unsigned j = 0; j < CPU_SETSIZE; j++)
       {
         if (CPU_ISSET(j, &cpuset))
         {
