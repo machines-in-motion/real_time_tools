@@ -15,14 +15,16 @@
 #include <vector>
 
 #ifdef  XENOMAI
+  // you MAY need to happend "static" upon declaration
   #define THREAD_FUNCTION_RETURN_TYPE void
   #define THREAD_FUNCTION_RETURN_VALUE
   // include xenomai stuff here
 #elif defined NON_REAL_TIME
   #include <thread>
   #include <iostream>
+  // you need to happend "static" upon declaration
   #define THREAD_FUNCTION_RETURN_TYPE void*
-  #define THREAD_FUNCTION_RETURN_VALUE NULL
+  #define THREAD_FUNCTION_RETURN_VALUE nullptr
 #elif defined RT_PREEMPT
   #include <pthread.h>
   #include <limits.h>
@@ -31,8 +33,9 @@
   #include <stdlib.h>
   #include <sys/mman.h>
   #include <unistd.h>
+  // you need to happend "static" upon declaration
   #define THREAD_FUNCTION_RETURN_TYPE void*
-  #define THREAD_FUNCTION_RETURN_VALUE NULL
+  #define THREAD_FUNCTION_RETURN_VALUE nullptr
 #endif
 
 namespace real_time_tools {
