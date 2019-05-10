@@ -166,33 +166,45 @@ namespace real_time_tools {
   /**********************************************************
    * TODO: Check the implementation of this thread creation *
    **********************************************************/
-#if defined NON_REAL_TIME
-  int create_realtime_thread(RealTimeThread &thread,
-                             void*(*thread_function)(void*),
-                             void* args,
-                             bool call_block_memory,
-			                       int stack_factor,
-                             std::vector<int> cpu_affinities){
+// #if defined NON_REAL_TIME
+
+  RealTimeThread::RealTimeThread()
+  {
+    thread_.reset(nullptr);
+  }
+
+  RealTimeThread::~RealTimeThread()
+  {
+    join();
+    thread_.reset(nullptr);
+  }
+
+  int RealTimeThread::create_realtime_thread(
+    void*(*thread_function)(void*), void* args)
+  {
     printf("Warning this thread is not going to be real time.\n");
 
-    /* Create a pthread with specified attributes */
-    thread = RealTimeThread(thread_function, args);
+    /* Create a standard thread for non-real time OS */
+    thread_.reset(new std::thread(thread_function, args));
     return 0;
   }
 
-  int join_thread(RealTimeThread &thread)
+  int RealTimeThread::join()
   {
-    if(thread.joinable())
+    if(thread_ != nullptr)
     {
-      thread.join();
-    }
-    return 1;
+      if(thread_->joinable())
+      {
+        thread_->join();
+      }
+    }    
+    return 0;
   }
 
-  void block_memory()
+  void RealTimeThread::block_memory()
   {
     // do nothing
   }
-#endif // Defined NON_REAL_TIME
+// #endif // Defined NON_REAL_TIME
 
 } // namespace real_time_tools

@@ -28,54 +28,147 @@
   #define THREAD_FUNCTION_RETURN_VALUE nullptr
 #endif
 
+
+/**
+ * \page rt_preempt General introduction
+ * 
+ * \section intro_rtpreempt Introduction
+ * warning : initial version, copy pasted from : https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
+ * I did not study things now, so this likely needs improvement
+ * (alternative: https://rt.wiki.kernel.org/index.php/Threaded_RT-application_with_memory_locking_and_stack_handling_example)
+ * note: if failed as mlockall, run executable with sudo or be part of the
+ * real_time group or xenomai group.
+ * 
+ * \section block_memory_rtpreempt Block Memory
+ * see https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory#memory-locking
+ * for further explanation.
+ */
+
+/**
+ * \page xenomai General introduction
+ */
+
+/**
+ * \page non_real_time General introduction
+ */
+
 namespace real_time_tools {
 
-  // warning : initial version, copy pasted from : https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
-  // I did not study things now, so this likely needs improvement
-  // (alternative: https://rt.wiki.kernel.org/index.php/Threaded_RT-application_with_memory_locking_and_stack_handling_example)
-  // note: if failed as mlockall, run executable with sudo or be part of the
-  // real_time group or xenomai group.
+  /**
+   * @brief This class is a data structure allowing the user to share
+   * configurations among threads. These parameter allows you to generate
+   * real threads in xenomai and rt_preempt. The same code is compatible with
+   * Mac and ubuntu but will run non-real time threads.
+   */
+  class RealTimeThreadParameters
+  {
+  public:
+    /**
+     * @brief Construct a new RealTimeThreadParameters object
+     */
+    RealTimeThreadParameters(){
+      keyword_ = "real_time_thread";
+      priority_ = 80;
 #ifdef  XENOMAI
-  // include xenomai stuff here
+      throw std::runtime_error("xenomai not implemented")
 #elif defined NON_REAL_TIME
-  typedef std::thread RealTimeThread;
+      stack_size_ = -1;
 #elif defined RT_PREEMPT
-  typedef pthread_t RealTimeThread;
+      stack_size_ = 50*PTHREAD_STACK_MIN;
 #endif
+      cpu_id_.clear();
+      delay_ns_ = 0;
+      block_memory = true;
+    }
+    /**
+     * @brief Destroy the RealTimeThreadParameters object
+     */
+    ~RealTimeThreadParameters(){}
+
+  public:
+    /**
+     * @brief Used in xenomai to define the thread id
+     */
+    std::string keyword_;
+    /**
+     * @brief Defines the thread priority from 0 to 100
+     */
+    int priority_;
+    /**
+     * @brief Define the stack size
+     */
+    int stack_size_;
+    /**
+     * @brief Define the cpu affinity. Which means on which cpu(s) the thread
+     * is going to run
+     */
+    std::vector<int> cpu_id_;
+    /**
+     * @brief @todo Unknow Xenomai parameter
+     */
+    int delay_ns_;
+    /**
+     * @brief Defines if the thread should block the memory in a "page" or if
+     * several pages can be use. Switching memory page is time consumming and
+     * a non real time operation.
+     */
+    bool block_memory;
+  };
 
 
   /**
-   * @brief create_realtime_thread spawns a real time thread.
-   * based on
-   * https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
-   * @param[in][out] thread is the c++ object that represents the threads.
-   * @param[in] thread_function is the executing function for the thread.
-   * @param[in] arguments to be passed to the thread.
-   * @param[in] if true, block_memory() will be called at thread creation.
-   * @param[in] stack size available to the thread will be factor*PTHREAD_STACK_MIN (rt preempt only)
-   * @return the error code.
+   * @brief This class allows you to spawn thread. Its parameter are defined
+   * above.
    */
-  int create_realtime_thread(RealTimeThread &thread,
-                             void*(*thread_function)(void*),
-                             void* args = nullptr,
-                             bool call_block_memory = true,
-                             int stack_memory_factor=50,
-                             std::vector<int> cpu_affinities=std::vector<int>(0));
+  class RealTimeThread
+  {
+  public:
+    /**
+     * @brief Construct a new ThreadInfo object
+     */
+    RealTimeThread();
 
-  /**
-   * @brief join_thread join the real time thread
-   * @param thread is the C++ thread object to join
-   * @return the error code.
-   */
-  int join_thread(RealTimeThread &thread);
+    /**
+     * @brief Destroy the RealTimeThread object.
+     */
+    ~RealTimeThread();
 
-  /**
-   * @brief block_memory block the current and futur memory pages
-   * see https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory#memory-locking
-   * for further explanation.
-   */
-  void block_memory();
+    /**
+     * @brief create_realtime_thread spawns a real time thread if the OS allows
+     * it.
+     * @param[in] thread_function: the executing function for the thread.
+     * @param[in] args: arguments to be passed to the thread.
+     * @return the error code.
+     */
+    int create_realtime_thread(void*(*thread_function)(void*),
+                               void* args = nullptr);
 
+    /**
+     * @brief join join the real time thread
+     * @param thread is the C++ thread object to join
+     * @return the error code.
+     */
+    int join();
+
+    /**
+     * @brief block_memory block the current and futur memory pages.
+     */
+    void block_memory();
+
+    /**
+     * @brief Paramter of the real time thread
+     */
+    RealTimeThreadParameters parameters_;
+
+  private:
+#ifdef  XENOMAI
+    throw std::runtime_error("xenomai not implemented")
+#elif defined NON_REAL_TIME
+    std::unique_ptr<std::thread> thread_;
+#elif defined RT_PREEMPT
+    std::unique_ptr<pthread_t> thread_;
+#endif
+  };
 } // namespace real_time_tools
 
 #endif // REALTIME_THREAD_CREATION_HPP

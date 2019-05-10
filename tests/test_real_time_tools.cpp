@@ -115,12 +115,30 @@ TEST_F(TestRealTimeTools, test_timer_tic_and_tac_and_sleep_in_real_time)
 {
   TmpData tmp_data ;
   RealTimeThread thread;
-  create_realtime_thread(thread, &rt_thread_for_test, &tmp_data);
-  join_thread(thread);
+  thread.create_realtime_thread(&rt_thread_for_test, &tmp_data);
+  thread.join();
   // This works we got basycally 100 micro sec of error in the sleeping time in
   // real time. It is 5 times lower than the non real time test.
   ASSERT_NEAR(tmp_data.duration_, 1.0, 0.0001);
 }
+
+void* set_bool_to_true(void* data)
+{
+  bool* converted_data = static_cast<bool*>(data);
+  *converted_data = true;
+}
+
+TEST_F(TestRealTimeTools, test_thread_execution)
+{
+  bool data = false ;
+  RealTimeThread thread;
+  thread.create_realtime_thread(&set_bool_to_true, &data);
+  thread.join();
+  // This works we got basycally 100 micro sec of error in the sleeping time in
+  // real time. It is 5 times lower than the non real time test.
+  ASSERT_TRUE(data);
+}
+
 
 TEST_F(TestRealTimeTools, test_timer_dump)
 {
