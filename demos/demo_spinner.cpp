@@ -29,10 +29,8 @@ void* thread_function(void*) {
 
 
 int main(int , char* []) {
-
   real_time_tools::RealTimeThread thread;
   thread.create_realtime_thread(thread_function);
   thread.join();
-  
 }
 

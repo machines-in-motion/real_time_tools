@@ -132,7 +132,7 @@ TEST_F(TestRealTimeTools, test_thread_execution)
 {
   bool data = false ;
   RealTimeThread thread;
-  thread.create_realtime_thread(&set_bool_to_true, &data);
+  thread.create_realtime_thread(set_bool_to_true, &data);
   thread.join();
   // This works we got basycally 100 micro sec of error in the sleeping time in
   // real time. It is 5 times lower than the non real time test.

@@ -139,10 +139,9 @@ static void* thread_function(void*)
 
 int main(int argc, char **argv)
 {
-    real_time_tools::RealTimeThread thread;
-    real_time_tools::create_realtime_thread(thread, &thread_function);
-    real_time_tools::join_thread(thread);
-    return 0;
+  real_time_tools::RealTimeThread thread;
+  thread.create_realtime_thread(thread_function);
+  thread.join();
 
     /* Version that crashes my 16.04 machine (non realtime) after a while */
 
