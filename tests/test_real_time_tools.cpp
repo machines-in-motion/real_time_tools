@@ -11,9 +11,9 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <fstream>
-#include "real_time_tools/realtime_iostream.hpp"
+#include "real_time_tools/iostream.hpp"
 #include "real_time_tools/timer.hpp"
-#include "real_time_tools/realtime_thread_creation.hpp"
+#include "real_time_tools/thread.hpp"
 
 // We use this in the unnittest for code simplicity
 using namespace real_time_tools;

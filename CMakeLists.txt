@@ -32,12 +32,11 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_library(${LIBRARY_NAME}
   src/realtime_check.cpp
-  src/realtime_thread_creation.cpp
-
+  src/thread.cpp
   src/spinner.cpp
   src/timer.cpp
-  src/realtime_iostream.cpp
-
+  src/iostream.cpp
+  src/usb_stream.cpp
   src/process_manager.cpp
 )
 
@@ -50,25 +49,17 @@ target_link_libraries(real_time_tools
 #########
 # DEMOS #
 #########
-set(DEMO1 demo_realtime_check)
-add_executable(${DEMO1} demos/demo_realtime_check.cpp)
-target_link_libraries(${DEMO1} ${LIBRARY_NAME})
+macro(add_real_time_tools_demo source_file)
+  add_executable(${source_file} demos/${source_file}.cpp)
+  target_link_libraries(${source_file} ${LIBRARY_NAME})
+endmacro(add_real_time_tools_demo source_file)
 
-set(DEMO2 demo_realtime_strict_check)
-add_executable(${DEMO2} demos/demo_realtime_strict_check.cpp)
-target_link_libraries(${DEMO2} ${LIBRARY_NAME})
-
-set(DEMO3 demo_spinner)
-add_executable(${DEMO3} demos/demo_spinner.cpp)
-target_link_libraries(${DEMO3} ${LIBRARY_NAME})
-
-add_executable(demo_timing demos/demo_timing.cpp)
-target_link_libraries(demo_timing ${LIBRARY_NAME})
-
-add_executable(demo_segfault demos/demo_segfault.cpp)
-target_link_libraries(demo_segfault ${LIBRARY_NAME})
-
-
+add_real_time_tools_demo(demo_realtime_check)
+add_real_time_tools_demo(demo_realtime_strict_check)
+add_real_time_tools_demo(demo_spinner)
+add_real_time_tools_demo(demo_timing)
+add_real_time_tools_demo(demo_segfault)
+add_real_time_tools_demo(demo_usb_stream_imu_3DM_GX3_25)
 
 ###############
 # EXECUTABLES #

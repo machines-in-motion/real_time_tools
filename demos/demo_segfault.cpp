@@ -14,7 +14,7 @@
 #include <Eigen/Eigen>
 #include <limits>
 
-#include "real_time_tools/realtime_thread_creation.hpp"
+#include "real_time_tools/thread.hpp"
 
 
 union myUnion {

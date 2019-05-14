@@ -3,7 +3,7 @@
 
 #include <boost/filesystem.hpp>
 
-#ifdef __XENO__
+#if defined(XENOMAI)
 
 #include <native/task.h>
 #include <native/timer.h>
@@ -13,7 +13,7 @@
 #include <rtdk.h>
 #include <rtdm/rtcan.h>
 
-#else
+#elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +21,7 @@
 #define rt_fprintf fprintf
 #define rt_printf printf
 
-#endif // __XENO__
+#endif
 
 
 namespace real_time_tools {

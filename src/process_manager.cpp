@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
-#include "real_time_tools/realtime_iostream.hpp"
+#include "real_time_tools/iostream.hpp"
 #include "real_time_tools/process_manager.hpp"
 
 namespace real_time_tools {

@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #include "real_time_tools/realtime_check.hpp"
-#include "real_time_tools/realtime_thread_creation.hpp"
+#include "real_time_tools/thread.hpp"
 
 typedef std::chrono::high_resolution_clock my_clock;
 

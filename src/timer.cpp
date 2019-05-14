@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iomanip>
 #include <time.h>
-#include <real_time_tools/realtime_iostream.hpp>
+#include <real_time_tools/iostream.hpp>
 #include <real_time_tools/timer.hpp>
 
 namespace real_time_tools {

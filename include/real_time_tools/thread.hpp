@@ -129,6 +129,12 @@ namespace real_time_tools {
     RealTimeThread();
 
     /**
+     * @brief The copy constructor only "share the thread". It does not spawn
+     * another one.
+     */
+    RealTimeThread(const real_time_tools::RealTimeThread& other);
+
+    /**
      * @brief Destroy the RealTimeThread object.
      */
     ~RealTimeThread();
@@ -161,12 +167,12 @@ namespace real_time_tools {
     RealTimeThreadParameters parameters_;
 
   private:
-#ifdef  XENOMAI
+#if defined(XENOMAI)
     throw std::runtime_error("xenomai not implemented")
-#elif defined NON_REAL_TIME
-    std::unique_ptr<std::thread> thread_;
-#elif defined RT_PREEMPT
-    std::unique_ptr<pthread_t> thread_;
+#elif defined(NON_REAL_TIME)
+    std::shared_ptr<std::thread> thread_;
+#elif defined(RT_PREEMPT)
+    std::shared_ptr<pthread_t> thread_;
 #endif
   };
 } // namespace real_time_tools

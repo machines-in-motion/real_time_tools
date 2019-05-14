@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "real_time_tools/realtime_thread_creation.hpp"
+#include "real_time_tools/thread.hpp"
 
 namespace real_time_tools {
 
@@ -166,17 +166,17 @@ namespace real_time_tools {
   /**********************************************************
    * TODO: Check the implementation of this thread creation *
    **********************************************************/
-// #if defined NON_REAL_TIME
+#if defined NON_REAL_TIME
 
   RealTimeThread::RealTimeThread()
   {
-    thread_.reset(nullptr);
+    thread_ = nullptr;
   }
 
   RealTimeThread::~RealTimeThread()
   {
     join();
-    thread_.reset(nullptr);
+    thread_ = nullptr;
   }
 
   int RealTimeThread::create_realtime_thread(
@@ -185,7 +185,7 @@ namespace real_time_tools {
     printf("Warning this thread is not going to be real time.\n");
 
     /* Create a standard thread for non-real time OS */
-    thread_.reset(new std::thread(thread_function, args));
+    thread_ = std::make_shared<std::thread>(thread_function, args);
     return 0;
   }
 
@@ -205,6 +205,17 @@ namespace real_time_tools {
   {
     // do nothing
   }
-// #endif // Defined NON_REAL_TIME
+#endif // Defined NON_REAL_TIME
+
+  /**
+   * @brief Construct a new RealTimeThread::RealTimeThread object
+   * Used by all os.
+   * 
+   * @param other 
+   */
+  RealTimeThread::RealTimeThread(const RealTimeThread& other)
+  {
+    thread_ = other.thread_;
+  }
 
 } // namespace real_time_tools
