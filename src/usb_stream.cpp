@@ -133,16 +133,26 @@ bool UsbStream::set_port_config(const PortConfig& user_config)
   // https://www.setra.com/blog/what-is-baud-rate-and-what-cable-length-is-required-1
   switch (user_config.baude_rate_)
   {
+  case PortConfig::BR_57600 :
+    cfsetispeed(&config_, B57600);
+    cfsetospeed(&config_, B57600);  
+    break;
   case PortConfig::BR_115200 :
     cfsetispeed(&config_, B115200);
     cfsetospeed(&config_, B115200);  
     break;
-  
+  case PortConfig::BR_230400 :
+    cfsetispeed(&config_, B230400);
+    cfsetospeed(&config_, B230400);  
+    break;
+  case PortConfig::BR_460800 :
+    cfsetispeed(&config_, B460800);
+    cfsetospeed(&config_, B460800);  
+    break;  
   case PortConfig::BR_921600 :
     cfsetispeed(&config_, B921600);
     cfsetospeed(&config_, B921600);  
     break;
-  
   default:
     throw std::runtime_error("UsbStream::open_device : Baude rate not yet "
                              "supported, fix the code or correct baude rate");
@@ -258,7 +268,7 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
   else if (return_value_ != msg.size())
   {
     rt_printf("UsbStream::read_device: "
-              "Failed to read port %s. Requested %d bytes and "
+              "Failed to read port %s. Requested %ld bytes and "
               "received %ld bytes: %s",
               file_name_.c_str(), msg.size(), return_value_,
               msg_debug_string(msg).c_str());
@@ -333,154 +343,3 @@ std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg)
 }
 
 } // namespace
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // // Message incorrect
-  // if (!is_checksum_correct(msg))
-  // {
-  //   rt_printf("UsbStream::read_device: "
-  //             "Received message %s with bad checksum from command %s.",
-  //             msg.reply_debug_string().c_str(),
-  //             msg.command_debug_string().c_str());
-  //   if (stream_mode_on_)
-  //   {
-  //     rt_printf("UsbStream::read_device: WARNING, Attempting to re-align with "
-  //               "stream...\n");
-  //     return read_misaligned_msg_from_device(msg);
-  //   }
-  //   return false;
-  // }
-  // else if (is_header_found(msg))
-  // {
-  //   rt_printf("ERROR >> Received unexpected message from device.\n");
-  //   return false;
-  // }
-
-
-// bool UsbStream::is_checksum_correct(uint8_t *rep, int rep_len)
-// {
-//   uint16_t checksum = 0;
-//   for (int i = 0; i < rep_len - 2; i++)
-//   {
-//     checksum += ((uint8_t *)rep)[i];
-//   }
-
-//   return checksum == bswap_16(*(uint16_t *)((uint8_t *)rep + rep_len - 2));
-// }
-
-// bool UsbStream::read_misaligned_msg_from_device(
-//   const std::vector<uint8_t>& command,
-//   std::vector<uint8_t>& reply)
-// {
-
-//   // When we read corrupt data, try to keep reading until we catch up with clean data:
-//   int trial = 0;
-//   while (cmd_buffer_[0] != cmd || !is_checksum_correct(cmd_buffer_.data(), len))
-//   {
-//     if (trial >= max_realign_trials_)
-//     {
-//       rt_printf("ERROR >> Realigning failed!\n");
-//       return false;
-//     }
-
-//     // Print the corrupt message:
-//     rt_printf("WARNING >> Read invalid message: ");
-//     for (int i = 0; i < len; ++i)
-//     {
-//       rt_printf("%02x ", cmd_buffer_[i]);
-//     }
-//     rt_printf("\n");
-
-//     // Search for the header:
-//     int num_missed = 1;
-//     for (; num_missed < len; ++num_missed)
-//     {
-//       if (cmd == cmd_buffer_[num_missed])
-//       {
-//         break;
-//       }
-//     }
-
-//     if (num_missed >= len)
-//     {
-//       rt_printf("ERROR >> Realigning failed!\n");
-//       return false;
-//     }
-
-//     // We MIGHT have found the header!
-//     uint8_t fragment[len];
-// #if defined(XENOMAI)
-//     return_value_ = rt_dev_read(file_id_, fragment, num_missed);
-// #elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
-//     return_value_ = read(file_id_, fragment, num_missed);
-// #endif
-//     if (return_value_ != num_missed)
-//     {
-//       int errsv = errno;
-//       rt_printf("ERROR >> Failed to read fragment from port %s with error\n"
-//               "\t%s\n", file_name_.c_str(), strerror(errsv));
-//       return false;
-//     }
-
-//     uint8_t tmp_buf[len];
-//     memcpy(tmp_buf, &cmd_buffer_[num_missed], (len - num_missed) * sizeof(uint8_t));
-//     memcpy(&tmp_buf[len - num_missed], fragment, num_missed * sizeof(uint8_t));
-//     memcpy(cmd_buffer_.data(), tmp_buf, len * sizeof(uint8_t));
-
-//     ++trial;
-//   }
-
-//   return true;
-// }
-
-// bool is_header_found(msg)
-// {
-//   bool header_found = true;
-//   for (unsigned i=0; i<msg.command.size())
-//   {
-//     header_found = header_found && (msg.command_[i] != msg.reply_[i])
-//   }
-// }
