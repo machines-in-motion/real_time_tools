@@ -7,21 +7,23 @@
 void* thread_function(void*)
 {
 
-    double frequency = 1000.0;
+    double frequency = 1000;
 
     real_time_tools::Spinner spinner;
     spinner.set_frequency(frequency);
 
     real_time_tools::Timer timer;
 
+    while(true)
+    {
+        for(int i = 0; i < frequency; i++)
+        {
+            spinner.spin();
+            timer.tac_tic();
+        }
 
-    for(int i=0;i<1000;i++){
-        spinner.spin();
-//        real_time_tools::Timer::sleep_sec(0.001);
-        timer.tac_tic();
+        timer.print_statistics();
     }
-
-    timer.print_statistics();
 
     return NULL;
 }
