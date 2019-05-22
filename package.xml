@@ -7,7 +7,7 @@
     allows you to get the same fonctionnality (at the cost of real time) with non-real
     time OSs such as Ubuntu and MacOs (not fully fonctionnal).
   </description>
-  <license>undeterminded</license>
+  <license>BSD 3-Clause</license>
   <author email="vberenz@tuebingen.mpg.de">Vincent Berenz</author>
   <maintainer email="vberenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
 
