@@ -1,3 +1,13 @@
+/**
+ * @file realtime_test.cpp
+ * @author Maximilien Naveau (maximilien.naveau@gmail.com)
+ * @license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @date 2019-05-22
+ * 
+ * @brief Program: test the real time capabilities of a machine
+ */
+
 #include "real_time_tools/realtime_test.hpp"
 #include "real_time_tools/realtime_check.hpp"
 #include "real_time_tools/spinner.hpp"

@@ -1,6 +1,11 @@
-/*
- * POSIX Real Time Example
- * using a single pthread as RT thread
+/**
+ * @file demo_realtime_strict_check.cpp
+ * @author Maximilien Naveau (maximilien.naveau@gmail.com)
+ * @license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @date 2019-05-22
+ * 
+ * @brief Check the real time capbilites of a loop.
  */
 
 #include <limits.h>

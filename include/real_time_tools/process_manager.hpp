@@ -1,12 +1,10 @@
 /**
  * @file process_manager.hpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @brief 
- * @version 0.1
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
  * @date 2019-05-06
  * 
- * @copyright Copyright (c) 2019
- * 
+ * @brief Tools to fix the CPU to specific processor.
  */
 
 #ifndef PROCESS_MANAGER_HPP

@@ -1,3 +1,13 @@
+/**
+ * @file realtime_thread_creation.hpp
+ * @author Maximilien Naveau (maximilien.naveau@gmail.com)
+ * @license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @date 2019-05-22
+ * 
+ * @brief Tools to create and join threads.
+ */
+
 #ifndef REALTIME_THREAD_CREATION_HPP
 #define REALTIME_THREAD_CREATION_HPP
 

@@ -1,12 +1,11 @@
 /**
  * @file process_manager.cpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @brief 
- * @version 0.1
- * @date 2019-05-06
+ * @license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @date 2019-05-22
  * 
- * @copyright Copyright (c) 2019
- * 
+ * @brief Allow us to fix the current process to a specific set of cpus.
  */
 
 #include <vector>
