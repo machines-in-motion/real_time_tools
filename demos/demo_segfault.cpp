@@ -1,11 +1,14 @@
 /**
- * \file demo_finger.cpp
- * \brief a demo illustrating how to use the RealFinger class
- * \author Manuel Wuthrich
- * \date 2019
- *
- * This file uses the RealFinger class in a small demo.
+ * @file demo_segfault.cpp
+ * @author Manuel Wuthrich
+ * @license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @date 2019-05-22
+ * 
+ * @brief Demo illustrating a stack overflow on rt_preempt. One must increase
+ * the stack size if this demo fails.
  */
+
 
 #include <iostream>
 #include <tuple>

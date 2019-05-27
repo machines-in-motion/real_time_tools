@@ -1,5 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+"""@package real_time_tools
+
+@file compute_statistics.py
+@author Maximilien Naveau (maximilien.naveau@gmail.com)
+@copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+@license License BSD-3 clause
+@date 2019-05-06
+
+@brief This program computes statistics from files in a user given folder.
+       The files must possess at least 2 columns. The statistics are going 
+       to be computed from the econd one. The typical use is to give this 
+       executable a folder path and it will check all files with an 
+       extension \".dat\" and perform the statistics
+"""
+
 import sys
 import argparse
 import numpy as np

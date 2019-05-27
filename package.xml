@@ -2,8 +2,12 @@
 <package>
   <name>real_time_tools</name>
   <version>1.0.0</version>
-  <description>various tools for testing realtime on rtpreempt</description>
-  <license>undeterminded</license>
+  <description>This package is a wrapper around different linux OS. It provide APIs over
+    real time OSs such as Xenomai (not fully operational) and RT-PREEMPT. It also
+    allows you to get the same fonctionnality (at the cost of real time) with non-real
+    time OSs such as Ubuntu and MacOs (not fully fonctionnal).
+  </description>
+  <license>BSD 3-Clause</license>
   <author email="vberenz@tuebingen.mpg.de">Vincent Berenz</author>
   <maintainer email="vberenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
 

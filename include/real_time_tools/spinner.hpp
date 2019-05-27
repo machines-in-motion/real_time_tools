@@ -1,3 +1,13 @@
+/**
+ * @file spinner.hpp
+ * @author Maximilien Naveau (maximilien.naveau@gmail.com)
+ * @license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @date 2019-05-22
+ * 
+ * @brief Tools for maintaining the timing on a while loop.
+ */
+
 #ifndef SPINNER_HPP
 #define SPINNER_HPP
 

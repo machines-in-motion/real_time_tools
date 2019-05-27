@@ -1,3 +1,13 @@
+/**
+ * @file realtime_test_display.cpp
+ * @author Maximilien Naveau (maximilien.naveau@gmail.com)
+ * @license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @date 2019-05-22
+ * 
+ * @brief Display results of the real time test
+ */
+
 #include "real_time_tools/realtime_test.hpp"
 #include "shared_memory/shared_memory.hpp"
 #include "real_time_tools/spinner.hpp"
