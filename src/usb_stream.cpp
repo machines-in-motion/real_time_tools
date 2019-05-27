@@ -34,7 +34,7 @@ UsbStream::UsbStream()
 
 UsbStream::~UsbStream()
 {
-
+  close_device();
 }
 
 bool UsbStream::open_device(const std::string& file_name)
@@ -159,7 +159,6 @@ bool UsbStream::set_port_config(const PortConfig& user_config)
     break;
   }
   
-
   // set port properties after flushing buffer
   if (tcsetattr(file_id_, TCSAFLUSH, &config_) < 0)
   {
@@ -269,7 +268,7 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
   {
     rt_printf("UsbStream::read_device: "
               "Failed to read port %s. Requested %ld bytes and "
-              "received %ld bytes: %s",
+              "received %ld bytes: %s\n",
               file_name_.c_str(), msg.size(), return_value_,
               msg_debug_string(msg).c_str());
     return false;
@@ -340,6 +339,22 @@ std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg)
   }
   cmd_debug_string << "]";
   return cmd_debug_string.str();
+}
+
+bool UsbStream::flush()
+{
+#ifdef __XENO__
+#else
+  // sleep(2); //required to make flush work, for some reason
+  return_value_ = tcflush(file_id_, TCIOFLUSH);
+  if (return_value_ < 0)
+  {
+    int errsv = errno;
+    rt_printf("ERROR >> Failed to flush port %s"
+              "and error\n\t%s\n", file_name_.c_str(), strerror(errsv));
+    return false;
+  }
+#endif
 }
 
 } // namespace

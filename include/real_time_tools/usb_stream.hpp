@@ -143,6 +143,14 @@ public:
   bool set_poll_mode_timeout(double timeout_in_second);
 
   /**
+   * @brief Flush the current port
+   * 
+   * @return true 
+   * @return false 
+   */
+  bool flush();
+
+  /**
    * @brief Allow to display a msg.
    * 
    * @param msg 
