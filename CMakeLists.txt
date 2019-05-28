@@ -88,18 +88,16 @@ catkin_add_gtest(test_real_time_tools
 )
 # link the dependecies to it
 if (TARGET test_real_time_tools)
-
-    target_link_libraries(test_real_time_tools
-	real_time_tools
-    	${catkin_LIBRARIES}
-    	${Boost_LIBRARIES}
+  target_link_libraries(test_real_time_tools
+    real_time_tools
+    ${catkin_LIBRARIES}
+   	${Boost_LIBRARIES}
 	)
 
-    # add some preprocessor variable
-    target_compile_definitions(test_real_time_tools PUBLIC
-        TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}"
-    )
-
+  # add some preprocessor variable
+  target_compile_definitions(test_real_time_tools PUBLIC
+    TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}"
+  )
 endif()
 
 catkin_install_python(PROGRAMS

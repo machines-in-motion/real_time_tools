@@ -11,22 +11,18 @@
 #include "real_time_tools/thread.hpp"
 
 namespace real_time_tools {
-
-  /****************************************
-   * RT PREEMPT REAL TIME THREAD CREATION *
-   ****************************************/
-#if defined RT_PREEMPT
-
   RealTimeThread::RealTimeThread()
   {
-    thread_ = nullptr;
+    thread_.reset(nullptr);
   }
 
   RealTimeThread::~RealTimeThread()
   {
     join();
-    thread_ = nullptr;
+    thread_.reset(nullptr);
   }
+
+#if defined RT_PREEMPT
 
   /**
    * @brief rt_preempt_error_message id common message for all things that could
@@ -46,7 +42,7 @@ namespace real_time_tools {
       printf("Thread already running");
     }
 
-    thread_ = std::make_shared<pthread_t>();
+    thread_.reset(new pthread_t());
 
     if(parameters_.block_memory_)
     {
@@ -125,14 +121,15 @@ namespace real_time_tools {
         printf("%s %d\n", ("Check the thread cpu affinity failed. Ret=" +
                     rt_preempt_error_message).c_str(), ret);
       }
-      printf("Set returned by pthread_getaffinity_np() contained:\n");
+      printf("Set returned by pthread_getaffinity_np() contained: ");
       for (unsigned j = 0; j < CPU_SETSIZE; j++)
       {
         if (CPU_ISSET(j, &cpuset))
         {
-          printf("    CPU %d\n", j);
+          printf("CPU %d, ", j);
         }
       }
+      printf("\n");
     }
     return ret;
   }
@@ -148,6 +145,7 @@ namespace real_time_tools {
       {
         printf("join pthread failed.\n");
       }
+      thread_.reset(nullptr);
     }
     return ret;
   }
@@ -198,17 +196,6 @@ namespace real_time_tools {
    **********************************************************/
 #if defined NON_REAL_TIME
 
-  RealTimeThread::RealTimeThread()
-  {
-    thread_ = nullptr;
-  }
-
-  RealTimeThread::~RealTimeThread()
-  {
-    join();
-    thread_ = nullptr;
-  }
-
   int RealTimeThread::create_realtime_thread(
     void*(*thread_function)(void*), void* args)
   {
@@ -238,14 +225,15 @@ namespace real_time_tools {
 #endif // Defined NON_REAL_TIME
 
   /**
-   * @brief Construct a new RealTimeThread::RealTimeThread object
+   * @brief Construct a new RealTimeThread::RealTimeThread object. It copies the
+   * paramters of the other thread but does *NOT* spwan a new one.
    * Used by all os.
    * 
    * @param other 
    */
   RealTimeThread::RealTimeThread(const RealTimeThread& other)
   {
-    thread_ = other.thread_;
+    thread_.reset(nullptr);
     parameters_ = other.parameters_;
   }
 

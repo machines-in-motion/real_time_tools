@@ -171,9 +171,9 @@ namespace real_time_tools {
 #if defined(XENOMAI)
     throw std::runtime_error("xenomai not implemented")
 #elif defined(NON_REAL_TIME)
-    std::shared_ptr<std::thread> thread_;
+    std::unique_ptr<std::thread> thread_;
 #elif defined(RT_PREEMPT)
-    std::shared_ptr<pthread_t> thread_;
+    std::unique_ptr<pthread_t> thread_;
 #endif
   };
 } // namespace real_time_tools
