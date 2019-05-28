@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #ifdef  XENOMAI
   // you MAY need to happend "static" upon declaration
@@ -78,7 +79,7 @@ namespace real_time_tools {
 #endif
       cpu_id_.clear();
       delay_ns_ = 0;
-      block_memory = true;
+      block_memory_ = true;
     }
     /**
      * @brief Destroy the RealTimeThreadParameters object
@@ -112,7 +113,7 @@ namespace real_time_tools {
      * several pages can be use. Switching memory page is time consumming and
      * a non real time operation.
      */
-    bool block_memory;
+    bool block_memory_;
   };
 
 

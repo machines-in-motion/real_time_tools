@@ -16,6 +16,18 @@ namespace real_time_tools {
    * RT PREEMPT REAL TIME THREAD CREATION *
    ****************************************/
 #if defined RT_PREEMPT
+
+  RealTimeThread::RealTimeThread()
+  {
+    thread_ = nullptr;
+  }
+
+  RealTimeThread::~RealTimeThread()
+  {
+    join();
+    thread_ = nullptr;
+  }
+
   /**
    * @brief rt_preempt_error_message id common message for all things that could
    * go wrong.
@@ -26,15 +38,12 @@ namespace real_time_tools {
         "Either use sudo or be part of the \'realtime\' group"
         "Aborting thread creation.");
 
-  int create_realtime_thread(RealTimeThread &thread,
-                             void*(*thread_function)(void*),
-                             void* args,
-                             bool call_block_memory,
-                             int stack_memory_factor,
-                             std::vector<int> cpu_affinities){
-    if(call_block_memory)
+  int RealTimeThread::create_realtime_thread(
+    void*(*thread_function)(void*), void* args)
+  {
+    if(parameters_.block_memory_)
     {
-        block_memory();
+      block_memory();
     }
 
     struct sched_param param;
@@ -49,7 +58,7 @@ namespace real_time_tools {
     }
 
     /* Set a specific stack size  */
-    ret = pthread_attr_setstacksize(&attr, stack_memory_factor*PTHREAD_STACK_MIN);
+    ret = pthread_attr_setstacksize(&attr, parameters_.stack_size_);
     if (ret) {
       printf("%s %d\n", ("pthread setstacksize failed. Ret=" +
                     rt_preempt_error_message).c_str(), ret);
@@ -64,7 +73,7 @@ namespace real_time_tools {
                     rt_preempt_error_message).c_str(), ret);
       return ret;
     }
-    param.sched_priority = 80;
+    param.sched_priority = parameters_.priority_;
     ret = pthread_attr_setschedparam(&attr, &param);
     if (ret) {
       printf("%s %d\n", ("pthread setschedparam failed. Ret=" +
@@ -80,22 +89,22 @@ namespace real_time_tools {
     }
 
     /* Create a pthread with specified attributes */
-    ret = pthread_create(&thread, &attr, thread_function, args);
+    ret = pthread_create(thread_.get(), &attr, thread_function, args);
     if (ret) {
       printf("%s %d\n", ("create pthread failed. Ret=" +
                     rt_preempt_error_message).c_str(), ret);
       return ret;
     }
 
-    if(cpu_affinities.size()>0)
+    if(parameters_.cpu_id_.size()>0)
     {
       cpu_set_t cpuset;
       CPU_ZERO(&cpuset);
-      for (unsigned i=0 ; i<cpu_affinities.size() ; ++i)
+      for (unsigned i=0 ; i<parameters_.cpu_id_.size() ; ++i)
       {
-        CPU_SET(cpu_affinities[i], &cpuset);
+        CPU_SET(parameters_.cpu_id_[i], &cpuset);
       }
-      ret = pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpuset);
+      ret = pthread_setaffinity_np(*thread_, sizeof(cpu_set_t), &cpuset);
       if (ret)
       {
         printf("%s %d\n", ("Associate thread to a specific cpu failed. Ret=" +
@@ -103,7 +112,7 @@ namespace real_time_tools {
       }
 
       int get_aff_error = 0;
-      get_aff_error = pthread_getaffinity_np(thread, sizeof(cpu_set_t), &cpuset);
+      get_aff_error = pthread_getaffinity_np(*thread_, sizeof(cpu_set_t), &cpuset);
       if (get_aff_error)
       {
         printf("%s %d\n", ("Check the thread cpu affinity failed. Ret=" +
@@ -121,17 +130,22 @@ namespace real_time_tools {
     return ret;
   }
 
-  int join_thread(RealTimeThread &thread)
+  int RealTimeThread::join()
   {
-    int ret ;
-    /* Join the thread and wait until it is done */
-    ret = pthread_join(thread, nullptr);
-    if (ret)
-      printf("join pthread failed.\n");
+    int ret = 0;
+    if(thread_ != nullptr)
+    {
+      /* Join the thread and wait until it is done */
+      ret = pthread_join(*thread_, nullptr);
+      if (ret)
+      {
+        printf("join pthread failed.\n");
+      }
+    }
     return ret;
   }
 
-  void block_memory()
+  void RealTimeThread::block_memory()
   {
     /* Lock memory */
     if(mlockall(MCL_CURRENT|MCL_FUTURE) == -1) {
@@ -145,7 +159,7 @@ namespace real_time_tools {
    * TODO: Check the implementation of this thread creation *
    **********************************************************/
 #if defined XENOMAI
-  int create_realtime_thread(RealTimeThread &thread,
+  int RealTimeThread::create_realtime_thread(RealTimeThread &thread,
                              void*(*thread_function)(void*),
                              void* args,
                              bool call_block_memory,
@@ -165,7 +179,7 @@ namespace real_time_tools {
     return ret;
   }
 
-  void block_memory()
+  void RealTimeThread::block_memory()
   {
     throw std::runtime_error("block_memory: "
                              "Please implement this for xenomai");
@@ -206,7 +220,7 @@ namespace real_time_tools {
       {
         thread_->join();
       }
-    }    
+    }
     return 0;
   }
 
@@ -225,6 +239,7 @@ namespace real_time_tools {
   RealTimeThread::RealTimeThread(const RealTimeThread& other)
   {
     thread_ = other.thread_;
+    parameters_ = other.parameters_;
   }
 
 } // namespace real_time_tools
