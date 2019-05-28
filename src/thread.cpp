@@ -41,6 +41,13 @@ namespace real_time_tools {
   int RealTimeThread::create_realtime_thread(
     void*(*thread_function)(void*), void* args)
   {
+    if (thread_ != nullptr)
+    {
+      printf("Thread already running");
+    }
+
+    thread_ = std::make_shared<pthread_t>();
+
     if(parameters_.block_memory_)
     {
       block_memory();
