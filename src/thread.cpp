@@ -202,7 +202,7 @@ namespace real_time_tools {
     printf("Warning this thread is not going to be real time.\n");
 
     /* Create a standard thread for non-real time OS */
-    thread_ = std::make_shared<std::thread>(thread_function, args);
+    thread_.reset(new std::thread(thread_function, args));
     return 0;
   }
 
