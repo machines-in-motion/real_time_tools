@@ -1,5 +1,7 @@
 #include <exception>
+#include <algorithm>
 #include "real_time_tools/iostream.hpp"
+#include "real_time_tools/timer.hpp"
 #include "real_time_tools/usb_stream.hpp"
 
 #if defined(XENOMAI)
@@ -16,6 +18,7 @@ UsbStream::UsbStream()
 {
   // important initialization
   timeout_set_ = false;
+  buffer_.resize(100);
 
   // some default value
   file_name_ = "";
@@ -178,22 +181,38 @@ bool UsbStream::close_device()
     return false;
   }
 #elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
-  return_value_ = close(file_id_);
-  if (return_value_ != 0)
+  if(file_id_ != 0)
   {
-    int errsv = errno;
-    printf("ERROR >> Failed to close port %s with error:\n"
-           "\t%s\n", file_name_.c_str(), strerror(errsv));
-    return false;
+    return_value_ = close(file_id_);
+    if (return_value_ != 0)
+    {
+      int errsv = errno;
+      printf("ERROR >> Failed to close port %s with error:\n"
+            "\t%s\n", file_name_.c_str(), strerror(errsv));
+      return false;
+    }
+    file_id_ = 0;
   }
 #endif
+  real_time_tools::Timer::sleep_sec(5);
   return true;
 }
 
 bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
 {
+  // We make sure that the internal buffer is big enough, while avoiding too
+  // many resize. Theoretically the default size is good enough.
+  if (msg.size() > buffer_.size())
+  {
+    rt_printf("UsbStream::read_device: Warning internal buffer needs resizing,"
+              "This operation is not real-time safe");
+    buffer_.resize(10*msg.size());
+  }
+  // inefficient but safer
+  std::fill(buffer_.begin(), buffer_.end(), 0);
+
 #if defined(XENOMAI)
-  return_value_ = rt_dev_read(file_id_, msg.reply_.data(), msg.reply_size());
+  return_value_ = rt_dev_read(file_id_, buffer_.data(), msg.size());
 #elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
   /**
    * Poll Mode
@@ -207,17 +226,20 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
                               "UsbStream::set_poll_mode_timeout");
     }
     // here we acquire the port access.
-    return_value_ = pselect(file_id_ + 1, &file_id_set_,
-                            nullptr, nullptr, &timeout_posix_, nullptr);
+    return_value_ = pselect(file_id_ + 1,
+                            &file_id_set_, // writefds
+                            nullptr, // readfds
+                            nullptr, // exceptfds
+                            &timeout_posix_, // timeout
+                            nullptr); // sigmask
 
     // an error occured during the ressource access
     if (return_value_ == -1)
     {
       int errsv = errno;
       rt_printf("UsbStream::read_device: "
-                "Failed to access port %s with command %s and error\n\t%s\n",
-                file_name_.c_str(), msg_debug_string(msg).c_str(),
-                strerror(errsv));
+                "Failed to access port %s with error\n\t%s\n",
+                file_name_.c_str(), strerror(errsv));
       return false;
     }
     // the timeout has expired
@@ -225,16 +247,14 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
     {
       int errsv = errno;
       rt_printf("UsbStream::read_device: "
-                "Failed to access port %s befor timeout with command %s and "
-                "error\n\t%s\n",
-                file_name_.c_str(), msg_debug_string(msg).c_str(),
-                strerror(errsv));
+                "Failed to access port %s before timeout with "
+                "error\n\t%s\n", file_name_.c_str(), strerror(errsv));
       return false;
     }
     // Nothing wrong happened: access the data.
     else
     {
-      return_value_ = read(file_id_, msg.data(), msg.size());
+      return_value_ = read(file_id_, buffer_.data(), msg.size());
     }
   }
   /**
@@ -242,7 +262,7 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
    */
   else
   {
-    return_value_ = read(file_id_, msg.data(), msg.size());
+    return_value_ = read(file_id_, buffer_.data(), msg.size());
   }
 #endif
   /**
@@ -258,9 +278,8 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
   {
     int errsv = errno;
     rt_printf("UsbStream::read_device: "
-              "Failed to read port %s with command %s and error\n\t%s\n",
-              file_name_.c_str(), msg_debug_string(msg).c_str(),
-              strerror(errsv));
+              "Failed to read port %s with error\n\t%s\n",
+              file_name_.c_str(), strerror(errsv));
     return false;
   }
   // Timeout failure
@@ -273,29 +292,46 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
               msg_debug_string(msg).c_str());
     return false;
   }
+  // Here we copy the message inside the buffer in order to use a bigger memory
+  // buffer than the message itself
+  std::copy_n(buffer_.begin(), msg.size(), msg.begin());
   return true;
 }
 
 bool UsbStream::write_device(const std::vector<uint8_t>& msg)
 {
+  if (msg.size() > buffer_.size())
+  {
+    rt_printf("UsbStream::write_device: Warning internal buffer needs resizing,"
+              "This operation is not real-time safe");
+    buffer_.resize(10*msg.size());
+  }
+  // inefficient but safer
+  std::fill(buffer_.begin(), buffer_.end(), 0);
+
+  // Here we copy the message inside the buffer in order to use a bigger memory
+  // buffer than the message itself
+  std::copy(msg.begin(), msg.end(), buffer_.begin());
+
 #if defined(XENOMAI)
-  return_value_ = rt_dev_write(file_id_, msg.data(), msg.size());
+  return_value_ = rt_dev_write(file_id_, buffer_.data(), msg.size());
 #elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
-  return_value_ = write(file_id_, msg.data(), msg.size());
+  return_value_ = write(file_id_, buffer_.data(), msg.size());
 #endif
 
   if (return_value_ < 0)
   {
     int errsv = errno;
-    rt_printf("ERROR >> Failed to read port %s with command %s "
-              "and error\n\t%s\n", file_name_.c_str(),
+    rt_printf("UsbStream::write_device: Failed to write in port %s with "
+              "command %s and error\n\t%s\n", file_name_.c_str(),
               msg_debug_string(msg).c_str(), strerror(errsv));
     return false;
   }
   else if (return_value_ != msg.size())
   {
-    rt_printf("ERROR >> Failed writing requested amount of %ld bytes\n",
-              msg.size());
+    rt_printf("UsbStream::write_device: Failed to write in port %s, the "
+              "requested amount of bytes is %ld, could only write %ld bytes\n",
+              file_name_.c_str(), msg.size(), return_value_);
     return false;
   }
 
@@ -345,15 +381,28 @@ bool UsbStream::flush()
 {
 #ifdef __XENO__
 #else
-  // sleep(2); //required to make flush work, for some reason
-  return_value_ = tcflush(file_id_, TCIOFLUSH);
-  if (return_value_ < 0)
-  {
-    int errsv = errno;
-    rt_printf("ERROR >> Failed to flush port %s"
-              "and error\n\t%s\n", file_name_.c_str(), strerror(errsv));
-    return false;
+  fcntl(file_id_, F_SETFL, 0);
+  return_value_ = fcntl(file_id_, F_SETFL, (O_RDWR | O_NONBLOCK));
+  
+  int i = 150;
+  while (--i > 0) {
+	  real_time_tools::Timer::sleep_ms(1.0);
+	  while ((return_value_ = read(file_id_, buffer_.data(), buffer_.size())) > 0)
+    { // flush buffer and make sure it's cleared for while.
+	    i = 100;
+    }
   }
+  fcntl(file_id_, F_SETFL, 0);
+  return_value_ = fcntl(file_id_, F_SETFL, O_RDWR);
+  // sleep(2); //required to make flush work, for some reason
+  // return_value_ = tcflush(file_id_, TCIOFLUSH);
+  // if (return_value_ < 0)
+  // {
+  //   int errsv = errno;
+  //   rt_printf("ERROR >> Failed to flush port %s"
+  //             "and error\n\t%s\n", file_name_.c_str(), strerror(errsv));
+  //   return false;
+  // }
 #endif
 }
 

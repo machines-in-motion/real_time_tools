@@ -12,6 +12,7 @@
 
 #if defined(XENOMAI)
 #elif defined(NON_REAL_TIME) || defined(RT_PREEMPT)
+  #include <fcntl.h>
   #include <termios.h> // POSIX control def: tcgetattr, cfsetispeed, tcsetattr
 #endif
 
@@ -208,6 +209,13 @@ private:
    */
   fd_set file_id_set_;
 #endif
+
+  /**
+   * @brief Internal buffer that is supposed to be much bigger than the message
+   * sent or received to avoid memory problems
+   */
+  std::vector<uint8_t> buffer_;
+
 };
 
 } // namespace
