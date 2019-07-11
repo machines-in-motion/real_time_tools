@@ -27,24 +27,9 @@ namespace real_time_tools {
 class PortConfig
 {
 public:
-  bool rts_cts_enabled_;
-
-  bool parity_;
-  
-  enum StopBits{
-    one = 1,
-    two = 2
-  };
-  StopBits stop_bits_;
-
-  bool prepare_size_definition_;
-
-  enum DataBits{
-    cs7 = 0,
-    cs8 = 1
-  };
-  DataBits data_bits_;
-  
+  /**
+   * @brief This is the potential bauderate we support
+   */
   enum BaudeRate{
     BR_57600 = 0,
     BR_115200,
@@ -62,6 +47,47 @@ public:
     // BR_3500000,
     // BR_4000000,
   };
+  
+  /**
+   * @brief This is if one wants 1 or 2 stop bits
+   */
+  enum StopBits{
+    one = 1,
+    two = 2
+  };
+  
+  /**
+   * @brief This correspond to the number of data bits echanged
+   */
+  enum DataBits{
+    cs7 = 0,
+    cs8 = 1
+  };
+
+public:
+  /**
+   * @brief Enabling/Disabling rts cts. TODO: look for what is rts cts
+   */
+  bool rts_cts_enabled_;
+  /**
+   * @brief Use or not a parity bit
+   */
+  bool parity_;
+  /**
+   * @brief Defines the choice of the stop bits. (see enum StopBits)
+   */
+  StopBits stop_bits_;
+  /**
+   * @brief Defines if the port should prepare the size definition.
+   */
+  bool prepare_size_definition_;
+  /**
+   * @brief Defines the number of bits echanged. (see enum DataBits)
+   */
+  DataBits data_bits_;
+  /**
+   * @brief Defines the BaudeRate to be used. (see enum BaudeRate)
+   */
   BaudeRate baude_rate_;
 };
 
@@ -94,7 +120,7 @@ public:
   /**
    * @brief Set the _port_config object parametrize the port configuration
    * 
-   * @param config 
+   * @param user_config is the configuration of the port. (see struct PortConfig)
    * @return true 
    * @return false 
    */
@@ -112,7 +138,8 @@ public:
    * @brief Read the port or the file.
    * 
    * @param msg is the command sent before this command was executed.
-   * @param output Must be of the expected size.
+   * @param stream_on define if we just read on the fly or we wait until we
+   * get the correct amount of data.
    * @return true 
    * @return false 
    */
@@ -149,7 +176,7 @@ public:
    * @return true 
    * @return false 
    */
-  bool flush();
+  bool flush(int duration_ms = 150);
 
   /**
    * @brief Allow to display a msg.

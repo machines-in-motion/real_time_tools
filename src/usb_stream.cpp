@@ -377,14 +377,14 @@ std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg)
   return cmd_debug_string.str();
 }
 
-bool UsbStream::flush()
+bool UsbStream::flush(int duration_ms)
 {
 #ifdef __XENO__
 #else
   fcntl(file_id_, F_SETFL, 0);
   return_value_ = fcntl(file_id_, F_SETFL, (O_RDWR | O_NONBLOCK));
   
-  int i = 150;
+  int i = duration_ms;
   while (--i > 0) {
 	  real_time_tools::Timer::sleep_ms(1.0);
 	  while ((return_value_ = read(file_id_, buffer_.data(), buffer_.size())) > 0)
@@ -394,15 +394,8 @@ bool UsbStream::flush()
   }
   fcntl(file_id_, F_SETFL, 0);
   return_value_ = fcntl(file_id_, F_SETFL, O_RDWR);
-  // sleep(2); //required to make flush work, for some reason
-  // return_value_ = tcflush(file_id_, TCIOFLUSH);
-  // if (return_value_ < 0)
-  // {
-  //   int errsv = errno;
-  //   rt_printf("ERROR >> Failed to flush port %s"
-  //             "and error\n\t%s\n", file_name_.c_str(), strerror(errsv));
-  //   return false;
-  // }
+  real_time_tools::Timer::sleep_ms(500);
+  return true;
 #endif
 }
 
