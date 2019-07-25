@@ -85,6 +85,8 @@ set(TEST_CONFIG_PATH ${PROJECT_SOURCE_DIR}/tests/config/)
 catkin_add_gtest(test_real_time_tools
   tests/main.cpp
   tests/test_real_time_tools.cpp
+  tests/threadsafe_object_test.cpp
+  tests/threadsafe_timeseries_test.cpp
 )
 # link the dependecies to it
 if (TARGET test_real_time_tools)
