@@ -6,7 +6,6 @@
 #include <real_time_tools/timer.hpp>
 #include "real_time_tools/thread.hpp"
 
-using namespace blmc_drivers;
 using namespace real_time_tools;
 
 typedef Eigen::Matrix<double, 20, 20> Type;
@@ -17,7 +16,7 @@ size_t n_outputs = 10;
 std::vector<Type> inputs(length);
 std::vector<std::vector<Type>> outputs(n_outputs, std::vector<Type>(length));
 
-ThreadsafeTimeseries<Type> timeseries(length);
+real_time_tools::ThreadsafeTimeseries<Type> timeseries(length);
 
 
 
@@ -32,7 +31,7 @@ void * timeseries_to_output(void* void_ptr)
     for(size_t i = 0; i < length; i++)
     {
         Type element;
-        ThreadsafeTimeseries<Type>::Index timeindex = i;
+        real_time_tools::ThreadsafeTimeseries<Type>::Index timeindex = i;
         element = timeseries[timeindex];
         outputs[output_index][i] = element;
         logger.tac_tic();
@@ -61,7 +60,7 @@ void * input_to_timeseries(void* void_ptr)
 
 TEST(threadsafe_timeseries, full_history)
 {
-    timeseries = ThreadsafeTimeseries<Type>(length);
+    timeseries = real_time_tools::ThreadsafeTimeseries<Type>(length);
 
     srand(0);
     for(size_t i = 0; i < inputs.size(); i++)
@@ -120,7 +119,7 @@ void * input_to_timeseries_slow(void* void_ptr)
 
 TEST(threadsafe_timeseries, partial_history)
 {
-    timeseries = ThreadsafeTimeseries<Type>(100);
+    timeseries = real_time_tools::ThreadsafeTimeseries<Type>(100);
 
 
     srand(0);

@@ -15,7 +15,7 @@
 
 #include "real_time_tools/threadsafe/threadsafe_timeseries.hpp"
 
-namespace blmc_drivers{
+namespace real_time_tools{
 
 template<typename Type>
 ThreadsafeTimeseries<Type>::ThreadsafeTimeseries(

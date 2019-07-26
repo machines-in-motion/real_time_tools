@@ -14,7 +14,7 @@
 
 #include "real_time_tools/timer.hpp"
 
-namespace blmc_drivers{
+namespace real_time_tools{
 
 template<typename Type, size_t SIZE>
 SingletypeThreadsafeObject<Type, SIZE>::SingletypeThreadsafeObject()
@@ -278,4 +278,4 @@ size_t ThreadsafeObject<Types ...>::wait_for_update() const
     return modified_index;
 }
 
-} // namespace blmc_drivers
+}

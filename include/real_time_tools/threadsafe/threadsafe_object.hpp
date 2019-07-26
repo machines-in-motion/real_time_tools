@@ -23,7 +23,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace blmc_drivers{
+namespace real_time_tools{
 
 /**
  * @brief This is a template abstract interface class that define a data history.
@@ -363,6 +363,6 @@ private:
     std::shared_ptr<std::array<std::mutex, SIZE>> data_mutexes_;
 };
 
-} // namespace blmc_drivers
+}
 
 #include "real_time_tools/threadsafe/threadsafe_object.hxx"

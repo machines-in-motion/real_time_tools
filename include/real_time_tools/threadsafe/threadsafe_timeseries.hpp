@@ -20,7 +20,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace blmc_drivers{
+namespace real_time_tools{
 
 /**
  * \brief implements a timeseries  \f$ X_{{oldest}:{newest}} \f$ which can
@@ -127,6 +127,6 @@ private:
 
 };
 
-} // namespace blmc_drivers
+} 
 
 #include "real_time_tools/threadsafe/threadsafe_timeseries.hxx"
