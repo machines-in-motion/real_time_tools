@@ -66,15 +66,15 @@ public:
     virtual Type newest_element() const;
 
     /*! \brief returns \f$ X_{timeindex} \f$. waits if the timeseries is empty
-     * or if \f$timeindex > newest \f$. if \f$timeindex < oldest \f$ it
-     * returns \f$X_{oldest}\f$.
+     * or if \f$timeindex > newest \f$.
      */
-    virtual Type operator[](Index& timeindex) const;
+    virtual Type operator[](const Index& timeindex) const;
 
     /*! \brief returns the time in miliseconds when \f$ X_{timeindex} \f$
-     * was appended
+     * was appended. waits if the timeseries is empty
+     * or if \f$timeindex > newest \f$.
      */
-    virtual Timestamp timestamp_ms(Index& timeindex) const;
+    virtual Timestamp timestamp_ms(const Index& timeindex) const;
 
     /*! \brief returns the length of the timeseries, i.e. \f$0\f$ if it is
      * empty, otherwise \f$newest - oldest +1 \f$.
