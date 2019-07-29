@@ -60,6 +60,7 @@ add_real_time_tools_demo(demo_spinner)
 add_real_time_tools_demo(demo_timing)
 add_real_time_tools_demo(demo_segfault)
 add_real_time_tools_demo(demo_usb_stream_imu_3DM_GX3_25)
+add_real_time_tools_demo(demo_threadsafe_timeseries)
 
 ###############
 # EXECUTABLES #
