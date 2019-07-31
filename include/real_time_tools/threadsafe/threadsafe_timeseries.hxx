@@ -19,7 +19,9 @@ namespace real_time_tools{
 
 template<typename Type>
 ThreadsafeTimeseries<Type>::ThreadsafeTimeseries(
-   size_t max_length, Index start_timeindex)
+						 size_t max_length,
+						 Index start_timeindex,
+						 std::atomic<bool> *wait)
 {
     oldest_timeindex_ = start_timeindex;
     newest_timeindex_ = oldest_timeindex_ - 1;
@@ -31,8 +33,38 @@ ThreadsafeTimeseries<Type>::ThreadsafeTimeseries(
 
     condition_ = std::make_shared<std::condition_variable>();
     mutex_ = std::make_shared<std::mutex>();
+
+    wait_ = wait;
+    
 }
 
+
+template<typename Type>
+bool ThreadsafeTimeseries<Type>::wait(std::unique_lock<std::mutex> &lock) const
+{
+  
+  if (wait_==nullptr){
+    condition_->wait(lock);
+    return false;
+  }
+
+  std::cv_status timeout_reached;
+  while (true){
+    timeout_reached = condition_->wait_for( lock,
+					    std::chrono::milliseconds(1000) ); 
+    if (timeout_reached==std::cv_status::no_timeout){
+      return false;
+    }
+    if (!(*wait_)){
+      return true;
+    }
+
+  }
+
+  
+}
+
+  
 template<typename Type>
 void ThreadsafeTimeseries<Type>::tag(const Index& timeindex)
 {
@@ -50,10 +82,14 @@ bool ThreadsafeTimeseries<Type>::has_changed_since_tag() const
 template<typename Type> typename ThreadsafeTimeseries<Type>::Index
 ThreadsafeTimeseries<Type>::newest_timeindex() const
 {
+    bool should_exit;
     std::unique_lock<std::mutex> lock(*mutex_);
     while(newest_timeindex_ < oldest_timeindex_)
     {
-        condition_->wait(lock);
+      should_exit = wait(lock);
+      if(should_exit) {
+	break;
+      }
     }
 
     return newest_timeindex_;
@@ -66,6 +102,7 @@ ThreadsafeTimeseries<Type>::newest_element() const
     return (*this)[timeindex];
 }
 
+  
 template<typename Type> Type
 ThreadsafeTimeseries<Type>::operator[](const Index& timeindex) const
 {
@@ -77,9 +114,13 @@ ThreadsafeTimeseries<Type>::operator[](const Index& timeindex) const
             "you tried to access timeseries element which is too old.");
     }
 
+    bool should_exit;
     while(newest_timeindex_ < timeindex)
     {
-        condition_->wait(lock);
+      should_exit = wait(lock);
+      if(should_exit){
+	break;
+      }
     }
 
     Type element = (*history_elements_)[timeindex % history_elements_->size()];
@@ -98,9 +139,13 @@ ThreadsafeTimeseries<Type>::timestamp_ms(const Index& timeindex) const
             "you tried to access timeseries element which is too old.");
     }
 
+    bool should_exit;
     while(newest_timeindex_ < timeindex)
     {
-        condition_->wait(lock);
+      should_exit = wait(lock);
+      if(should_exit){
+	break;
+      }
     }
 
     Timestamp timestamp

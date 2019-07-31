@@ -1,3 +1,4 @@
+#include <atomic>
 #include <iostream>
 #include "real_time_tools/threadsafe/threadsafe_timeseries.hpp"
 #include "real_time_tools/thread.hpp"
@@ -19,14 +20,17 @@ public:
 // configuration of the threads
 
 struct Thread_config {
-  bool stop;
+  std::atomic<bool> stop;
   long int index_to_wait_for;
   real_time_tools::ThreadsafeTimeseries<Item> *tts;
   std::mutex *print_mutex;
 };
 
 
+// so that several thread can print in the terminal at the same time
+
 std::mutex PRINT_MUTEX;
+
 
 // add nb_items to the time series at given frequency
   
@@ -82,17 +86,21 @@ void* live_print( void *config ) {
   long int index;
   
   while (! thread_config->stop){
+    
     if (first_element){
       index = thread_config->tts->newest_timeindex();
     } else {
       index += 1;
     }
+    
     // note : will wait for index if not already available
     Item item = (*(thread_config->tts))[index];
 
-    thread_config->print_mutex->lock();
-    std::cout << "\tread:\t" << item.d << "\t" << item.i << "\n";
-    thread_config->print_mutex->unlock();
+    if (!thread_config->stop){
+      thread_config->print_mutex->lock();
+      std::cout << "\tread:\t(index " << index << ") " << item.d << "\t" << item.i << "\n";
+      thread_config->print_mutex->unlock();
+    }
     
     first_element = false;
   }
@@ -104,17 +112,26 @@ void* live_print( void *config ) {
 
 void print_full_content(real_time_tools::ThreadsafeTimeseries<Item> &tts){
 
+  PRINT_MUTEX.lock();
+  
   std::cout << "\n\n\t\ttime series content: \n";
 
-  // how to iterate over all tts content ?
-  /* 
-  for (long int index : tts){
+  if ( tts.length() == 0 ) {
+    std::cout << "\n\n(empty)\n";
+    PRINT_MUTEX.unlock();
+    return;
+  }
+  
+  long int start_index = tts.newest_timeindex() - tts.length() + 1;
+
+  for (long int index=start_index ; index<=start_index+tts.length()-1; index++){
     Item item = tts[index];
     long double timestamp = tts.timestamp_ms(index);
-    std::cout << index << "\t" << timestamp << "\t|\t" << item.d << "\t" << item.i << "\n";
-    }*/
-  
+    std::cout << "\t\t" <<index << "\t" << timestamp << "\t|\t" << item.d << "\t" << item.i << "\n";
+  }
   std::cout << "\n";
+  
+  PRINT_MUTEX.unlock();
   
 }
 
@@ -124,8 +141,11 @@ int main(){
 
   // number of items in the time series. Older items are deleted from the series.
   int series_length = 10;
+
+  // we will set tts_wait to false at the end, when we want tts to stop waiting for new value
+  std::atomic<bool> tts_wait(true);
   
-  real_time_tools::ThreadsafeTimeseries<Item> tts(series_length);
+  real_time_tools::ThreadsafeTimeseries<Item> tts(series_length,0,&tts_wait);
 
   // this thread will be used to print items "live", as they are added to tts
   real_time_tools::RealTimeThread live_print_thread;
@@ -150,8 +170,8 @@ int main(){
     std::cout << "\n\n---- iteration " << iteration << " ----\n\n";
     PRINT_MUTEX.unlock();
     
-    // generating 20 items, 5 item per second.
-    add_items(20,5.0,tts);
+    // generating 20 items, 10 item per second.
+    add_items(20,10.0,tts);
 
     // shows the full content of the time series.
     // because it is of size 10, only the last 10 items should be displayed
@@ -161,6 +181,9 @@ int main(){
   
   // futur_print_thread is supposed to have exited after printing item number 15
 
+  // asking tts to stop waiting for new items
+  tts_wait = false;
+  
   // stopping live_print_thread
   live_print_config.stop = true;
   live_print_thread.join();

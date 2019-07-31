@@ -14,11 +14,13 @@
 
 #include <memory>
 #include <vector>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
 
 #include "real_time_tools/timer.hpp"
 
-#include <mutex>
-#include <condition_variable>
 
 namespace real_time_tools{
 
@@ -54,7 +56,8 @@ public:
      * hence \f$ newest \f$ and \f$ oldest \f$ are not defined after
      * construction, there exist no elements and \f$length\f$ is zero
      */
-    ThreadsafeTimeseries(size_t max_length, Index start_timeindex = 0);
+     ThreadsafeTimeseries(size_t max_length, Index start_timeindex = 0,
+			  std::atomic<bool> *wait=nullptr );
 
     // accessors ---------------------------------------------------------------
     /*! \brief returns \f$ newest \f$. waits if the timeseries is empty.
@@ -102,6 +105,7 @@ public:
     virtual void append(const Type& element);
 
 private:
+
     /*! @brief History of the values. */
     std::shared_ptr<std::vector<Type> > history_elements_;
     /*! @brief History of the headers. */
@@ -125,6 +129,20 @@ private:
      */
     mutable std::shared_ptr<std::mutex> mutex_;
 
+    /**
+    * has the conditional variable waiting. If a boolean pointer wait was
+    * passed to the constructor, the condition variable will give up on waiting
+    * when wait turns to false (with precision 1 second). Returns true if 
+    * waiting was gave up because wait turned to false.
+    */
+    bool wait(std::unique_lock<std::mutex> &lock) const;
+  
+    /**
+     * @brief all the functions waiting for a new/futur timeindex
+     * will give up on waiting if set to false;
+     */ 
+    std::atomic<bool> *wait_;
+  
 };
 
 } 
