@@ -54,7 +54,11 @@ public:
      *
      * this means that this timeseries contains no elements yet,
      * hence \f$ newest \f$ and \f$ oldest \f$ are not defined after
-     * construction, there exist no elements and \f$length\f$ is zero
+     * construction, there exist no elements and \f$length\f$ is zero.
+     * If wait is not a nullptr, all functions that waits for some event
+     * will give up waiting (and possibly return garbage values)
+     * after 1 second if the value pointed to by wait
+     * is turned to false.
      */
      ThreadsafeTimeseries(size_t max_length, Index start_timeindex = 0,
 			  std::atomic<bool> *wait=nullptr );
