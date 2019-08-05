@@ -2,7 +2,7 @@
  * @file test_real_time_tools.cpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
  * @license License BSD-3-Clause
- * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
  * @brief This file implements a suit of unit tests for the real time tools.

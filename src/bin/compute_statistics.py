@@ -5,7 +5,7 @@
 
 @file compute_statistics.py
 @author Maximilien Naveau (maximilien.naveau@gmail.com)
-@copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+@copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
 @license License BSD-3 clause
 @date 2019-05-06
 

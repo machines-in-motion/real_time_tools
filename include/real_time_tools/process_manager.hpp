@@ -1,7 +1,7 @@
 /**
  * @file process_manager.hpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-06
  * 
  * @brief Tools to fix the CPU to specific processor.

@@ -2,7 +2,7 @@
  * @file demo_segfault.cpp
  * @author Manuel Wuthrich
  * @license License BSD-3-Clause
- * @copyright Copyright (c) 2019, New York University and Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
  * @brief Demo illustrating a stack overflow on rt_preempt. One must increase
