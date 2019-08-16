@@ -20,10 +20,18 @@ public:
 // configuration of the threads
 
 struct Thread_config {
-  std::atomic<bool> stop;
+  // how long we will wait at most for values
+  long int timeout_us;
+  // one of the thread will wait for this index
+  // in the time series to be filled to print something
   long int index_to_wait_for;
+  // the time series
   real_time_tools::ThreadsafeTimeseries<Item> *tts;
+  // to avoid having several thread printing in stdout
+  // at the same time
   std::mutex *print_mutex;
+  // to set to true when wanting to exit
+  bool stop;
 };
 
 
@@ -64,13 +72,16 @@ void* futur_print(void* config){
   Thread_config* thread_config = static_cast<Thread_config*>(config);
   long int index_to_wait_for = thread_config->index_to_wait_for;
   real_time_tools::ThreadsafeTimeseries<Item> *tts = thread_config->tts;
-  
-  Item item = (*tts)[index_to_wait_for];
+
+  bool timeout;
+  Item item = (*tts).get(index_to_wait_for,timeout,thread_config->timeout_us);
   long double time_stamp = tts->timestamp_ms(index_to_wait_for);
 
-  thread_config->print_mutex->lock();
-  std::cout << "\n\n**** received " << index_to_wait_for << " at time " << time_stamp << "****\n\n";
-  thread_config->print_mutex->unlock();
+  if(!timeout){
+    thread_config->print_mutex->lock();
+    std::cout << "\n\n**** received " << index_to_wait_for << " at time " << time_stamp << "****\n\n";
+    thread_config->print_mutex->unlock();
+  }
   
 }
 
@@ -94,9 +105,10 @@ void* live_print( void *config ) {
     }
     
     // note : will wait for index if not already available
-    Item item = (*(thread_config->tts))[index];
+    bool timeout;
+    Item item = (*(thread_config->tts)).get(index,timeout,thread_config->timeout_us);
 
-    if (!thread_config->stop){
+    if ( (!timeout) && (!thread_config->stop) ){
       thread_config->print_mutex->lock();
       std::cout << "\tread:\t(index " << index << ") " << item.d << "\t" << item.i << "\n";
       thread_config->print_mutex->unlock();
@@ -142,16 +154,17 @@ int main(){
   // number of items in the time series. Older items are deleted from the series.
   int series_length = 10;
 
-  // we will set tts_wait to false at the end, when we want tts to stop waiting for new value
-  std::atomic<bool> tts_wait(true);
+  // time series will wait at most this. Here to unsure things can exit
+  long int timeout_us = 1000000; // 1 sec
   
-  real_time_tools::ThreadsafeTimeseries<Item> tts(series_length,0,&tts_wait);
+  real_time_tools::ThreadsafeTimeseries<Item> tts(series_length,0,timeout_us);
 
   // this thread will be used to print items "live", as they are added to tts
   real_time_tools::RealTimeThread live_print_thread;
   Thread_config live_print_config;
   live_print_config.stop = false; // thread will stop when 'stop' set to true
   live_print_config.tts = &tts;
+  live_print_config.timeout_us = timeout_us;
   live_print_config.print_mutex = &PRINT_MUTEX;
   live_print_thread.create_realtime_thread(&live_print,&live_print_config);
   
@@ -161,6 +174,7 @@ int main(){
   Thread_config futur_print_config;
   futur_print_config.index_to_wait_for=15;
   futur_print_config.tts = &tts;
+  live_print_config.timeout_us = timeout_us;
   futur_print_config.print_mutex = &PRINT_MUTEX;
   futur_print_thread.create_realtime_thread(&futur_print,&futur_print_config);
     
@@ -181,10 +195,7 @@ int main(){
   
   // futur_print_thread is supposed to have exited after printing item number 15
 
-  // asking tts to stop waiting for new items
-  tts_wait = false;
-  
-  // stopping live_print_thread
+  // stopping live_print_thread. May take up to 1 sec (i.e. timeout set above)
   live_print_config.stop = true;
   live_print_thread.join();
 

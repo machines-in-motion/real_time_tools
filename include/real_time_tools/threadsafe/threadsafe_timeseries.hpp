@@ -55,33 +55,43 @@ public:
      * this means that this timeseries contains no elements yet,
      * hence \f$ newest \f$ and \f$ oldest \f$ are not defined after
      * construction, there exist no elements and \f$length\f$ is zero.
-     * If wait is not a nullptr, all functions that waits for some event
-     * will give up waiting (and possibly return garbage values)
-     * after 1 second if the value pointed to by wait
-     * is turned to false.
+     * If default_timeout_us is above zero, then it will be used as 
+     * a default timeout (microseconds) value for the function newest_timeindex and
+     * timestamp_ms.
      */
      ThreadsafeTimeseries(size_t max_length, Index start_timeindex = 0,
-			  std::atomic<bool> *wait=nullptr );
+			  long int default_timeout_us=-1);
+
 
     // accessors ---------------------------------------------------------------
     /*! \brief returns \f$ newest \f$. waits if the timeseries is empty.
      */
-    virtual Index newest_timeindex() const;
+    virtual Index newest_timeindex(long int timeout_us=-1) const;
 
     /*! \brief returns \f$ X_{newest} \f$. waits if the timeseries is empty.
      */
     virtual Type newest_element() const;
 
     /*! \brief returns \f$ X_{timeindex} \f$. waits if the timeseries is empty
-     * or if \f$timeindex > newest \f$.
+     * or if \f$timeindex > newest \f$. 
      */
     virtual Type operator[](const Index& timeindex) const;
 
+    /*! \brief returns \f$ X_{timeindex} \f$. waits 
+     * for at most timeout_us microseconds if the timeseries is empty
+     * or if \f$timeindex > newest \f$. if returns because of timeout, 
+     * set timeout to true. 
+     */
+    virtual Type get(const Index& timeindex, bool &timeout,
+		     long int timeout_us) const;
+  
     /*! \brief returns the time in miliseconds when \f$ X_{timeindex} \f$
      * was appended. waits if the timeseries is empty
-     * or if \f$timeindex > newest \f$.
+     * or if \f$timeindex > newest \f$. If timeout_us is above 0: 
+     * waits for timeout_us microseconds, and returns a negative value 
      */
-    virtual Timestamp timestamp_ms(const Index& timeindex) const;
+    virtual Timestamp timestamp_ms(const Index& timeindex,
+				   long int timeout_us=-1) const;
 
     /*! \brief returns the length of the timeseries, i.e. \f$0\f$ if it is
      * empty, otherwise \f$newest - oldest +1 \f$.
@@ -139,13 +149,11 @@ private:
     * when wait turns to false (with precision 1 second). Returns true if 
     * waiting was gave up because wait turned to false.
     */
-    bool wait(std::unique_lock<std::mutex> &lock) const;
+    bool wait(std::unique_lock<std::mutex> &lock,
+	      long int time_wait_us=-1) const;
   
-    /**
-     * @brief all the functions waiting for a new/futur timeindex
-     * will give up on waiting if set to false;
-     */ 
-    std::atomic<bool> *wait_;
+
+    long int default_timeout_us_;
   
 };
 

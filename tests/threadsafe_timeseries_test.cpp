@@ -153,3 +153,38 @@ TEST(threadsafe_timeseries, partial_history)
     EXPECT_FALSE(inputs == outputs[0]);
 }
 
+
+TEST(threadsafe_timeseries, timeouts)
+{
+
+  long int default_timeout_us = 30000; // 50ms
+  long int other_timeout_us = 20000; // 20ms
+  
+  timeseries = real_time_tools::ThreadsafeTimeseries<Type>(100,0,
+							   default_timeout_us);
+
+  std::chrono::high_resolution_clock::time_point up = std::chrono::high_resolution_clock::now();
+  real_time_tools::ThreadsafeTimeseries<Type>::Index index = timeseries.newest_timeindex();
+  std::chrono::high_resolution_clock::time_point down = std::chrono::high_resolution_clock::now();
+  std::chrono::nanoseconds duration_(down-up);
+  std::chrono::microseconds duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_); 
+  EXPECT_GE(duration.count(),default_timeout_us);
+  EXPECT_LT(duration.count(),default_timeout_us+10000);
+  
+  srand(0);
+  for(size_t i = 0; i < inputs.size(); i++)
+    {
+      inputs[i] = Type::Random();
+    }
+
+  bool timeout;
+  up = std::chrono::high_resolution_clock::now();
+  Type value = timeseries.get(inputs.size()+1,timeout,other_timeout_us);
+  down = std::chrono::high_resolution_clock::now();
+  EXPECT_TRUE(timeout);
+  duration_ = down-up;
+  duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_); 
+  EXPECT_GE(duration.count(),other_timeout_us);
+  EXPECT_LT(duration.count(),default_timeout_us);
+  
+}

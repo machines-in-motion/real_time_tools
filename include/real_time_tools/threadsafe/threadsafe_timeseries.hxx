@@ -21,7 +21,7 @@ template<typename Type>
 ThreadsafeTimeseries<Type>::ThreadsafeTimeseries(
 						 size_t max_length,
 						 Index start_timeindex,
-						 std::atomic<bool> *wait)
+						 long int default_timeout_us)
 {
     oldest_timeindex_ = start_timeindex;
     newest_timeindex_ = oldest_timeindex_ - 1;
@@ -34,32 +34,33 @@ ThreadsafeTimeseries<Type>::ThreadsafeTimeseries(
     condition_ = std::make_shared<std::condition_variable>();
     mutex_ = std::make_shared<std::mutex>();
 
-    wait_ = wait;
+    default_timeout_us_ = default_timeout_us;
     
 }
 
 
 template<typename Type>
-bool ThreadsafeTimeseries<Type>::wait(std::unique_lock<std::mutex> &lock) const
+bool ThreadsafeTimeseries<Type>::wait(std::unique_lock<std::mutex> &lock,
+				      long int timeout_us) const
 {
-  
-  if (wait_==nullptr){
+
+  // no timeout, waiting possibly forever
+  if (timeout_us<=0){
     condition_->wait(lock);
-    return false;
+    return true;
   }
 
   std::cv_status timeout_reached;
-  while (true){
-    timeout_reached = condition_->wait_for( lock,
-					    std::chrono::milliseconds(1000) ); 
-    if (timeout_reached==std::cv_status::no_timeout){
-      return false;
-    }
-    if (!(*wait_)){
-      return true;
-    }
+  timeout_reached = condition_->wait_for( lock,
+					  std::chrono::microseconds(timeout_us) );
 
+  // returning because condition was notified
+  if (timeout_reached==std::cv_status::no_timeout){
+    return true;
   }
+
+  // returning because of timeout
+  return false;
 
   
 }
@@ -72,6 +73,7 @@ void ThreadsafeTimeseries<Type>::tag(const Index& timeindex)
     tagged_timeindex_ = timeindex;
 }
 
+  
 template<typename Type>
 bool ThreadsafeTimeseries<Type>::has_changed_since_tag() const
 {
@@ -79,22 +81,29 @@ bool ThreadsafeTimeseries<Type>::has_changed_since_tag() const
     return tagged_timeindex_ != newest_timeindex_;
 }
 
+  
 template<typename Type> typename ThreadsafeTimeseries<Type>::Index
-ThreadsafeTimeseries<Type>::newest_timeindex() const
+ThreadsafeTimeseries<Type>::newest_timeindex(long int timeout_us) const
 {
-    bool should_exit;
+    bool notified;
     std::unique_lock<std::mutex> lock(*mutex_);
     while(newest_timeindex_ < oldest_timeindex_)
     {
-      should_exit = wait(lock);
-      if(should_exit) {
-	break;
+      if (timeout_us<=0 ){
+	notified = wait(lock,default_timeout_us_);
+      } else {
+	notified = wait(lock,timeout_us);
+      }
+      if(!notified) {
+	// returning because of timeout
+	return -1;
       }
     }
 
     return newest_timeindex_;
 }
 
+  
 template<typename Type> Type
 ThreadsafeTimeseries<Type>::newest_element() const
 {
@@ -102,9 +111,11 @@ ThreadsafeTimeseries<Type>::newest_element() const
     return (*this)[timeindex];
 }
 
-  
+
+
 template<typename Type> Type
-ThreadsafeTimeseries<Type>::operator[](const Index& timeindex) const
+ThreadsafeTimeseries<Type>::get(const Index& timeindex,bool &timeout,
+				long int timeout_us) const
 {
     std::unique_lock<std::mutex> lock(*mutex_);
 
@@ -114,22 +125,36 @@ ThreadsafeTimeseries<Type>::operator[](const Index& timeindex) const
             "you tried to access timeseries element which is too old.");
     }
 
-    bool should_exit;
+    bool notified;
     while(newest_timeindex_ < timeindex)
     {
-      should_exit = wait(lock);
-      if(should_exit){
+      notified = wait(lock,timeout_us);
+      if(!notified){
 	break;
       }
     }
+
+    timeout = false;
+    if(!notified) timeout=true;
 
     Type element = (*history_elements_)[timeindex % history_elements_->size()];
 
     return element;
 }
 
+
+  
+template<typename Type> Type
+ThreadsafeTimeseries<Type>::operator[](const Index& timeindex) const
+{
+  bool foo;
+  return get(timeindex,foo,-1);
+}
+
+  
 template<typename Type> typename ThreadsafeTimeseries<Type>::Timestamp
-ThreadsafeTimeseries<Type>::timestamp_ms(const Index& timeindex) const
+ThreadsafeTimeseries<Type>::timestamp_ms(const Index& timeindex,
+					 long int timeout_us) const
 {
     std::unique_lock<std::mutex> lock(*mutex_);
 
@@ -139,12 +164,16 @@ ThreadsafeTimeseries<Type>::timestamp_ms(const Index& timeindex) const
             "you tried to access timeseries element which is too old.");
     }
 
-    bool should_exit;
+    bool notified;
     while(newest_timeindex_ < timeindex)
     {
-      should_exit = wait(lock);
-      if(should_exit){
-	break;
+      if (timeout_us<=0){
+	notified = wait(lock,default_timeout_us_);
+      } else {
+	notified = wait(lock,timeout_us);
+      }
+      if(notified){
+	return -1;
       }
     }
 
@@ -154,6 +183,7 @@ ThreadsafeTimeseries<Type>::timestamp_ms(const Index& timeindex) const
     return timestamp;
 }
 
+  
 template<typename Type>
 void ThreadsafeTimeseries<Type>::append(const Type& element)
 {
@@ -173,6 +203,7 @@ void ThreadsafeTimeseries<Type>::append(const Type& element)
     condition_->notify_all();
 }
 
+  
 template<typename Type>
 size_t ThreadsafeTimeseries<Type>::length() const
 {
