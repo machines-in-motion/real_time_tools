@@ -59,6 +59,18 @@ ThreadsafeTimeseries<Type>::newest_timeindex() const
     return newest_timeindex_;
 }
 
+template<typename Type> typename ThreadsafeTimeseries<Type>::Index
+ThreadsafeTimeseries<Type>::oldest_timeindex() const
+{
+    std::unique_lock<std::mutex> lock(*mutex_);
+    while(newest_timeindex_ < oldest_timeindex_)
+    {
+        condition_->wait(lock);
+    }
+
+    return oldest_timeindex_;
+}
+
 template<typename Type> Type
 ThreadsafeTimeseries<Type>::newest_element() const
 {
@@ -133,6 +145,13 @@ size_t ThreadsafeTimeseries<Type>::length() const
 {
     std::unique_lock<std::mutex> lock(*mutex_);
     return newest_timeindex_ - oldest_timeindex_ + 1;
+}
+
+template<typename Type>
+size_t ThreadsafeTimeseries<Type>::max_length() const
+{
+    std::unique_lock<std::mutex> lock(*mutex_);
+    return history_elements_->size();
 }
 
 } //namespace blmc_drivers

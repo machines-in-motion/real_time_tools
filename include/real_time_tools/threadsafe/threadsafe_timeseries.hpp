@@ -61,6 +61,10 @@ public:
      */
     virtual Index newest_timeindex() const;
 
+    /*! \brief returns \f$ oldest \f$. waits if the timeseries is empty.
+     */
+    virtual Index oldest_timeindex() const;
+
     /*! \brief returns \f$ X_{newest} \f$. waits if the timeseries is empty.
      */
     virtual Type newest_element() const;
@@ -80,6 +84,8 @@ public:
      * empty, otherwise \f$newest - oldest +1 \f$.
      */
     virtual size_t length() const;
+
+    virtual size_t max_length() const;
 
     /*! \brief returns boolean indicating whether new elements have been
      * appended since the last time the tag() function was called.
