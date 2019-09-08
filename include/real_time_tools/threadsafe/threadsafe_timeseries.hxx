@@ -13,6 +13,9 @@
 
 #pragma once
 
+#include <chrono>
+#include <cmath>
+
 #include "real_time_tools/threadsafe/threadsafe_timeseries.hpp"
 
 namespace real_time_tools{
@@ -21,7 +24,8 @@ template<typename Type>
 ThreadsafeTimeseries<Type>::ThreadsafeTimeseries(
    size_t max_length, Index start_timeindex)
 {
-    oldest_timeindex_ = start_timeindex;
+    start_timeindex_ = start_timeindex;
+    oldest_timeindex_ = start_timeindex_;
     newest_timeindex_ = oldest_timeindex_ - 1;
 
     tagged_timeindex_ = newest_timeindex_;
@@ -57,6 +61,15 @@ ThreadsafeTimeseries<Type>::newest_timeindex() const
     }
 
     return newest_timeindex_;
+}
+
+
+template<typename Type> typename ThreadsafeTimeseries<Type>::Index
+ThreadsafeTimeseries<Type>::count_appended_elements() const
+{
+    std::unique_lock<std::mutex> lock(*mutex_);
+
+    return newest_timeindex_ - start_timeindex_ + 1;
 }
 
 
@@ -122,9 +135,17 @@ ThreadsafeTimeseries<Type>::timestamp_ms(const Index& timeindex) const
     return timestamp;
 }
 
+template<typename Type> typename ThreadsafeTimeseries<Type>::Timestamp
+ThreadsafeTimeseries<Type>::timestamp_s(const Index& timeindex) const
+{
+    return timestamp_ms(timeindex) / 1000.;
+}
 
-template<typename Type> void
-ThreadsafeTimeseries<Type>::wait_for_timeindex(const Index& timeindex) const
+
+template<typename Type> bool
+ThreadsafeTimeseries<Type>::wait_for_timeindex(
+                                        const Index& timeindex, 
+                                        const double& max_duration_s) const
 {
     std::unique_lock<std::mutex> lock(*mutex_);
 
@@ -136,8 +157,21 @@ ThreadsafeTimeseries<Type>::wait_for_timeindex(const Index& timeindex) const
 
     while(newest_timeindex_ < timeindex)
     {
-        condition_->wait(lock);
+        if(std::isfinite(max_duration_s))
+        {
+            std::chrono::duration<double> chrono_duration(max_duration_s);
+            std::cv_status status = condition_->wait_for(lock, chrono_duration);
+            if(status == std::cv_status::timeout)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            condition_->wait(lock);
+        }
     }
+    return true;
 }
 
 template<typename Type>

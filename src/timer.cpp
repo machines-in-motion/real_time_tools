@@ -51,6 +51,7 @@ Timer::Timer()
   max_elapsed_time_ = -std::numeric_limits<double>::infinity();
   avg_elapsed_time_ = 0.0;
   second_moment_elapsed_time_ = 0.0;
+  count_ = 0;
 }
 
 void Timer::tic()
