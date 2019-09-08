@@ -59,6 +59,7 @@ ThreadsafeTimeseries<Type>::newest_timeindex() const
     return newest_timeindex_;
 }
 
+
 template<typename Type> typename ThreadsafeTimeseries<Type>::Index
 ThreadsafeTimeseries<Type>::oldest_timeindex() const
 {
@@ -119,6 +120,24 @@ ThreadsafeTimeseries<Type>::timestamp_ms(const Index& timeindex) const
             = (*history_timestamps_)[timeindex % history_timestamps_->size()];
 
     return timestamp;
+}
+
+
+template<typename Type> void
+ThreadsafeTimeseries<Type>::wait_for_timeindex(const Index& timeindex) const
+{
+    std::unique_lock<std::mutex> lock(*mutex_);
+
+    if(timeindex < oldest_timeindex_)
+    {
+        throw std::invalid_argument(
+            "you tried to access timeseries element which is too old.");
+    }
+
+    while(newest_timeindex_ < timeindex)
+    {
+        condition_->wait(lock);
+    }
 }
 
 template<typename Type>

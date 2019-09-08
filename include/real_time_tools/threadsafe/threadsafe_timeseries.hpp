@@ -80,6 +80,8 @@ public:
      */
     virtual Timestamp timestamp_ms(const Index& timeindex) const;
 
+    virtual void wait_for_timeindex(const Index& timeindex) const;
+
     /*! \brief returns the length of the timeseries, i.e. \f$0\f$ if it is
      * empty, otherwise \f$newest - oldest +1 \f$.
      */
