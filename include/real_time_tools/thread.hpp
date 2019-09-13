@@ -80,6 +80,7 @@ namespace real_time_tools {
       cpu_id_.clear();
       delay_ns_ = 0;
       block_memory_ = true;
+      cpu_dma_latency_ = 0;
     }
     /**
      * @brief Destroy the RealTimeThreadParameters object
@@ -114,6 +115,13 @@ namespace real_time_tools {
      * a non real time operation.
      */
     bool block_memory_;
+
+    /**
+     * @brief describes the optimization level of the CPU. this needs to be
+     * set to 0 to get proper realitime performance.
+     * 
+     */
+    int cpu_dma_latency_;
   };
 
 
@@ -130,10 +138,9 @@ namespace real_time_tools {
     RealTimeThread();
 
     /**
-     * @brief The copy constructor only "share the thread". It does not spawn
-     * another one.
+     * @brief We do not allow copies of this object
      */
-    RealTimeThread(const real_time_tools::RealTimeThread& other);
+    RealTimeThread(const real_time_tools::RealTimeThread& other) = delete;
 
     /**
      * @brief Destroy the RealTimeThread object.
