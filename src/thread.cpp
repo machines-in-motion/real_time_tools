@@ -9,6 +9,7 @@
  */
 #include <stdexcept>
 #include "real_time_tools/thread.hpp"
+#include "real_time_tools/process_manager.hpp"
 
 namespace real_time_tools {
   RealTimeThread::RealTimeThread()
@@ -40,6 +41,11 @@ namespace real_time_tools {
     if (thread_ != nullptr)
     {
       printf("Thread already running");
+    }
+
+    if (parameters_.cpu_dma_latency_ >= 0)
+    {
+      set_cpu_dma_latency(parameters_.cpu_dma_latency_);
     }
 
     thread_.reset(new pthread_t());
@@ -224,17 +230,5 @@ namespace real_time_tools {
   }
 #endif // Defined NON_REAL_TIME
 
-  /**
-   * @brief Construct a new RealTimeThread::RealTimeThread object. It copies the
-   * paramters of the other thread but does *NOT* spwan a new one.
-   * Used by all os.
-   * 
-   * @param other 
-   */
-  RealTimeThread::RealTimeThread(const RealTimeThread& other)
-  {
-    thread_.reset(nullptr);
-    parameters_ = other.parameters_;
-  }
 
 } // namespace real_time_tools
