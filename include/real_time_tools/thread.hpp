@@ -117,8 +117,7 @@ namespace real_time_tools {
     bool block_memory_;
 
     /**
-     * @brief describes the optimization level of the CPU. this needs to be
-     * set to 0 to get proper realitime performance.
+     * @brief Optimization level of the CPU. Set to 0 to get proper real-time performance.
      * 
      */
     int cpu_dma_latency_;
