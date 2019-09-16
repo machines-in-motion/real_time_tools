@@ -117,7 +117,7 @@ namespace real_time_tools {
     bool block_memory_;
 
     /**
-     * @brief Maximum desired latency of the CPU in microsecons. Set to 0 to get proper real-time 
+     * @brief Maximum desired latency of the CPU in microseconds. Set to 0 to get best real-time 
      * performance. Set to any negative value if you do not want the thread to change the 
      * CPU latency.
      * 
