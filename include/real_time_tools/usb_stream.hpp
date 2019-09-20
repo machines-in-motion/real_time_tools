@@ -28,27 +28,6 @@ class PortConfig
 {
 public:
   /**
-   * @brief This is the potential bauderate we support
-   */
-  enum BaudeRate{
-    BR_57600 = 0,
-    BR_115200,
-    BR_230400,
-    BR_460800,
-    // BR_500000,
-    // BR_576000,
-    BR_921600,
-    // BR_1000000,
-    // BR_1152000,
-    // BR_1500000,
-    // BR_2000000,
-    // BR_2500000,
-    // BR_3000000,
-    // BR_3500000,
-    // BR_4000000,
-  };
-  
-  /**
    * @brief This is if one wants 1 or 2 stop bits
    */
   enum StopBits{
@@ -63,6 +42,13 @@ public:
     cs7 = 0,
     cs8 = 1
   };
+
+  /**
+   * @brief Get the _bauderate object
+   * 
+   * @return int 
+   */
+  int get_bauderate();
 
 public:
   /**
@@ -88,7 +74,7 @@ public:
   /**
    * @brief Defines the BaudeRate to be used. (see enum BaudeRate)
    */
-  BaudeRate baude_rate_;
+  int baude_rate_;
 };
 
 /**
@@ -184,7 +170,19 @@ public:
    * @param msg 
    * @return std::string the debug string
    */
-  static std::string msg_debug_string(const std::vector<uint8_t>& msg);
+  static std::string msg_debug_string(const std::vector<uint8_t>& msg,
+                                      long unsigned int until=-1);
+
+  /**
+   * @brief Test if two message are the same or not
+   * 
+   * @param msg1 
+   * @param msg2 
+   * @return true 
+   * @return false 
+   */
+  static bool test_msg_equal(const std::vector<uint8_t>& msg1,
+                             const std::vector<uint8_t>& msg2);
   
   /**
    * Private methods

@@ -39,8 +39,11 @@ void continuous_mode_on(real_time_tools::UsbStream& usb_stream,
   reply.resize(8, 0); // answer in 8 bits.
 
   rt_printf("The IMU will blink fast\n");
-  usb_stream.write_device(command);
-  usb_stream.read_device(reply, stream_mode);
+  while(! (reply[0] == 0xC4 && reply[1] == 0xc2) )
+  {
+    usb_stream.write_device(command);
+    usb_stream.read_device(reply, stream_mode);
+  }
   rt_printf("Device answer is: %s\n",
             real_time_tools::UsbStream::msg_debug_string(reply).c_str());
   rt_printf("The IMU should blink fast\n");
@@ -77,17 +80,23 @@ void continuous_mode_off(real_time_tools::UsbStream& usb_stream,
   std::vector<uint8_t> command;
 
   /**
-   * We now deactivate the IMU, the imu should blink slowly after this.
+   * Here we set the IMU into a constant broadcasting mode. The broadcasted
+   * data are composed with the accelerometer and the gyroscope.
+   * https://atlas.is.localnet/confluence/display/AMDW/Microstrain+3DM+IMUs?preview=/8979810/17761244/3DM-GX3-Data-Communications-Protocol.pdf
    */
-  command.resize(3);
-  command[0] = 0xfa; // set continuous mode off
-  command[1] = 0x75; // user confirmation 1
-  command[2] = 0xb4; // user confirmation 2
-  reply.resize(0, 0); // answer in 8 bits.
+  command.resize(4);
+  command[0] = 0xc4; // set continuous mode on
+  command[1] = 0xc1; // user confirmation 1
+  command[2] = 0x29; // user confirmation 2
+  command[3] = 0x00; // Acceleration and angular rate continuously broadcasted
+  reply.resize(8, 0xFF); // answer in 8 bits.
 
   rt_printf("The IMU will blink slowly\n");
-  usb_stream.write_device(command);
-  usb_stream.read_device(reply, stream_mode);
+  while(! (reply[0] == 0xC4 && reply[1] == 0x00) )
+  {
+    usb_stream.write_device(command);
+    usb_stream.read_device(reply, stream_mode);
+  }
   rt_printf("Device answer is: %s\n",
             real_time_tools::UsbStream::msg_debug_string(reply).c_str());
   rt_printf("The IMU should blink slowly\n");
@@ -157,7 +166,7 @@ int main(int argc, char** argv){
   port_config.stop_bits_ = real_time_tools::PortConfig::StopBits::one;
   port_config.prepare_size_definition_ = false;
   port_config.data_bits_ = real_time_tools::PortConfig::cs8;
-  port_config.baude_rate_ = real_time_tools::PortConfig::BR_115200;
+  port_config.baude_rate_ = 115200;
   usb_stream.set_port_config(port_config);
   usb_stream.set_poll_mode_timeout(0.1);
 

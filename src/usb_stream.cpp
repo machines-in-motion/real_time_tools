@@ -7,6 +7,7 @@
 #if defined(XENOMAI)
 #elif defined(NON_REAL_TIME) || defined(RT_PREEMPT)
   #include <unistd.h> // UNIX standard function definitions: write, read
+  #include <termios.h> // terminal io (serial port) interface
   #include <fcntl.h> // File control definitions: open
   #include <errno.h> // Error number definitions
   #include <string.h> // parse errno message
@@ -57,7 +58,7 @@ bool UsbStream::open_device(const std::string& file_name)
   // We open the device in read and write mode: O_RDWR.
   // Whenever we write in the device, the function will be blockant until the
   // device received the message.
-  file_id_ = open(file_name_.c_str(), O_RDWR | O_SYNC);
+  file_id_ = open(file_name_.c_str(), O_RDWR | O_NOCTTY);
   if (file_id_ < 0)
   {
     // here errno is a POSIX global variable containing the errors of the last
@@ -73,6 +74,7 @@ bool UsbStream::open_device(const std::string& file_name)
 
 bool UsbStream::set_port_config(const PortConfig& user_config)
 {
+  flush();
 #if defined(XENOMAI)
 #elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
   /**
@@ -89,9 +91,9 @@ bool UsbStream::set_port_config(const PortConfig& user_config)
    */
   if(user_config.rts_cts_enabled_)
   {
-    config_.c_cflag = CRTSCTS | CREAD;
+    config_.c_cflag |= (CRTSCTS | CREAD);
   }else{
-    config_.c_cflag = CLOCAL | CREAD;
+    config_.c_cflag |= (CLOCAL | CREAD);
   }
   
 
@@ -103,7 +105,7 @@ bool UsbStream::set_port_config(const PortConfig& user_config)
   }else{
     config_.c_cflag &= ~PARENB;
   }
-  
+
   if(user_config.stop_bits_ == PortConfig::StopBits::one)
   {
     config_.c_cflag &= ~CSTOPB; // 1 stop bit
@@ -134,38 +136,170 @@ bool UsbStream::set_port_config(const PortConfig& user_config)
   
   // set to baudrate 115200.
   // https://www.setra.com/blog/what-is-baud-rate-and-what-cable-length-is-required-1
+  //Convert specified baud to hardware specific value
+  int hardware_bit_baud = 0;
   switch (user_config.baude_rate_)
   {
-  case PortConfig::BR_57600 :
-    cfsetispeed(&config_, B57600);
-    cfsetospeed(&config_, B57600);  
-    break;
-  case PortConfig::BR_115200 :
-    cfsetispeed(&config_, B115200);
-    cfsetospeed(&config_, B115200);  
-    break;
-  case PortConfig::BR_230400 :
-    cfsetispeed(&config_, B230400);
-    cfsetospeed(&config_, B230400);  
-    break;
-  case PortConfig::BR_460800 :
-    cfsetispeed(&config_, B460800);
-    cfsetospeed(&config_, B460800);  
-    break;  
-  case PortConfig::BR_921600 :
-    cfsetispeed(&config_, B921600);
-    cfsetospeed(&config_, B921600);  
-    break;
+    case 0:
+      hardware_bit_baud = B0;
+      break;
+    case 50:
+      hardware_bit_baud = B50;
+      break;
+    case 75:
+      hardware_bit_baud = B75;
+      break;
+    case 110:
+      hardware_bit_baud = B110;
+      break;
+    case 134:
+      hardware_bit_baud = B134;
+      break;
+    case 150:
+      hardware_bit_baud = B150;
+      break;
+    case 200:
+      hardware_bit_baud = B200;
+      break;
+    case 300:
+      hardware_bit_baud = B300;
+      break;
+    case 600:
+      hardware_bit_baud = B600;
+      break;
+    case 1200:
+      hardware_bit_baud = B1200;
+      break;
+    case 1800:
+      hardware_bit_baud = B1800;
+      break;
+    case 2400:
+      hardware_bit_baud = B2400;
+      break;
+    case 4800:
+      hardware_bit_baud = B4800;
+      break;
+    case 9600:
+      hardware_bit_baud = B9600;
+      break;
+    case 19200:
+      hardware_bit_baud = B19200;
+      break;
+    case 38400:
+      hardware_bit_baud = B38400;
+      break;
+# ifdef B7200
+    case 7200:
+      hardware_bit_baud = B7200;
+      break;
+# endif
+# ifdef B14400
+    case 14400:
+      hardware_bit_baud = B14400;
+      break;
+# endif
+# ifdef B57600
+    case 57600:
+      hardware_bit_baud = B57600;
+      break;
+# endif
+# ifdef B115200
+    case 115200:
+      hardware_bit_baud = B115200;
+      break;
+# endif
+# ifdef B230400
+    case 230400:
+      hardware_bit_baud = B230400;
+      break;
+# endif
+# ifdef B460800
+    case 460800:
+      hardware_bit_baud = B460800;
+      break;
+# endif
+# ifdef B500000
+    case 500000:
+      hardware_bit_baud = B500000;
+      break;
+# endif
+# ifdef B576000
+    case 576000:
+      hardware_bit_baud = B576000;
+      break;
+# endif
+# ifdef B921600
+    case 921600:
+      hardware_bit_baud = B921600;
+      break;
+# endif
+# ifdef B1000000
+    case 1000000:
+      hardware_bit_baud = B1000000;
+      break;
+# endif
+# ifdef B1152000
+    case 1152000:
+      hardware_bit_baud = B1152000;
+      break;
+# endif
+# ifdef B2000000
+    case 2000000:
+      hardware_bit_baud = B2000000;
+      break;
+# endif
+# ifdef B3000000
+    case 3000000:
+      hardware_bit_baud = B3000000;
+      break;
+# endif
+# ifdef B3500000
+    case 3500000:
+      hardware_bit_baud = B3500000;
+      break;
+# endif
+# ifdef B4000000
+    case 4000000:
+      hardware_bit_baud = B4000000;
+      break;
+  # endif
+  //Unsupported baud specified
   default:
     throw std::runtime_error("UsbStream::open_device : Baude rate not yet "
                              "supported, fix the code or correct baude rate");
     break;
   }
+
+  //set the baud rate
+  cfsetospeed(&config_, hardware_bit_baud);
+  cfsetispeed(&config_, hardware_bit_baud);
+
+  // from the imu drivers...
+  //set for non-canonical (raw processing, no echo, etc.)
+  config_.c_iflag = IGNPAR; // ignore parity check close_port(int
+  config_.c_oflag = 0; // raw output
+  config_.c_lflag = 0; // raw input
+  //Time-Outs -- won't work with NDELAY option in the call to open
+  config_.c_cc[VMIN] = 0;  // block reading until RX x characers. If x = 0, 
+  // it is non-blocking.
+  config_.c_cc[VTIME] = 1;  // Inter-Character Timer -- i.e. timeout= x*.1 s
   
-  // set port properties after flushing buffer
-  if (tcsetattr(file_id_, TCSAFLUSH, &config_) < 0)
+  if(!flush())
   {
-    printf("ERROR >> Failed to configure port.\n");
+    rt_printf("UsbStream::open_device : Flushing old serial buffer data failed\n");
+    return false;
+  }
+
+  // set port properties after flushing buffer
+  if (tcsetattr(file_id_, TCSANOW, &config_) < 0)
+  {
+    rt_printf("UsbStream::open_device : Failed to configure port.\n");
+    return false;
+  }
+
+  if(!flush())
+  {
+    rt_printf("UsbStream::open_device : Flushing old serial buffer data failed\n");
     return false;
   }
 #endif
@@ -289,7 +423,7 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
               "Failed to read port %s. Requested %ld bytes and "
               "received %ld bytes: %s\n",
               file_name_.c_str(), msg.size(), return_value_,
-              msg_debug_string(msg).c_str());
+              msg_debug_string(buffer_, return_value_).c_str());
     return false;
   }
   // Here we copy the message inside the buffer in order to use a bigger memory
@@ -364,11 +498,13 @@ bool UsbStream::set_poll_mode_timeout(double timeout_in_second)
   return true;
 }
 
-std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg)
+std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg,
+                                        long unsigned int  until)
 {
+  if(until < 0){until = msg.size();}
   std::ostringstream cmd_debug_string;
   cmd_debug_string << "[ ";
-  for (unsigned i=0 ; i<msg.size() ; ++i)
+  for (unsigned i=0 ; i<std::min(msg.size(), until) ; ++i)
   {
     cmd_debug_string << std::hex << std::setfill('0') << std::setw(2)
                     << std::uppercase << (msg[i] & 0xFF) << " ";
@@ -377,24 +513,45 @@ std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg)
   return cmd_debug_string.str();
 }
 
+bool UsbStream::test_msg_equal(const std::vector<uint8_t>& msg1,
+                               const std::vector<uint8_t>& msg2)
+{
+  if(msg1.size() != msg2.size())
+  {
+    return false;
+  }
+  bool test = true;
+  for(unsigned i = 0 ; i < msg1.size() ; ++i)
+  {
+    test = test && (msg1[i] == msg2[i]);
+  }
+  return test;
+}
+
 bool UsbStream::flush(int duration_ms)
 {
 #ifdef __XENO__
 #else
-  fcntl(file_id_, F_SETFL, 0);
-  return_value_ = fcntl(file_id_, F_SETFL, (O_RDWR | O_NONBLOCK));
+  // fcntl(file_id_, F_SETFL, 0);
+  // return_value_ = fcntl(file_id_, F_SETFL, (O_RDWR | O_NONBLOCK));
   
-  int i = duration_ms;
-  while (--i > 0) {
-	  real_time_tools::Timer::sleep_ms(1.0);
-	  while ((return_value_ = read(file_id_, buffer_.data(), buffer_.size())) > 0)
-    { // flush buffer and make sure it's cleared for while.
-	    i = 100;
-    }
+  // int i = duration_ms;
+  // while (--i > 0) {
+	//   real_time_tools::Timer::sleep_ms(1.0);
+	//   while ((return_value_ = read(file_id_, buffer_.data(), buffer_.size())) > 0)
+  //   { // flush buffer and make sure it's cleared for while.
+	//     i = 100;
+  //   }
+  // }
+  // fcntl(file_id_, F_SETFL, 0);
+  // return_value_ = fcntl(file_id_, F_SETFL, O_RDWR);
+  // real_time_tools::Timer::sleep_ms(500);
+  
+  if(tcflush(file_id_, TCIOFLUSH) == -1)
+  {
+    printf("flush failed\n");
+    return false;
   }
-  fcntl(file_id_, F_SETFL, 0);
-  return_value_ = fcntl(file_id_, F_SETFL, O_RDWR);
-  real_time_tools::Timer::sleep_ms(500);
   return true;
 #endif
 }
