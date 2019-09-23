@@ -506,7 +506,7 @@ std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg,
   if(until < 0){until = msg_size;}
   std::ostringstream cmd_debug_string;
   cmd_debug_string << "[ ";
-  for (unsigned i = 0 ; i < std::min(msg_size, until) ; ++i)
+  for (long int i = 0 ; i < std::min(msg_size, until) ; ++i)
   {
     cmd_debug_string << std::hex << std::setfill('0') << std::setw(2)
                     << std::uppercase << (msg[i] & 0xFF) << " ";
