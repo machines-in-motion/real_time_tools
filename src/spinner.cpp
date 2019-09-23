@@ -26,11 +26,7 @@ namespace real_time_tools {
 
   void Spinner::spin() {
     Timer::sleep_until_sec(next_date_sec_);
-    double current_time = Timer::get_current_time_sec();
-    while(next_date_sec_ < current_time + 0.1 * period_sec_)
-    {
-      next_date_sec_ += period_sec_;
-    }
+    next_date_sec_ = Timer::get_current_time_sec() + period_sec_;
   }
 
   double Spinner::predict_sleeping_time()
