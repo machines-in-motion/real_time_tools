@@ -15,6 +15,7 @@
 #include "real_time_tools/iostream.hpp"
 #include "real_time_tools/timer.hpp"
 #include "real_time_tools/thread.hpp"
+#include "real_time_tools/spinner.hpp"
 
 // We use this in the unnittest for code simplicity
 using namespace real_time_tools;
@@ -106,6 +107,8 @@ void* rt_thread_for_test(void* my_timer_pointer)
   tmp_data->timer_.tic();
   tmp_data->timer_.sleep_sec(1.0);
   tmp_data->duration_ = tmp_data->timer_.tac();
+
+  return nullptr;
 }
 
 #ifdef NON_REAL_TIME 
@@ -127,6 +130,7 @@ void* set_bool_to_true(void* data)
 {
   bool* converted_data = static_cast<bool*>(data);
   *converted_data = true;
+  return nullptr;
 }
 
 TEST_F(TestRealTimeTools, test_thread_execution)
@@ -216,7 +220,54 @@ TEST_F(TestRealTimeTools, test_iostream_get_current_date_str)
   std::cout << real_time_tools::Timer::get_current_date_str() << std::endl;
 }
 
-TEST_F(DISABLED_TestRealTimeTools, test_spinner)
+TEST_F(TestRealTimeTools, test_spinner_normal_behavior)
 {
-  // TODO: create unittests for the spinner
+  // some parameters
+  double period_sec = 0.2;
+  int iteration = 5;
+  
+  // we create the spinner
+  real_time_tools::Spinner spinner;
+  spinner.set_period(period_sec);
+
+  // we mesaure the time of the loop. This should be roughly the same as:
+  // iteration * period_sec in seconds.
+  real_time_tools::Timer timer;
+  timer.tic();
+  for(int i = 0 ; i <= iteration ; ++i)
+  {
+    spinner.spin();
+  }
+  double time_in_the_loop = timer.tac();
+  double therotical_time_in_the_loop = period_sec * static_cast<double>(iteration);
+
+  ASSERT_NEAR(time_in_the_loop, therotical_time_in_the_loop, 0.1*period_sec);
+}
+
+TEST_F(TestRealTimeTools, test_spinner_loop_too_slow)
+{
+  // some parameters
+  double period_sec = 0.2;
+  int nb_it = 5;
+  
+  // we create the spinner
+  real_time_tools::Spinner spinner;
+  spinner.set_period(period_sec);
+
+  // we mesaure the time of the loop. This should be roughly the same as:
+  // nb_it * period_sec in seconds.
+  real_time_tools::Timer timer;
+  timer.tic();
+  for(int i = 0 ; i < nb_it ; ++i)
+  {
+    if(i == 0)
+    {
+      real_time_tools::Timer::sleep_sec(nb_it*period_sec);
+    }
+    spinner.spin();
+  }
+  double time_in_the_loop = timer.tac();
+  double therotical_time_in_the_loop = period_sec * static_cast<double>(2 * nb_it - 1);
+
+  ASSERT_NEAR(time_in_the_loop, therotical_time_in_the_loop, 0.1*period_sec);
 }
