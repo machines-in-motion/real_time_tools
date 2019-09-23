@@ -303,6 +303,7 @@ bool UsbStream::set_port_config(const PortConfig& user_config)
     return false;
   }
 #endif
+  return true;
 }
 
 bool UsbStream::close_device()
@@ -417,7 +418,7 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
     return false;
   }
   // Timeout failure
-  else if (return_value_ != msg.size())
+  else if (return_value_ != static_cast<ssize_t>(msg.size()))
   {
     rt_printf("UsbStream::read_device: "
               "Failed to read port %s. Requested %ld bytes and "
@@ -461,7 +462,7 @@ bool UsbStream::write_device(const std::vector<uint8_t>& msg)
               msg_debug_string(msg).c_str(), strerror(errsv));
     return false;
   }
-  else if (return_value_ != msg.size())
+  else if (return_value_ != static_cast<ssize_t>(msg.size()))
   {
     rt_printf("UsbStream::write_device: Failed to write in port %s, the "
               "requested amount of bytes is %ld, could only write %ld bytes\n",
@@ -499,12 +500,13 @@ bool UsbStream::set_poll_mode_timeout(double timeout_in_second)
 }
 
 std::string UsbStream::msg_debug_string(const std::vector<uint8_t>& msg,
-                                        long unsigned int  until)
+                                        long int until)
 {
-  if(until < 0){until = msg.size();}
+  long int msg_size = static_cast<long int>(msg.size());
+  if(until < 0){until = msg_size;}
   std::ostringstream cmd_debug_string;
   cmd_debug_string << "[ ";
-  for (unsigned i=0 ; i<std::min(msg.size(), until) ; ++i)
+  for (long int i = 0 ; i < std::min(msg_size, until) ; ++i)
   {
     cmd_debug_string << std::hex << std::setfill('0') << std::setw(2)
                     << std::uppercase << (msg[i] & 0xFF) << " ";
@@ -528,7 +530,7 @@ bool UsbStream::test_msg_equal(const std::vector<uint8_t>& msg1,
   return test;
 }
 
-bool UsbStream::flush(int duration_ms)
+bool UsbStream::flush(int)
 {
 #ifdef __XENO__
 #else

@@ -180,8 +180,8 @@ void ThreadsafeTimeseries<Type>::append(const Type& element)
     {
         std::unique_lock<std::mutex> lock(*mutex_);
         newest_timeindex_++;
-        if(newest_timeindex_ - oldest_timeindex_ + 1
-                > history_elements_->size())
+        if(newest_timeindex_ - oldest_timeindex_ + 1 >
+           static_cast<long>(history_elements_->size()))
         {
             oldest_timeindex_++;
         }
