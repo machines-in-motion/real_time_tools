@@ -171,7 +171,7 @@ public:
    * @return std::string the debug string
    */
   static std::string msg_debug_string(const std::vector<uint8_t>& msg,
-                                      long unsigned int until=-1);
+                                      std::size_t until=-1);
 
   /**
    * @brief Test if two message are the same or not
