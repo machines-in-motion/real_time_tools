@@ -77,11 +77,17 @@ TEST(threadsafe_timeseries, full_history)
         threads[i].create_realtime_thread(
           &timeseries_to_output, &output_indices[i]);
     }
-    usleep(1000);
 
     RealTimeThread input_to_timeseries_thread;
+    usleep(1000);
     input_to_timeseries_thread.create_realtime_thread(&input_to_timeseries);
     usleep(1000000);
+
+    for(size_t i = 0; i < threads.size(); i++)
+    {
+        threads[i].join();
+    }
+    input_to_timeseries_thread.join();
 
     // check that the outputs written by the individual threads
     // correspond to the input.
@@ -140,6 +146,11 @@ TEST(threadsafe_timeseries, partial_history)
     threads[n_outputs].create_realtime_thread(
       &input_to_timeseries_slow);
     usleep(1000000);
+
+    for(size_t i = 0; i < threads.size(); i++)
+    {
+        threads[i].join();
+    }
 
     // check that the outputs written by the individual threads
     // correspond to the input.
