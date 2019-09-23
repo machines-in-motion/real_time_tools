@@ -26,8 +26,15 @@ namespace real_time_tools{
   typedef std::condition_variable rt_cond;
 #endif
 
+/**
+ * @brief This class uses the real-time API of xenomai and posix to implement
+ * mutexes.
+ */
 class RealTimeMutex{
 public:
+  /**
+   * @brief Construct a new RealTimeMutex object
+   */
   RealTimeMutex()
   {
     int res = 0;
@@ -45,7 +52,9 @@ public:
                 "error while creating mutex with code %d", res);
     }
   }
-
+  /**
+   * @brief Destroy the RealTimeMutex object
+   */
   ~RealTimeMutex()
   {
     int res = 0;
@@ -66,7 +75,9 @@ public:
     }
     mutex_ = nullptr;  
   }
-
+  /**
+   * @brief lock the mutex.
+   */
   void lock()
   {
     int res = 0;
@@ -83,7 +94,9 @@ public:
                 "error while locking mutex with code %d", res);
     }
   }
-
+  /**
+   * @brief unlock the mutex
+   */
   void unlock()
   {
     int res = 0;
@@ -102,6 +115,10 @@ public:
   }
 
 private:
+  /**
+   * @brief This is the object which type chenge according to the OS this code
+   * is compiled
+   */
   rt_mutex* mutex_;
 };
 

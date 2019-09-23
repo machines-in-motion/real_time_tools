@@ -60,7 +60,7 @@ namespace real_time_tools {
 
     /**
       * IOSTREAM functions
-      * /
+      */
 
     /**
      * @brief dump_tic_tac_measurements writes in a file the time elapsed
@@ -77,7 +77,7 @@ namespace real_time_tools {
 
     /**
       * SETTERS
-      * /
+      */
 
     /**
      * @brief set_memory_size sets the buffer size. It resets all value of the
@@ -103,7 +103,7 @@ namespace real_time_tools {
 
     /**
       * GETTERS
-      * /
+      */
 
     /**
      * @brief get_min_elapsed_sec
@@ -241,7 +241,7 @@ namespace real_time_tools {
 #ifndef MAC_OS
     /**
      * @brief timespec_add_sec posix type of a date in time.
-     * @param t is the date to be changed
+     * @param date_spec is the date to be changed
      * @param duration_sec the duration to be added to "t" in seconds
      */
     static void timespec_add_sec(struct timespec& date_spec,
