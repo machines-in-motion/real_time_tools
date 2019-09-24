@@ -5,162 +5,152 @@
 #include <real_time_tools/threadsafe/threadsafe_timeseries.hpp>
 #include <real_time_tools/timer.hpp>
 #include "real_time_tools/thread.hpp"
+#include "real_time_tools/mutex.hpp"
 
 using namespace real_time_tools;
 
 typedef Eigen::Matrix<double, 20, 20> Type;
 
-size_t length = 10000;
-size_t n_outputs = 10;
+class ThreadData
+{
+public:
+    ThreadData(): length_(10000), timeseries_(length_)
+    {
+        n_outputs_ = 10;
+        srand(0);
+        inputs_.resize(length_, Type::Random());
+        outputs_.resize(n_outputs_, std::vector<Type>(length_));
+        output_indices_.resize(n_outputs_);
+    }
+    size_t length_;
+    size_t n_outputs_;
+    std::vector<Type> inputs_;
+    real_time_tools::RealTimeMutex outputs_mutex_;
+    std::vector<std::vector<Type>> outputs_;
+    real_time_tools::ThreadsafeTimeseries<Type> timeseries_;
+    std::vector<size_t> output_indices_;
+};
 
-std::vector<Type> inputs(length);
-std::vector<std::vector<Type>> outputs(n_outputs, std::vector<Type>(length));
+class OutputThreadData
+{
+public:
+    ThreadData* data_;
+    size_t output_index_;
+};
 
-real_time_tools::ThreadsafeTimeseries<Type> timeseries(length);
-
-
+class InputThreadData
+{
+public:
+    ThreadData* data_;
+    bool slow_;
+};
 
 void * timeseries_to_output(void* void_ptr)
 {
-    size_t output_index = *static_cast<size_t*>(void_ptr);
+    OutputThreadData& thread_data = *static_cast<OutputThreadData*>(void_ptr);
+    size_t length = thread_data.data_->length_;
+    size_t output_index = thread_data.output_index_;
+    std::vector<std::vector<Type>>& outputs = thread_data.data_->outputs_;
+    real_time_tools::RealTimeMutex& ouputs_mutex = thread_data.data_->outputs_mutex_;
+    real_time_tools::ThreadsafeTimeseries<Type>& timeseries = thread_data.data_->timeseries_;
 
     Timer logger;
-    logger.set_memory_size(100);
-    logger.set_name("timeseries_to_output " + std::to_string(output_index));
+    logger.set_memory_size(length);
+    logger.set_name("timeseries_to_output_" + std::to_string(output_index));
 
     for(size_t i = 0; i < length; i++)
     {
         Type element;
         real_time_tools::ThreadsafeTimeseries<Type>::Index timeindex = i;
         element = timeseries[timeindex];
+        ouputs_mutex.lock();
         outputs[output_index][i] = element;
+        ouputs_mutex.unlock();
         logger.tac_tic();
     }
-
-//    logger.print_statistics();
+    // logger.print_statistics();
     return nullptr;
 }
 
 void * input_to_timeseries(void* void_ptr)
 {
-    Timer logger;
-    logger.set_memory_size(100);
-    logger.set_name("input_to_timeseries");
+    InputThreadData& thread_data = *static_cast<InputThreadData*>(void_ptr);
+    size_t length = thread_data.data_->length_;
+    std::vector<Type>& inputs = thread_data.data_->inputs_;
+    real_time_tools::ThreadsafeTimeseries<Type>& timeseries = thread_data.data_->timeseries_;
 
+    Timer logger;
+    logger.set_memory_size(length);
+    std::string suffix = "";
+    if(thread_data.slow_){suffix = "_slow";}
+    logger.set_name("input_to_timeseries" + suffix);
+
+    
     for(size_t i = 0; i < length; i++)
     {
         timeseries.append(inputs[i]);
         logger.tac_tic();
+        if(thread_data.slow_)
+        {
+            usleep(100);
+        }
+    }
+    // logger.print_statistics();
+    return nullptr;
+}
+
+
+bool test_threadsafe_timeseries_history(bool slow)
+{
+    ThreadData data;
+    std::vector<OutputThreadData> output_data(data.n_outputs_);
+    InputThreadData input_data;
+    input_data.data_ = &data;
+    input_data.slow_ = slow;
+
+    std::vector<RealTimeThread> threads(data.n_outputs_ + 1);
+    for(size_t i = 0; i < data.output_indices_.size(); i++)
+    {
+        // We provide the thread with all the infos needed
+        output_data[i].data_ = &data;
+        output_data[i].output_index_ = i;
+        // We start the consumers thread
+        threads[i].create_realtime_thread(
+          &timeseries_to_output, &output_data[i]);
+    }
+    // We start the feeding thread
+    threads.back().create_realtime_thread(&input_to_timeseries, &input_data);
+    
+    // wait for all the thread to finish
+    for(size_t i = 0; i < threads.size(); i++)
+    {
+        threads[i].join();
     }
 
-//    logger.print_statistics();
-    return nullptr;
+    // check that the outputs written by the individual threads
+    // correspond to the input.
+    for(size_t i = 0; i < data.n_outputs_; i++)
+    {
+        EXPECT_TRUE(data.inputs_ == data.outputs_[i]);
+    }
+
+    // sanity check
+    data.inputs_[0](0,0) = 33.;
+    EXPECT_FALSE(data.inputs_ == data.outputs_[0]);
+
+    return true;
 }
 
 
 TEST(threadsafe_timeseries, full_history)
-{
-    timeseries = real_time_tools::ThreadsafeTimeseries<Type>(length);
-
-    srand(0);
-    for(size_t i = 0; i < inputs.size(); i++)
-    {
-        inputs[i] = Type::Random();
-    }
-
-    std::vector<size_t> output_indices(n_outputs);
-
-    std::vector<RealTimeThread> threads(n_outputs);
-    for(size_t i = 0; i < n_outputs; i++)
-    {
-        output_indices[i] = i;
-        threads[i].create_realtime_thread(
-          &timeseries_to_output, &output_indices[i]);
-    }
-
-    RealTimeThread input_to_timeseries_thread;
-    usleep(1000);
-    input_to_timeseries_thread.create_realtime_thread(&input_to_timeseries);
-    usleep(1000000);
-
-    for(size_t i = 0; i < threads.size(); i++)
-    {
-        threads[i].join();
-    }
-    input_to_timeseries_thread.join();
-
-    // check that the outputs written by the individual threads
-    // correspond to the input.
-    for(size_t i = 0; i < n_outputs; i++)
-    {
-        EXPECT_TRUE(inputs == outputs[i]);
-    }
-
-    // sanity check
-    inputs[0](0,0) = 33.;
-    EXPECT_FALSE(inputs == outputs[0]);
+{   
+    bool res = test_threadsafe_timeseries_history(false);
+    EXPECT_TRUE(res);
 }
-
-
-
-void * input_to_timeseries_slow(void* void_ptr)
-{
-    Timer logger;
-    logger.set_memory_size(100);
-    logger.set_name("input_to_timeseries");
-
-    for(size_t i = 0; i < length; i++)
-    {
-        timeseries.append(inputs[i]);
-        logger.tac_tic();
-
-        usleep(100);
-    }
-
-//    logger.print_statistics();
-
-    return nullptr;
-}
-
 
 TEST(threadsafe_timeseries, partial_history)
 {
-    timeseries = real_time_tools::ThreadsafeTimeseries<Type>(100);
-
-
-    srand(0);
-    for(size_t i = 0; i < inputs.size(); i++)
-    {
-        inputs[i] = Type::Random();
-    }
-
-    std::vector<RealTimeThread> threads(n_outputs + 1);
-    std::vector<size_t> output_indices(n_outputs);
-    for(size_t i = 0; i < n_outputs; i++)
-    {
-        output_indices[i] = i;
-        threads[i].create_realtime_thread(
-          &timeseries_to_output, &output_indices[i]);
-    }
-    usleep(1000);
-    threads[n_outputs].create_realtime_thread(
-      &input_to_timeseries_slow);
-    usleep(1000000);
-
-    for(size_t i = 0; i < threads.size(); i++)
-    {
-        threads[i].join();
-    }
-
-    // check that the outputs written by the individual threads
-    // correspond to the input.
-    for(size_t i = 0; i < n_outputs; i++)
-    {
-        EXPECT_TRUE(inputs == outputs[i]);
-    }
-
-    // sanity check
-    inputs[0](0,0) = 33.;
-    EXPECT_FALSE(inputs == outputs[0]);
+    bool res = test_threadsafe_timeseries_history(true);
+    EXPECT_TRUE(res);
 }
 
