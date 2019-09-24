@@ -92,7 +92,7 @@ void * input_to_timeseries(void* void_ptr)
         logger.tac_tic();
         if(thread_data.slow_)
         {
-            usleep(100);
+            real_time_tools::Timer::sleep_ms(1.0);
         }
     }
     // logger.print_statistics();
