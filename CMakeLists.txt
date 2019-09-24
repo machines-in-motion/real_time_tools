@@ -85,7 +85,7 @@ catkin_add_gtest(test_real_time_tools
   tests/main.cpp
   tests/test_real_time_tools.cpp
   tests/threadsafe_object_test.cpp
-#   tests/threadsafe_timeseries_test.cpp
+  tests/threadsafe_timeseries_test.cpp
 )
 # link the dependecies to it
 if (TARGET test_real_time_tools)
@@ -93,7 +93,7 @@ if (TARGET test_real_time_tools)
     real_time_tools
     ${catkin_LIBRARIES}
    	${Boost_LIBRARIES}
-  )
+	)
 
   # add some preprocessor variable
   target_compile_definitions(test_real_time_tools PUBLIC
