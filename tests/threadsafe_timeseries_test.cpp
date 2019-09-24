@@ -14,7 +14,7 @@ typedef Eigen::Matrix<double, 20, 20> Type;
 class ThreadData
 {
 public:
-    ThreadData(): length_(10000), timeseries_(length_)
+    ThreadData(size_t time_series_length): length_(10000), timeseries_(time_series_length)
     {
         n_outputs_ = 10;
         srand(0);
@@ -101,8 +101,14 @@ void * input_to_timeseries(void* void_ptr)
 
 
 bool test_threadsafe_timeseries_history(bool slow)
-{
-    ThreadData data;
+{   
+    size_t time_series_size = 10000;
+    if (slow)
+    {
+        time_series_size = 100;
+    }
+    ThreadData data(time_series_size);
+    
     std::vector<OutputThreadData> output_data(data.n_outputs_);
     InputThreadData input_data;
     input_data.data_ = &data;
