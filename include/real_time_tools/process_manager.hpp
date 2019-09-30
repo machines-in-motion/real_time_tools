@@ -15,6 +15,8 @@
   #include <sched.h>
 #endif
 
+#include <vector>
+
 namespace real_time_tools {
 
 bool fix_current_process_to_cpu(std::vector<int>& cpu_affinities, int pid);
