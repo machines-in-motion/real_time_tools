@@ -39,9 +39,9 @@ public:
   {
     int res = 0;
 #if defined(XENOMAI)
-    res = rt_mutex_create(mutex, nullptr);
+    res = rt_mutex_create(mutex_, nullptr);
 #elif defined(RT_PREEMPT)
-    res = pthread_mutex_init(mutex, nullptr);
+    res = pthread_mutex_init(mutex_, nullptr);
 #else // defined(NON_REAL_TIME)
     mutex_ = nullptr;
     mutex_ = new std::mutex();
@@ -101,9 +101,9 @@ public:
   {
     int res = 0;
 #if defined(XENOMAI)
-    res = rt_mutex_release(mutex);
+    res = rt_mutex_release(mutex_);
 #elif defined(RT_PREEMPT)
-    res = pthread_mutex_unlock(mutex);
+    res = pthread_mutex_unlock(mutex_);
 #else // defined(NON_REAL_TIME)
     mutex_->unlock();
 #endif
