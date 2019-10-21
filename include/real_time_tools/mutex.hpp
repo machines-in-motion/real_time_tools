@@ -16,13 +16,13 @@
 namespace real_time_tools{
 
 #if defined(XENOMAI)
-  typedef RT_MUTEX rt_mutex;
+  typedef RT_MUTEX RealTimeMutex_t;
   typedef RT_COND rt_cond;
 #elif defined(RT_PREEMPT)
-  typedef pthread_mutex_t rt_mutex;
+  typedef pthread_mutex_t RealTimeMutex_t;
   typedef pthread_cond_t rt_cond;
 #else
-  typedef std::mutex rt_mutex;
+  typedef std::mutex RealTimeMutex_t;
   typedef std::condition_variable rt_cond;
 #endif
 
@@ -37,13 +37,16 @@ public:
    */
   RealTimeMutex()
   {
+    mutex_ = nullptr;
+
     int res = 0;
 #if defined(XENOMAI)
+    mutex_ = new RT_MUTEX();
     res = rt_mutex_create(mutex_, nullptr);
 #elif defined(RT_PREEMPT)
+    mutex_ = new pthread_mutex_t();
     res = pthread_mutex_init(mutex_, nullptr);
 #else // defined(NON_REAL_TIME)
-    mutex_ = nullptr;
     mutex_ = new std::mutex();
 #endif
     if (res > 0)
@@ -119,7 +122,7 @@ private:
    * @brief This is the object which type chenge according to the OS this code
    * is compiled
    */
-  rt_mutex* mutex_;
+  RealTimeMutex_t* mutex_;
 };
 
 } // namespace
