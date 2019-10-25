@@ -45,6 +45,9 @@ namespace real_time_tools {
 			double &current_frequency,
                         double &worse_frequency) ;
 
+    // returns observed frequency after last call to tick
+    double get_current_frequency() const;
+    
   private:
     
     // true if tick has been called once

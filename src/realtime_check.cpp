@@ -91,6 +91,11 @@ namespace real_time_tools {
   }
 
 
+  double Realtime_check::get_current_frequency() const
+  {
+    return current_frequency;
+  }
+  
 
   bool Realtime_check::get_statistics(int &ticks,int &switchs,
 				      double &target_frequency,
