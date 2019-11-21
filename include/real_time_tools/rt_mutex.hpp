@@ -1,7 +1,7 @@
 /**
  * @file rt_mutex.hpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @license License BSD-3-Clause
+ * license License BSD-3-Clause
  * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
@@ -17,16 +17,24 @@
 #endif
 
 #ifdef __XENO__
+  /** @brief Alias for the real time mutex. */
   typedef RT_MUTEX rt_mutex;
+  /** @brief Alias for the real time condition variable. */
   typedef RT_COND rt_cond;
 #else
+  /** @brief Alias for the real time mutex. */
   typedef pthread_mutex_t rt_mutex;
+  /** @brief Alias for the real time condition variable. */
   typedef pthread_cond_t rt_cond;
 #endif
 
+/** @brief Initialize the mutex. */
 static int rt_mutex_init(rt_mutex* mutex);
+/** @brief Destroy the mutex. */
 static int rt_mutex_destroy(rt_mutex* mutex);
+/** @brief Lock the mutex. */
 static int rt_mutex_lock(rt_mutex* mutex);
+/** @brief Unlock the mutex. */
 static int rt_mutex_unlock(rt_mutex* mutex);
 
 

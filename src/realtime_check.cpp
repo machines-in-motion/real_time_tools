@@ -1,7 +1,7 @@
 /**
  * @file realtime_check.cpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @license License BSD-3-Clause
+ * license License BSD-3-Clause
  * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
@@ -14,7 +14,7 @@
 namespace real_time_tools {
 
 
-  Realtime_check::Realtime_check(double target_frequency,
+  RealTimeCheck::RealTimeCheck(double target_frequency,
 				 double switch_frequency ){
   
     this->target_frequency = target_frequency;
@@ -27,7 +27,7 @@ namespace real_time_tools {
     this->average_frequency = -1.0;
   }
 
-  bool Realtime_check::was_realtime_lost() const {
+  bool RealTimeCheck::was_realtime_lost() const {
     
     if(!this->started) {
       return false;
@@ -41,7 +41,7 @@ namespace real_time_tools {
 
   }
 
-  void Realtime_check::tick(){
+  void RealTimeCheck::tick(){
 
     std::lock_guard<std::mutex> guard(this->mutex);
     
@@ -91,13 +91,13 @@ namespace real_time_tools {
   }
 
 
-  double Realtime_check::get_current_frequency() const
+  double RealTimeCheck::get_current_frequency() const
   {
     return current_frequency;
   }
   
 
-  bool Realtime_check::get_statistics(int &ticks,int &switchs,
+  bool RealTimeCheck::get_statistics(int &ticks,int &switchs,
 				      double &target_frequency,
 				      double &switch_frequency,
 				      double &average_frequency,
@@ -122,8 +122,7 @@ namespace real_time_tools {
 
   }
 
-
-  void print_realtime_check(Realtime_check &rc){
+  void RealTimeCheck::print(){
 
     int ticks,switchs;
     double average_frequency;
@@ -132,12 +131,9 @@ namespace real_time_tools {
     double target_frequency;
     double switch_frequency;
     
-    bool ret = rc.get_statistics(ticks,switchs,
-                                 target_frequency,
-				 switch_frequency,
-                                 average_frequency,
-				 current_frequency,
-                                 worse_frequency);
+    bool ret = get_statistics(ticks,switchs, target_frequency, switch_frequency,
+                              average_frequency, current_frequency,
+                              worse_frequency);
 
     if (!ret){
       printf("failed to get results from realtime check\n");
@@ -148,11 +144,11 @@ namespace real_time_tools {
            "nb switchs: %d (i.e below %f)\t"
            "target_freq: %f\t"
            "average: %f\t"
-	   "current: %f\t"
+           "current: %f\t"
            "worse: %f\n",
            ticks, switchs, switch_frequency,target_frequency,
            average_frequency,current_frequency,
-	   worse_frequency);
+           worse_frequency);
 
   }
 }

@@ -1,7 +1,7 @@
 /**
  * @file timer.hpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @license License BSD-3-Clause
+ * license License BSD-3-Clause
  * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
@@ -246,13 +246,6 @@ namespace real_time_tools {
      */
     static void timespec_add_sec(struct timespec& date_spec,
                                  const double duration_sec);
-
-    /**
-     * @brief sec_to_timespec convert a double representing the time in seconds
-     * to a struct timespec.
-     * @param t is the structure to be converted
-     * @return the converted time in seconds
-     */
 
     /**
      * @brief sec_to_timespec converts a double representing the time in seconds

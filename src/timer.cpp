@@ -1,7 +1,7 @@
 /**
  * @file timer.cpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @license License BSD-3-Clause
+ * license License BSD-3-Clause
  * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
@@ -18,7 +18,9 @@
 
 namespace real_time_tools {
 
-
+/**
+ * @brief Simple renaming to get the number of days passed out of the date.
+ */
 typedef std::chrono::duration<
   int, std::ratio_multiply<std::chrono::hours::period,
   std::ratio<24> >::type> days;

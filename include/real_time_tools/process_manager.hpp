@@ -19,8 +19,26 @@
 
 namespace real_time_tools {
 
+/**
+ * @brief Pin an executing process to a specific CPU in order to
+ * avoid jumps between CPUs.
+ * 
+ * @param cpu_affinities is the index of the CPU one wants to pin the process
+ * on.
+ * @param pid is the PID of the current process.
+ * @return true if everything went well.
+ * @return false otherwise
+ */
 bool fix_current_process_to_cpu(std::vector<int>& cpu_affinities, int pid);
 
+/**
+ * @brief Set the _cpu_dma_latency objectWe can set the maximum CPU latency
+ * for processes in micro seconds.
+ * 
+ * @param max_latency_us is the maximum latency in micro-seconds.
+ * @return true if everything went well.
+ * @return false if something went wrong.
+ */
 bool set_cpu_dma_latency(int max_latency_us);
 
 }

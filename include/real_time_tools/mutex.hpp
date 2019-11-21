@@ -1,3 +1,13 @@
+/**
+ * @file mutex.hpp
+ * @author Maximilien Naveau
+ * license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
+ * @date 2019-11-19
+ * @brief This file implements a real time safe mutex with the dedicated
+ * libraries. The API tries to fit the std API as much as possible.
+ */
+
 #ifndef MUTEX_HPP
 #define MUTEX_HPP
 
@@ -16,13 +26,19 @@
 namespace real_time_tools{
 
 #if defined(XENOMAI)
+  /** @brief Alias for the real time mutex */
   typedef RT_MUTEX RealTimeMutex_t;
+  /** @brief Alias for the real time condition variable */
   typedef RT_COND rt_cond;
 #elif defined(RT_PREEMPT)
+  /** @brief Alias for the real time mutex */
   typedef pthread_mutex_t RealTimeMutex_t;
+  /** @brief Alias for the real time condition variable */
   typedef pthread_cond_t rt_cond;
 #else
+  /** @brief Alias for the real time mutex */
   typedef std::mutex RealTimeMutex_t;
+  /** @brief Alias for the real time condition variable */
   typedef std::condition_variable rt_cond;
 #endif
 

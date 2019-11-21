@@ -1,4 +1,5 @@
-# real_time_tools
+real_time_tools {#mainpage}
+===============
 
 ## What is it
 
