@@ -1,5 +1,5 @@
 /**
- * @file test.cpp
+ * @file demo_usb_stream_imu_3DM_GX3_25.cpp
  * @author Vincent Berenz (vincent.brenz@tuebingen.mpg.de)
  * @brief Testing imu connection directly via the drivers. See test_interface in
  *        the same package for an example of the API.
@@ -13,13 +13,12 @@
 #include "real_time_tools/usb_stream.hpp"
 #include "real_time_tools/timer.hpp"
 
-
 /**
- * In order to use this Demo one must have an IMU 3DM-GX3-25 from micro-strain
- * plug in one of the usb port of the computer.
- * https://atlas.is.localnet/confluence/display/AMDW/Microstrain+3DM+IMUs?preview=/8979810/17761244/3DM-GX3-Data-Communications-Protocol.pdf
+ * @brief Send the message that set the imu into stream mode or not.
+ * 
+ * @param usb_stream is the usb interface.
+ * @param stream_mode start or stop the stream mode.
  */
-
 void continuous_mode_on(real_time_tools::UsbStream& usb_stream,
                         bool stream_mode)
 {
@@ -49,6 +48,14 @@ void continuous_mode_on(real_time_tools::UsbStream& usb_stream,
   rt_printf("The IMU should blink fast\n");
 }
 
+/**
+ * @brief Check the mode of the imu.
+ * 
+ * @param usb_stream usb communication interface.
+ * @param stream_mode read the socket in stream mode or not.
+ * @return true imu is in stream mode
+ * @return false imu is in idle mode
+ */
 bool is_continuous_mode_on(real_time_tools::UsbStream& usb_stream,
                            bool stream_mode)
 {
@@ -73,6 +80,12 @@ bool is_continuous_mode_on(real_time_tools::UsbStream& usb_stream,
   return success && (reply[1] > 0) ;
 }
 
+/**
+ * @brief Set the imu into idle mode
+ * 
+ * @param usb_stream 
+ * @param stream_mode 
+ */
 void continuous_mode_off(real_time_tools::UsbStream& usb_stream,
                          bool stream_mode)
 {
@@ -102,6 +115,12 @@ void continuous_mode_off(real_time_tools::UsbStream& usb_stream,
   rt_printf("The IMU should blink slowly\n");
 }
 
+/**
+ * @brief Reset the imu.
+ * 
+ * @param usb_stream 
+ * @param stream_mode 
+ */
 void reset(real_time_tools::UsbStream& usb_stream,
            bool stream_mode)
 {
@@ -127,6 +146,13 @@ void reset(real_time_tools::UsbStream& usb_stream,
 
 }
 
+/**
+ * @brief Example on how to use the usb interface using an imu.
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char** argv){
   /**
    * The software input is the path to the port: /dev/tty0
@@ -193,3 +219,20 @@ int main(int argc, char** argv){
   return 0;
 }
 
+/**
+ * \example demo_usb_stream_imu_3DM_GX3_25.cpp
+ * 
+ * In order to use this Demo one must have an IMU 3DM-GX3-25 from micro-strain
+ * plug in one of the usb port of the computer.
+ * https://atlas.is.localnet/confluence/display/AMDW/Microstrain+3DM+IMUs?preview=/8979810/17761244/3DM-GX3-Data-Communications-Protocol.pdf
+ * 
+ * This demos present the use of the usb socket use using the real_time_tools
+ * API.
+ * 
+ * One need to create a real_time_tools::UsbStream. This class allows you to
+ * open a device, which means that the class connects this process to a
+ * usb communication socket.One can initialize the socket parameters through
+ * the real_time_tools::PortConfig structure. Once open one can simply use the
+ * communication protocole of the hardware to send and receive messages.
+ * 
+ */

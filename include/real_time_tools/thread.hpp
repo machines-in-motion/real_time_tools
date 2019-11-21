@@ -1,3 +1,11 @@
+/**
+ * @file thread.hpp
+ * @author Maximilien Naveau (mnaveau@tue.mpg.de)
+ * license License BSD-3-Clause
+ * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
+ * @date 2019-11-21
+ */
+
 #ifndef REALTIME_THREAD_CREATION_HPP
 #define REALTIME_THREAD_CREATION_HPP
 
@@ -29,30 +37,6 @@
   #define THREAD_FUNCTION_RETURN_VALUE nullptr
 #endif
 
-
-/**
- * \page rt_preempt General introduction
- * 
- * \section intro_rtpreempt Introduction
- * warning : initial version, copy pasted from : https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
- * I did not study things now, so this likely needs improvement
- * (alternative: https://rt.wiki.kernel.org/index.php/Threaded_RT-application_with_memory_locking_and_stack_handling_example)
- * note: if failed as mlockall, run executable with sudo or be part of the
- * real_time group or xenomai group.
- * 
- * \section block_memory_rtpreempt Block Memory
- * see https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory#memory-locking
- * for further explanation.
- */
-
-/**
- * \page xenomai General introduction
- */
-
-/**
- * \page non_real_time General introduction
- */
-
 namespace real_time_tools {
 
   /**
@@ -60,6 +44,13 @@ namespace real_time_tools {
    * configurations among threads. These parameter allows you to generate
    * real threads in xenomai and rt_preempt. The same code is compatible with
    * Mac and ubuntu but will run non-real time threads.
+   * 
+   * warning : initial version, copy pasted from :
+   * https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
+   * I did not study things now, so this likely needs improvement (alternative:
+   * https://rt.wiki.kernel.org/index.php/Threaded_RT-application_with_memory_locking_and_stack_handling_example)
+   * note: if failed as mlockall, run executable with sudo or be part of the
+   * real_time group or xenomai group.
    */
   class RealTimeThreadParameters
   {
@@ -160,13 +151,14 @@ namespace real_time_tools {
 
     /**
      * @brief join join the real time thread
-     * @param thread is the C++ thread object to join
      * @return the error code.
      */
     int join();
 
     /**
      * @brief block_memory block the current and futur memory pages.
+     * see https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory#memory-locking
+     * for further explanation.
      */
     void block_memory();
 

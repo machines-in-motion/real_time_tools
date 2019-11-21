@@ -183,6 +183,9 @@ ThreadsafeObject<Types ...>::Type<INDEX> ThreadsafeObject<Types ...>::get() cons
     return std::get<INDEX>(*data_);
 }
 
+/**
+ * @brief @copydoc ThreadsafeObject::set()
+ */
 template<class ... Types>
 template<int INDEX> void
 ThreadsafeObject<Types ...>::set(ThreadsafeObject<Types ...>::Type<INDEX> datum)

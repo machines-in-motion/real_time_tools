@@ -165,10 +165,12 @@ public:
   bool flush(int duration_ms = 150);
 
   /**
-   * @brief Allow to display a msg.
+   * @brief Display the uint8_t message in hexadecimal format.
    * 
-   * @param msg 
-   * @return std::string the debug string
+   * @param msg is the message to be displayed
+   * @param until is a bound on the number of displayed bytes. "-1" means
+   * display all.
+   * @return std::string the debug string 
    */
   static std::string msg_debug_string(const std::vector<uint8_t>& msg,
                                       long int until=-1);

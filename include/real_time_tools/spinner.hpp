@@ -1,7 +1,7 @@
 /**
  * @file spinner.hpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @license License BSD-3-Clause
+ * license License BSD-3-Clause
  * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
@@ -15,8 +15,9 @@
 #include <unistd.h>
 
 namespace real_time_tools {
-
-  // class to have threads / loops running at a desired frequency
+  /**
+   * @brief Class to have threads / loops running at a desired frequency
+   */
   class Spinner {
 
   public :
@@ -33,6 +34,11 @@ namespace real_time_tools {
       period_sec_ = period;
     }
 
+    /**
+     * @brief Set the frequency of the loop [Hz]
+     * 
+     * @param frequency 
+     */
     void set_frequency(double frequency)
     {
       period_sec_ = 1.0/frequency;

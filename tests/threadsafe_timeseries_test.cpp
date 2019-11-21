@@ -11,9 +11,17 @@ using namespace real_time_tools;
 
 typedef Eigen::Matrix<double, 20, 20> Type;
 
+/**
+ * @brief This class contain the thread data
+ */
 class ThreadData
 {
 public:
+    /**
+     * @brief Construct a new ThreadData object
+     * 
+     * @param time_series_length is the size of the each buffer
+     */
     ThreadData(size_t time_series_length): length_(10000), timeseries_(time_series_length)
     {
         n_outputs_ = 10;
@@ -22,26 +30,44 @@ public:
         outputs_.resize(n_outputs_, std::vector<Type>(length_));
         output_indices_.resize(n_outputs_);
     }
+    /** @brief is the number of input data*/
     size_t length_;
+    /** @brief is the number of output data*/
     size_t n_outputs_;
+    /** @brief Is the input data buffer*/
     std::vector<Type> inputs_;
+    /** @brief Is the mutex that provide safe access to the ouputs*/
     real_time_tools::RealTimeMutex outputs_mutex_;
+    /** @brief The output data buffer*/
     std::vector<std::vector<Type>> outputs_;
+    /** @brief The thread safe time series data buffer*/
     real_time_tools::ThreadsafeTimeseries<Type> timeseries_;
+    /** @brief is the indices of the buffer to be used in each threads*/
     std::vector<size_t> output_indices_;
 };
 
+/**
+ * @brief This class is used to extract the data from a thread
+ */
 class OutputThreadData
 {
 public:
+    /** @brief data_ This is a pointer to the data buffer */
     ThreadData* data_;
+    /** @brief output_index_ This is the index in the data buffer */
     size_t output_index_;
 };
 
+/**
+ * @brief This class gives the pointer to the data buffer to the thread and
+ * define the speed of the thread.
+ */
 class InputThreadData
 {
 public:
+    /** @brief Data buffer */
     ThreadData* data_;
+    /** @brief slow down the writting thread */
     bool slow_;
 };
 

@@ -1,7 +1,7 @@
 /**
  * @file realtime_test_display.cpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
- * @license License BSD-3-Clause
+ * license License BSD-3-Clause
  * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
  * @date 2019-05-22
  * 
@@ -13,16 +13,21 @@
 #include "real_time_tools/spinner.hpp"
 #include <signal.h>
 
-
+/** @brief Global boolean to manage the thread loop stop on ctrl+c. */
 static bool running;
 
-
+/** @brief Method run upon ctrl+c. Stops the loop. */
 void stop(int){
   running=false;
 }
 
-
-int main(int nb_args, char** argv) {
+/**
+ * @brief This program analyze the data computed by the real_time_test
+ * executable. Both processes communicate throw a shared memeory.
+ * 
+ * @return int 0
+ */
+int main(int, char**) {
 
   // exit on ctrl+c
   struct sigaction stopping;

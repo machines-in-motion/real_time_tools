@@ -61,6 +61,8 @@ public:
    */
   virtual Index newest_timeindex() const;
 
+  /*! \brief returns the number of element contained in the queue.
+  */
   virtual Index count_appended_elements() const;
 
   /*! \brief returns \f$ oldest \f$. waits if the timeseries is empty.
@@ -77,13 +79,21 @@ public:
   virtual Type operator[](const Index &timeindex) const;
 
   /*! \brief returns the time in miliseconds when \f$ X_{timeindex} \f$
-   * was appended. waits if the timeseries is empty
+   * was appended. Waits if the timeseries is empty
    * or if \f$timeindex > newest \f$.
    */
   virtual Timestamp timestamp_ms(const Index &timeindex) const;
-
+  
+  /*! \brief returns the time in seconds when \f$ X_{timeindex} \f$
+   * was appended. Waits if the timeseries is empty
+   * or if \f$timeindex > newest \f$.
+   */
   virtual Timestamp timestamp_s(const Index &timeindex) const;
-
+  
+  /*! \brief Wait until the defined time index is reached. If the input time
+   *  is below the oldest time index that have been registered read an exception
+   * is return.
+   */
   virtual bool
   wait_for_timeindex(const Index &timeindex,
                      const double &max_duration_s =
@@ -94,6 +104,9 @@ public:
    */
   virtual size_t length() const;
 
+  /** @brief returns the maximum length of the time serie.
+   *  @return size_t 
+   */
   virtual size_t max_length() const;
 
   /*! \brief returns boolean indicating whether new elements have been
