@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 search_for_eigen()
+set(BOOST_COMPONENTS filesystem)
 search_for_boost()
 search_for_pthread()
 
@@ -24,6 +25,7 @@ catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   INCLUDE_DIRS include
   CATKIN_DEPENDS mpi_cmake_modules
+  DEPENDS Boost
 )
 
 # This macro sets the C++ preprocessor flags "XENOMAI", "RT_PREEMPT", or
