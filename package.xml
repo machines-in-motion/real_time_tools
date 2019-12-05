@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>real_time_tools</name>
   <version>1.0.0</version>
   <description>This package is a wrapper around different linux OS. It provide APIs over
@@ -14,8 +14,10 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <!-- CMake module containing helper to find the OS, boost, python, etc. -->
-  <build_depend> mpi_cmake_modules </build_depend>
-  <run_depend>   mpi_cmake_modules </run_depend>
+  <depend>mpi_cmake_modules</depend>
+
+  <depend>boost</depend>
+  <depend>eigen</depend>
 
   <export>
   </export>
