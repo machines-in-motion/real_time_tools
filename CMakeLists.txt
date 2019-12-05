@@ -44,7 +44,7 @@ add_library(${LIBRARY_NAME}
   src/process_manager.cpp
 )
 
-target_link_libraries(real_time_tools
+target_link_libraries(${LIBRARY_NAME}
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
 )
@@ -95,7 +95,7 @@ catkin_add_gtest(test_real_time_tools
 # link the dependecies to it
 if (TARGET test_real_time_tools)
   target_link_libraries(test_real_time_tools
-    real_time_tools
+    ${LIBRARY_NAME}
     ${catkin_LIBRARIES}
    	${Boost_LIBRARIES}
 	)
