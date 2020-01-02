@@ -312,7 +312,7 @@ bool UsbStream::close_device()
   return_value_ = rt_dev_close(file_id_);
   if (return_value_ != 0)
   {
-    printString("ERROR >> Failed to close port.\n");
+    rt_printf("ERROR >> Failed to close port.\n");
     return false;
   }
 #elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
@@ -475,7 +475,8 @@ bool UsbStream::write_device(const std::vector<uint8_t>& msg)
 
 bool UsbStream::set_poll_mode_timeout(double timeout_in_second)
 {
-#ifdef __XENO__
+#ifdef XENOMAI
+  /*
   // Set read timeout
   rt_config_.config_mask = RTSER_SET_TIMEOUT_RX | RTSER_SET_BAUD;
   rt_config_.rx_timeout = (nanosecs_rel_t)(timeout * 1000000000); // rx_timeout in ns
@@ -485,7 +486,8 @@ bool UsbStream::set_poll_mode_timeout(double timeout_in_second)
   {
     rt_printf("ERROR >> Failed to set read timeout.\n");
     return false;
-  }
+    }*/
+  throw std::runtime_error("set_poll_mode_timeout not implemented for Xenomai");
 #else
   FD_ZERO(&file_id_set_);
   FD_SET(file_id_, &file_id_set_);
@@ -532,7 +534,7 @@ bool UsbStream::test_msg_equal(const std::vector<uint8_t>& msg1,
 
 bool UsbStream::flush(int)
 {
-#ifdef __XENO__
+#ifdef XENOMAI
 #else
   // fcntl(file_id_, F_SETFL, 0);
   // return_value_ = fcntl(file_id_, F_SETFL, (O_RDWR | O_NONBLOCK));

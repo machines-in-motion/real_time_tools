@@ -14,7 +14,7 @@
 #include "real_time_tools/timer.hpp"
 
 /** @brief Real time thread presenting the use of the Timer class. */
-void* thread_function(void*)
+void thread_function(void*)
 {
 
     double frequency = 1000;
@@ -35,7 +35,7 @@ void* thread_function(void*)
         timer.print_statistics();
     }
 
-    return NULL;
+    //return NULL;
 }
 
 /** @brief Launch a real time thread presenting the use of the Timer class. */

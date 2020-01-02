@@ -38,6 +38,7 @@ add_library(${LIBRARY_NAME}
   src/realtime_check.cpp
   src/thread.cpp
   src/spinner.cpp
+  src/sleep.cpp
   src/timer.cpp
   src/iostream.cpp
   src/usb_stream.cpp
@@ -47,6 +48,7 @@ add_library(${LIBRARY_NAME}
 target_link_libraries(${LIBRARY_NAME}
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
+  ${Xenomai_LIBS}
 )
 
 
@@ -62,6 +64,7 @@ add_real_time_tools_demo(demo_realtime_check)
 add_real_time_tools_demo(demo_realtime_strict_check)
 add_real_time_tools_demo(demo_spinner)
 add_real_time_tools_demo(demo_timing)
+add_real_time_tools_demo(demo_thread)
 # add_real_time_tools_demo(demo_segfault)
 add_real_time_tools_demo(demo_usb_stream_imu_3DM_GX3_25)
 

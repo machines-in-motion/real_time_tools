@@ -13,17 +13,28 @@
 #include <vector>
 #include <memory>
 
-#ifdef  XENOMAI
+#ifdef XENOMAI
   // you MAY need to happend "static" upon declaration
   #define THREAD_FUNCTION_RETURN_TYPE void
   #define THREAD_FUNCTION_RETURN_VALUE
-  // include xenomai stuff here
+  #include <native/task.h>
+  #include <native/timer.h>
+  #include <native/sem.h>
+  #include <native/cond.h>
+  #include <native/pipe.h>
+  #include <native/mutex.h>
+  #include <sys/mman.h>
+  #include <rtdk.h>
+
 #elif defined NON_REAL_TIME
   #include <thread>
   #include <iostream>
   // you need to happend "static" upon declaration
   #define THREAD_FUNCTION_RETURN_TYPE void*
   #define THREAD_FUNCTION_RETURN_VALUE nullptr
+
+  #define rt_printf printf
+
 #elif defined RT_PREEMPT
   #include <pthread.h>
   #include <limits.h>
@@ -35,6 +46,9 @@
   // you need to happend "static" upon declaration
   #define THREAD_FUNCTION_RETURN_TYPE void*
   #define THREAD_FUNCTION_RETURN_VALUE nullptr
+
+  #define rt_printf printf
+
 #endif
 
 namespace real_time_tools {
@@ -62,7 +76,11 @@ namespace real_time_tools {
       keyword_ = "real_time_thread";
       priority_ = 80;
 #ifdef  XENOMAI
-      throw std::runtime_error("xenomai not implemented")
+      // see: 
+      //https://xenomai.org/documentation/xenomai-2.6/html/api/group__task.html#ga520e6fad1decc5beff58b394ff443265
+      stack_size_ = 2000000;
+      dedicated_cpu_id_=-1;
+      priority_=75; // not too high to avoid competition with SL
 #elif defined NON_REAL_TIME
       stack_size_ = -1;
 #elif defined RT_PREEMPT
@@ -96,6 +114,10 @@ namespace real_time_tools {
      * is going to run
      */
     std::vector<int> cpu_id_;
+    /**
+     * @brief indicate on which cpu the thread will run (xenomai only)
+     */
+    int dedicated_cpu_id_;
     /**
      * @brief @todo Unknow Xenomai parameter
      */
@@ -146,7 +168,7 @@ namespace real_time_tools {
      * @param[in] args: arguments to be passed to the thread.
      * @return the error code.
      */
-    int create_realtime_thread(void*(*thread_function)(void*),
+    int create_realtime_thread(void(*thread_function)(void*),
                                void* args = nullptr);
 
     /**
@@ -169,7 +191,7 @@ namespace real_time_tools {
 
   private:
 #if defined(XENOMAI)
-    throw std::runtime_error("xenomai not implemented")
+    RT_TASK thread_;
 #elif defined(NON_REAL_TIME)
     std::unique_ptr<std::thread> thread_;
 #elif defined(RT_PREEMPT)
