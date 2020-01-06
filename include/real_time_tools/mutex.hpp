@@ -18,9 +18,11 @@
 #elif defined(RT_PREEMPT)
   #include <pthread.h>
   #include <sys/time.h>
+  #define rt_printf printf
 #else // defined(NON_REAL_TIME)
   #include <mutex>
   #include <condition_variable>
+  #define rt_printf printf
 #endif
 
 namespace real_time_tools{
@@ -51,14 +53,13 @@ public:
   /**
    * @brief Construct a new RealTimeMutex object
    */
-  RealTimeMutex()
+  RealTimeMutex(std::string mutex_id="")
   {
     mutex_ = nullptr;
 
     int res = 0;
 #if defined(XENOMAI)
-    mutex_ = new RT_MUTEX();
-    res = rt_mutex_create(mutex_, nullptr);
+    res = rt_mutex_create(mutex_, mutex_id.c_str());
 #elif defined(RT_PREEMPT)
     mutex_ = new pthread_mutex_t();
     res = pthread_mutex_init(mutex_, nullptr);
