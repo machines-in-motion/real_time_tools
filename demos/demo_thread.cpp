@@ -9,9 +9,9 @@
  */
 
 #include "real_time_tools/thread.hpp"
-#include "real_time_tools/sleep.hpp"
+#include "real_time_tools/timer.hpp"
 
-void thread_function(void*)
+THREAD_FUNCTION_RETURN_TYPE thread_function(void*)
 {
   int i=0;
   while(true)
@@ -21,8 +21,9 @@ void thread_function(void*)
 	{
 	  rt_printf("iteration %d\n",i);
 	}
-      real_time_tools::microsleep(1000);
+      real_time_tools::Timer::sleep_microseconds(1000);
     }
+  return THREAD_FUNCTION_RETURN_VALUE;
 }
 
 int main()

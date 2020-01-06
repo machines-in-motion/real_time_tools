@@ -15,7 +15,7 @@
 typedef std::chrono::high_resolution_clock my_clock;
 
 /** @brief this function is executed in a real_time_thread. */
-void thread_function(void*)
+THREAD_FUNCTION_RETURN_TYPE thread_function(void*)
 {
   double freq = 1000.0; // 1kz
   double switch_freq = 990;
@@ -59,7 +59,7 @@ void thread_function(void*)
   rc.print();
   printf("\n");
 
-  //return nullptr;
+  return THREAD_FUNCTION_RETURN_VALUE;
 }
 
 /** @brief This demos show the used of the strict check of the real time loop.*/

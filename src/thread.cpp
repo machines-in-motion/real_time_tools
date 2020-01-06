@@ -26,6 +26,12 @@ namespace real_time_tools {
     thread_.reset(nullptr);
   }
 
+  void* exec(void(*f)(void*),void* args)
+  {
+    f(args);
+    return nullptr;
+  }
+  
   /**
    * @brief rt_preempt_error_message id common message for all things that could
    * go wrong.
@@ -37,7 +43,7 @@ namespace real_time_tools {
         "Aborting thread creation.");
 
   int RealTimeThread::create_realtime_thread(
-    void(*thread_function)(void*), void* args)
+    void*(*thread_function)(void*), void* args)
   {
     if (thread_ != nullptr)
     {
@@ -248,7 +254,7 @@ namespace real_time_tools {
   }
 
   int RealTimeThread::create_realtime_thread(
-    void(*thread_function)(void*), void* args)
+    void*(*thread_function)(void*), void* args)
   {
     printf("Warning this thread is not going to be real time.\n");
 

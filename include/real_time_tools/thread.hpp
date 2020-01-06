@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
 
 #ifdef XENOMAI
   // you MAY need to happend "static" upon declaration
@@ -168,9 +169,14 @@ namespace real_time_tools {
      * @param[in] args: arguments to be passed to the thread.
      * @return the error code.
      */
+    #ifdef XENOMAI
     int create_realtime_thread(void(*thread_function)(void*),
                                void* args = nullptr);
-
+    #else
+    int create_realtime_thread(void*(*thread_function)(void*),
+                               void* args = nullptr);
+    #endif
+    
     /**
      * @brief join join the real time thread
      * @return the error code.

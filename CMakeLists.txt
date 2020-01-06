@@ -38,7 +38,6 @@ add_library(${LIBRARY_NAME}
   src/realtime_check.cpp
   src/thread.cpp
   src/spinner.cpp
-  src/sleep.cpp
   src/timer.cpp
   src/iostream.cpp
   src/usb_stream.cpp

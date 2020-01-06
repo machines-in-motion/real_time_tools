@@ -15,6 +15,7 @@
 #include <string>
 #include <deque>
 #include <cmath>
+#include <unistd.h>
 
 #include "real_time_tools/iostream.hpp"
 
@@ -214,6 +215,14 @@ namespace real_time_tools {
       return 1e3 * get_current_time_sec();
     }
 
+    /**
+     * @brief puts the current thread to sleep for the duration
+     * of "sleep_duration_us" micro-seconds.
+     * @param sleep_time_us is the sleeping duration asked in micro-seconds.
+     * @return 0 on success, error code otherwise
+     */
+    static int sleep_microseconds(int sleep_duration_us);
+    
     /**
      * @brief sleep_sec puts the current thread to sleep for the duration
      * of "sleep_time_sec" seconds.

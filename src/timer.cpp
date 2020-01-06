@@ -187,6 +187,19 @@ double Timer::get_current_time_sec()
 #endif
 }
 
+
+int Timer::sleep_microseconds(int sleep_duration_us)
+{
+  #ifdef MAC_OS
+  throw
+  #elseif XENOMAI
+  return rt_task_sleep(sleep_duration_us*1e3);
+  #else
+  usleep(sleep_duration_us);
+  return 0;
+  #endif
+}
+  
 void Timer::sleep_sec(const double& sleep_duration_sec)
 {
 #ifdef MAC_OS
