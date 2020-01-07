@@ -13,7 +13,7 @@
 #include "real_time_tools/realtime_check.hpp"
 
 /** @brief implement a real time thread checking the timing of the loop */
-void* thread_function(void*) {
+THREAD_FUNCTION_RETURN_TYPE thread_function(void*) {
 
   double frequency = 300.0;
   double switch_frequency = 290;
@@ -33,7 +33,8 @@ void* thread_function(void*) {
   realtime_check.print();
   std::cout << "\n";
 
-  return NULL;
+  return THREAD_FUNCTION_RETURN_VALUE;
+  
 }
 
 /** @brief This a demo on how to use the RealTimeCheck class. */

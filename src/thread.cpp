@@ -12,6 +12,9 @@
 #include "real_time_tools/process_manager.hpp"
 
 namespace real_time_tools {
+
+#if defined RT_PREEMPT
+
   RealTimeThread::RealTimeThread()
   {
     thread_.reset(nullptr);
@@ -23,8 +26,12 @@ namespace real_time_tools {
     thread_.reset(nullptr);
   }
 
-#if defined RT_PREEMPT
-
+  void* exec(void(*f)(void*),void* args)
+  {
+    f(args);
+    return nullptr;
+  }
+  
   /**
    * @brief rt_preempt_error_message id common message for all things that could
    * go wrong.
@@ -170,37 +177,81 @@ namespace real_time_tools {
    * TODO: Check the implementation of this thread creation *
    **********************************************************/
 #if defined XENOMAI
-  int RealTimeThread::create_realtime_thread(RealTimeThread &thread,
-                             void*(*thread_function)(void*),
-                             void* args,
-                             bool call_block_memory,
-			                       int stack_factor,
-                             std::vector<int> cpu_affinities{
-    int ret=0;
-    throw std::runtime_error("create_realtime_thread: "
-                             "Please implement this for xenomai");
+
+  RealTimeThread::RealTimeThread()
+  {}
+
+  RealTimeThread::~RealTimeThread()
+  {
+    join();
+  }
+
+  int RealTimeThread::create_realtime_thread(
+    void(*thread_function)(void*), void* args)
+  {
+
+    // initializing rt_printf,
+    // nothing would get printed otherwise
+    rt_print_auto_init(1);
+
+    int ret;
+    if (parameters_.dedicated_cpu_id_>=0)
+      {
+	ret = rt_task_spawn(&thread_,
+			    parameters_.keyword_.c_str(),
+			    parameters_.stack_size_,
+			    parameters_.priority_,
+			    T_FPU | T_JOINABLE | 
+			    T_CPU(parameters_.dedicated_cpu_id_),
+			    thread_function,
+			    args);
+      }
+    else
+      {
+	ret = rt_task_spawn(&thread_,
+			    parameters_.keyword_.c_str(),
+			    parameters_.stack_size_,
+			    parameters_.priority_,
+			    T_FPU | T_JOINABLE,
+			    thread_function,
+			    args);
+      }
+
     return ret;
   }
 
-  int join_thread(RealTimeThread &thread)
+  
+  int RealTimeThread::join()
   {
-    int ret=0;
-    throw std::runtime_error("join_thread: "
-                             "Please implement this for xenomai");
+    int ret = rt_task_join(&thread_);
     return ret;
   }
 
   void RealTimeThread::block_memory()
   {
-    throw std::runtime_error("block_memory: "
-                             "Please implement this for xenomai");
+    if(mlockall(MCL_CURRENT|MCL_FUTURE) == -1) {
+      printf("mlockall failed: %m\n");
+      exit(-2);
+    }
   }
+
 #endif // Defined XENOMAI
 
   /**********************************************************
    * TODO: Check the implementation of this thread creation *
    **********************************************************/
 #if defined NON_REAL_TIME
+
+  RealTimeThread::RealTimeThread()
+  {
+    thread_.reset(nullptr);
+  }
+
+  RealTimeThread::~RealTimeThread()
+  {
+    join();
+    thread_.reset(nullptr);
+  }
 
   int RealTimeThread::create_realtime_thread(
     void*(*thread_function)(void*), void* args)

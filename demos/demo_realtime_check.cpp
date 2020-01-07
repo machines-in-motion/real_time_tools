@@ -13,7 +13,7 @@
 
 /*! Real time thread that measure the spinning frequency and do some basic
  *  operation */
-void* thread_function(void*)
+THREAD_FUNCTION_RETURN_TYPE thread_function(void*)
 {
   double freq = 1000.0; // 1kz
   double switch_freq = 990;
@@ -33,7 +33,7 @@ void* thread_function(void*)
   rc.print();
   printf("\n");
 
-  return nullptr;
+  return THREAD_FUNCTION_RETURN_VALUE;
 }
 
 /*! Create a real time thread and measure the frequency of the thread. */
