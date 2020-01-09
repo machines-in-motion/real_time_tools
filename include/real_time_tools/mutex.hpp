@@ -34,12 +34,12 @@ namespace real_time_tools{
   typedef RT_COND rt_cond;
 #elif defined(RT_PREEMPT)
   /** @brief Alias for the real time mutex */
-  typedef pthread_mutex_t RealTimeMutex_t;
+  typedef pthread_mutex_t* RealTimeMutex_t;
   /** @brief Alias for the real time condition variable */
   typedef pthread_cond_t rt_cond;
 #else
   /** @brief Alias for the real time mutex */
-  typedef std::mutex RealTimeMutex_t;
+  typedef std::mutex* RealTimeMutex_t;
   /** @brief Alias for the real time condition variable */
   typedef std::condition_variable rt_cond;
 #endif
@@ -59,7 +59,7 @@ public:
 
     int res = 0;
 #if defined(XENOMAI)
-    res = rt_mutex_create(mutex_, mutex_id.c_str());
+    res = rt_mutex_create(&mutex_, mutex_id.c_str());
 #elif defined(RT_PREEMPT)
     mutex_ = new pthread_mutex_t();
     res = pthread_mutex_init(mutex_, nullptr);
@@ -79,7 +79,7 @@ public:
   {
     int res = 0;
 #if defined(XENOMAI)
-    res = rt_mutex_delete(mutex_);
+    res = rt_mutex_delete(&mutex_);
 #elif defined(RT_PREEMPT)
     res = pthread_mutex_destroy(mutex_);
 #else // defined(NON_REAL_TIME)
@@ -102,7 +102,7 @@ public:
   {
     int res = 0;
 #if defined(XENOMAI)
-    res = rt_mutex_acquire(mutex_, TM_INFINITE);
+    res = rt_mutex_acquire(&mutex_, TM_INFINITE);
 #elif defined(RT_PREEMPT)
     res = pthread_mutex_lock(mutex_);
 #else // defined(NON_REAL_TIME)
@@ -121,7 +121,7 @@ public:
   {
     int res = 0;
 #if defined(XENOMAI)
-    res = rt_mutex_release(mutex_);
+    res = rt_mutex_release(&mutex_);
 #elif defined(RT_PREEMPT)
     res = pthread_mutex_unlock(mutex_);
 #else // defined(NON_REAL_TIME)
@@ -139,7 +139,7 @@ private:
    * @brief This is the object which type chenge according to the OS this code
    * is compiled
    */
-  RealTimeMutex_t* mutex_;
+  RealTimeMutex_t mutex_;
 };
 
 } // namespace
