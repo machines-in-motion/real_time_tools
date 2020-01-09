@@ -55,15 +55,17 @@ public:
    */
   RealTimeMutex(std::string mutex_id="")
   {
-    mutex_ = nullptr;
+
 
     int res = 0;
 #if defined(XENOMAI)
     res = rt_mutex_create(&mutex_, mutex_id.c_str());
 #elif defined(RT_PREEMPT)
+    mutex_ = nullptr;
     mutex_ = new pthread_mutex_t();
     res = pthread_mutex_init(mutex_, nullptr);
 #else // defined(NON_REAL_TIME)
+    mutex_ = nullptr;
     mutex_ = new std::mutex();
 #endif
     if (res > 0)
@@ -93,7 +95,9 @@ public:
       rt_printf("RealTimeMutex::~RealTimeMutex(): "
                 "error while destroying mutex with code %d", res);
     }
+#ifndef XENOMAI
     mutex_ = nullptr;  
+#endif
   }
   /**
    * @brief lock the mutex.
