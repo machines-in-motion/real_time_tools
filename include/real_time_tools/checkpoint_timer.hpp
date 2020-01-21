@@ -29,26 +29,7 @@ namespace real_time_tools
  * checkpoint is measured (`start` counts as a checkpoint in this regard).
  *
  * Example:
- *
- * ~~~{.cpp}
- * CheckpointTimer<3> timer;
- *
- * while (condition)
- * {
- *     timer.start();
- *
- *     initialize()
- *     timer.checkpoint("initialize");
- *
- *     do();
- *     some();
- *     stuff();
- *     timer.checkpoint("do some stuff");
- *
- *     write_log();
- *     timer.checkpoint("logging");
- * }
- * ~~~
+ * @snippet demo_checkpoint_timer.cpp Usage of CheckpointTimer
  *
  * @tparam NUM_CHECKPOINTS Number of checkpoints.
  * @tparam ENABLED Set to false, to disable timer.  Method calls will have no
