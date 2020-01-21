@@ -21,8 +21,8 @@ void CheckpointTimer<NUM_CHECKPOINTS, ENABLED>::start()
     if (ENABLED)
     {
         timers_[0].tac_tic();
-        current_checkpoint = 1;
-        timers_[current_checkpoint].tic();
+        current_checkpoint_ = 1;
+        timers_[current_checkpoint_].tic();
     }
 }
 
@@ -32,23 +32,23 @@ void CheckpointTimer<NUM_CHECKPOINTS, ENABLED>::checkpoint(
 {
     if (ENABLED)
     {
-        timers_[current_checkpoint].tac();
+        timers_[current_checkpoint_].tac();
 
-        if (checkpoint_names_[current_checkpoint].empty())
+        if (checkpoint_names_[current_checkpoint_].empty())
         {
-            checkpoint_names_[current_checkpoint] = checkpoint_name;
+            checkpoint_names_[current_checkpoint_] = checkpoint_name;
         }
-        else if (checkpoint_names_[current_checkpoint] != checkpoint_name)
+        else if (checkpoint_names_[current_checkpoint_] != checkpoint_name)
         {
             throw std::runtime_error("Wrong checkpoint called (expected '" +
-                                     checkpoint_names_[current_checkpoint] +
+                                     checkpoint_names_[current_checkpoint_] +
                                      "' but got '" + checkpoint_name + "').");
         }
 
-        current_checkpoint++;
-        if (current_checkpoint < timers_.size())
+        current_checkpoint_++;
+        if (current_checkpoint_ < timers_.size())
         {
-            timers_[current_checkpoint].tic();
+            timers_[current_checkpoint_].tic();
         }
     }
 }

@@ -77,9 +77,13 @@ public:
     void print_statistics() const;
 
 private:
+    //! @brief Timers used for the different checkpoints.  Index 0 is used for
+    //!        the total duration.
     std::array<real_time_tools::Timer, NUM_CHECKPOINTS + 1> timers_;
+    //! @brief Names of the checkpoints.
     std::array<std::string, NUM_CHECKPOINTS + 1> checkpoint_names_;
-    size_t current_checkpoint = 1;
+    //! @brief Index of the current checkpoint.
+    size_t current_checkpoint_ = 1;
 };
 
 #include "checkpoint_timer.hxx"
