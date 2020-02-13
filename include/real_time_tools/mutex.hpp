@@ -11,6 +11,8 @@
 #ifndef MUTEX_HPP
 #define MUTEX_HPP
 
+#include <string>
+
 #if defined(XENOMAI)
   #include <native/mutex.h>
   #include <native/cond.h>
@@ -55,7 +57,7 @@ public:
    */
   RealTimeMutex(std::string mutex_id="")
   {
-
+    mutex_id_ = mutex_id;
 
     int res = 0;
 #if defined(XENOMAI)
@@ -144,6 +146,11 @@ private:
    * is compiled
    */
   RealTimeMutex_t mutex_;
+
+  /**
+   * @brief Save the mutex id internally.
+   */
+  std::string mutex_id_;
 };
 
 } // namespace
