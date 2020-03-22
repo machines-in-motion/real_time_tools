@@ -54,6 +54,12 @@ namespace real_time_tools {
 			            double &current_frequency,
                         double &worse_frequency) ;
 
+    /*! return the averaged observed frequency if statistics are available, false otherwise
+     *  (false is returned is tick has never been called or if ticks reached 
+     *  maximum integer value).
+     */
+    double get_average_frequency();
+    
     /*! returns observed frequency after last call to tick */
     double get_current_frequency() const;
 

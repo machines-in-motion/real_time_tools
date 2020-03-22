@@ -16,6 +16,8 @@
 #include "real_time_tools/timer.hpp"
 #include "real_time_tools/thread.hpp"
 #include "real_time_tools/spinner.hpp"
+#include "real_time_tools/frequency_manager.hpp"
+#include "real_time_tools/realtime_check.hpp"
 
 // We use this in the unnittest for code simplicity
 using namespace real_time_tools;
@@ -270,4 +272,25 @@ TEST_F(TestRealTimeTools, test_spinner_loop_too_slow)
   double therotical_time_in_the_loop = period_sec * static_cast<double>(2 * nb_it - 1);
 
   ASSERT_NEAR(time_in_the_loop, therotical_time_in_the_loop, 0.1*period_sec);
+}
+
+TEST_F(TestRealTimeTools, test_frequency_manager)
+{
+  double frequency = 200.0;
+  FrequencyManager freq_manager(frequency);
+  RealTimeCheck check(frequency,frequency*2);
+  bool success = true;
+  for(int i=0;i<400;i++)
+    {
+      check.tick();
+      success = freq_manager.wait();
+      ASSERT_EQ(success,true);
+    }
+  ASSERT_NEAR(frequency,check.get_average_frequency(),20);
+  for(int i=0;i<400;i++)
+    {
+      Timer::sleep_sec(0.006);
+      success = freq_manager.wait();
+      ASSERT_EQ(success,false);
+    }
 }

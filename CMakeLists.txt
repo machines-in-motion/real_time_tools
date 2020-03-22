@@ -42,6 +42,7 @@ add_library(${LIBRARY_NAME}
   src/iostream.cpp
   src/usb_stream.cpp
   src/process_manager.cpp
+  src/frequency_manager.cpp
 )
 
 target_link_libraries(${LIBRARY_NAME}
