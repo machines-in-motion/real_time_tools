@@ -88,7 +88,8 @@ add_real_time_tools_demo(demo_checkpoint_timer)
 pybind11_add_module(real_time_tools_py srcpy/wrappers.cpp)
 target_link_libraries(real_time_tools_py PRIVATE real_time_tools ${catkin_LIBRARIES})
 set_target_properties(real_time_tools_py PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION})
+  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}
+  OUTPUT_NAME real_time_tools)
 install(TARGETS real_time_tools_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
 
 ###################################################
