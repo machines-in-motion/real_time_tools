@@ -122,6 +122,20 @@ namespace real_time_tools {
 
   }
 
+  double RealTimeCheck::get_average_frequency()
+  {
+
+    std::lock_guard<std::mutex> guard(this->mutex);
+    
+    if(!this->started){
+      return -1.0;
+    }
+
+    return this->average_frequency;
+    
+  }
+
+  
   void RealTimeCheck::print(){
 
     int ticks,switchs;

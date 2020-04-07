@@ -12,7 +12,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 find_package(catkin REQUIRED COMPONENTS
-    mpi_cmake_modules
+  mpi_cmake_modules
+  pybind11_catkin
 )
 
 search_for_eigen()
@@ -42,6 +43,7 @@ add_library(${LIBRARY_NAME}
   src/iostream.cpp
   src/usb_stream.cpp
   src/process_manager.cpp
+  src/frequency_manager.cpp
 )
 
 target_link_libraries(${LIBRARY_NAME}
@@ -78,6 +80,17 @@ add_real_time_tools_demo(demo_checkpoint_timer)
 #set(EXE2 realtime_test_display)
 #add_executable(${EXE2} src/bin/realtime_test_display.cpp)
 #target_link_libraries(${EXE2} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+##################
+# Python wrapper #
+##################
+
+pybind11_add_module(real_time_tools_py srcpy/wrappers.cpp)
+target_link_libraries(real_time_tools_py PRIVATE real_time_tools ${catkin_LIBRARIES})
+set_target_properties(real_time_tools_py PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}
+  OUTPUT_NAME real_time_tools)
+install(TARGETS real_time_tools_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
 
 ###################################################
 ## Set a general config folder path for all tests #

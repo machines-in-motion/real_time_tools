@@ -15,7 +15,7 @@
 
   <!-- CMake module containing helper to find the OS, boost, python, etc. -->
   <depend>mpi_cmake_modules</depend>
-
+  <depend>pybind11_catkin</depend>
   <depend>boost</depend>
   <depend>eigen</depend>
 
