@@ -1,11 +1,11 @@
 
 #include <eigen3/Eigen/Core>
 #include <gtest/gtest.h>
-
-#include <real_time_tools/threadsafe/threadsafe_object.hpp>
-#include <real_time_tools/timer.hpp>
-
 #include <tuple>
+
+#include "real_time_tools/threadsafe/threadsafe_object.hpp"
+#include "real_time_tools/timer.hpp"
+#include "real_time_tools/thread.hpp"
 
 using namespace real_time_tools;
 
@@ -32,10 +32,7 @@ std::array< DataType, OUTPUT_COUNT> output_data;
 
 
 template <int INDEX, typename ThreadsafeObjectType>
-void
-#ifndef __XENO__
-    *
-#endif
+THREAD_FUNCTION_RETURN_TYPE
 input_function(void* void_ptr)
 {
     ThreadsafeObjectType* threadsafe_object_ptr =
@@ -53,16 +50,15 @@ input_function(void* void_ptr)
     }
 
     logger.print_statistics();
+
+    return THREAD_FUNCTION_RETURN_VALUE;
 }
 
 
 
 
 template <int DATA_INDEX, int OUTPUT_INDEX, typename ThreadsafeObjectType>
-void
-#ifndef __XENO__
-    *
-#endif
+THREAD_FUNCTION_RETURN_TYPE
 output_function(void * void_ptr)
 {
     ThreadsafeObjectType* threadsafe_object_ptr =
@@ -82,14 +78,13 @@ output_function(void * void_ptr)
     }
 
     //    logger.print_statistics();
+
+    return THREAD_FUNCTION_RETURN_VALUE;
 }
 
 
 template <int OUTPUT_INDEX, typename ThreadsafeObjectType>
-void
-#ifndef __XENO__
-    *
-#endif
+THREAD_FUNCTION_RETURN_TYPE
 complete_output_function(void * void_ptr)
 {
     ThreadsafeObjectType* threadsafe_object_ptr =
@@ -126,6 +121,8 @@ complete_output_function(void * void_ptr)
     }
 
     logger.print_statistics();
+
+    return THREAD_FUNCTION_RETURN_VALUE;
 }
 
 
