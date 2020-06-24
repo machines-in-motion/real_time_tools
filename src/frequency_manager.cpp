@@ -27,4 +27,4 @@ bool FrequencyManager::wait()
     previous_time_ms_ = Timer::get_current_time_ms();
     return true;
 }
-}
+}  // namespace real_time_tools

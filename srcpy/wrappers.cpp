@@ -8,14 +8,9 @@
 
 using namespace real_time_tools;
 
-PYBIND11_MODULE(real_time_tools,m){
-
-  pybind11::class_<FrequencyManager>(m,"FrequencyManager")
-    .def(pybind11::init<double>())
-    .def("wait",&FrequencyManager::wait);
-
+PYBIND11_MODULE(real_time_tools, m)
+{
+    pybind11::class_<FrequencyManager>(m, "FrequencyManager")
+        .def(pybind11::init<double>())
+        .def("wait", &FrequencyManager::wait);
 }
-
-
-
-  

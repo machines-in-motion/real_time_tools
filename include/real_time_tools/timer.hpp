@@ -2,32 +2,33 @@
  * @file timer.hpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
  * license License BSD-3-Clause
- * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
+ * @copyright Copyright (c) 2019, New York University and Max Planck
+ * Gesellschaft.
  * @date 2019-05-22
- * 
+ *
  * @brief Some tools to measure (ellapsed) time.
  */
 
 #ifndef TIMER_HPP
 #define TIMER_HPP
 
-#include <chrono>
-#include <string>
-#include <deque>
-#include <cmath>
 #include <unistd.h>
+#include <chrono>
+#include <cmath>
+#include <deque>
+#include <string>
 
 #include "real_time_tools/iostream.hpp"
 
-namespace real_time_tools {
-
-  /**
-   * @brief The timer class is a simple time measurement class that measure
-   * between tic and tac and with a memory buffer of a certain size.
-   */
-  class Timer
-  {
-  public:
+namespace real_time_tools
+{
+/**
+ * @brief The timer class is a simple time measurement class that measure
+ * between tic and tac and with a memory buffer of a certain size.
+ */
+class Timer
+{
+public:
     /**
      * @brief timer constructor
      */
@@ -54,21 +55,21 @@ namespace real_time_tools {
 
     /**
      * @brief Save the time interval measured
-     * 
-     * @param time_interval 
+     *
+     * @param time_interval
      */
     void log_time_interval(double time_interval);
 
     /**
-      * IOSTREAM functions
-      */
+     * IOSTREAM functions
+     */
 
     /**
      * @brief dump_tic_tac_measurements writes in a file the time elapsed
      * between every tick
      * @param file_name is the path to the file.
      */
-    void dump_measurements(std::string file_name)  const;
+    void dump_measurements(std::string file_name) const;
 
     /**
      * @brief print_statistics display in real time the statistics of the time
@@ -77,8 +78,8 @@ namespace real_time_tools {
     void print_statistics() const;
 
     /**
-      * SETTERS
-      */
+     * SETTERS
+     */
 
     /**
      * @brief set_memory_size sets the buffer size. It resets all value of the
@@ -88,9 +89,9 @@ namespace real_time_tools {
      */
     void set_memory_size(const unsigned memory_buffer_size)
     {
-      count_ = 0;
-      memory_buffer_size_ = memory_buffer_size;
-      time_measurement_buffer_.resize(memory_buffer_size_, 0.0);
+        count_ = 0;
+        memory_buffer_size_ = memory_buffer_size;
+        time_measurement_buffer_.resize(memory_buffer_size_, 0.0);
     }
 
     /**
@@ -99,12 +100,12 @@ namespace real_time_tools {
      */
     void set_name(std::string name)
     {
-      name_ = name;
+        name_ = name;
     }
 
     /**
-      * GETTERS
-      */
+     * GETTERS
+     */
 
     /**
      * @brief get_min_elapsed_sec
@@ -112,7 +113,7 @@ namespace real_time_tools {
      */
     double get_min_elapsed_sec() const
     {
-      return min_elapsed_time_;
+        return min_elapsed_time_;
     }
 
     /**
@@ -121,7 +122,7 @@ namespace real_time_tools {
      */
     double get_max_elapsed_sec() const
     {
-      return max_elapsed_time_;
+        return max_elapsed_time_;
     }
 
     /**
@@ -130,7 +131,7 @@ namespace real_time_tools {
      */
     double get_avg_elapsed_sec() const
     {
-      return avg_elapsed_time_;
+        return avg_elapsed_time_;
     }
 
     /**
@@ -139,12 +140,11 @@ namespace real_time_tools {
      */
     double get_std_dev_elapsed_sec() const
     {
-      return std::sqrt(second_moment_elapsed_time_ -
-                       avg_elapsed_time_ * avg_elapsed_time_);
+        return std::sqrt(second_moment_elapsed_time_ -
+                         avg_elapsed_time_ * avg_elapsed_time_);
     }
 
-  protected:
-
+protected:
     /**
      * @brief tic_time_ time at which tic() was called
      */
@@ -193,11 +193,9 @@ namespace real_time_tools {
     std::string name_;
 
     /**
-      * Some utilities
-      */
-  public:
-
-
+     * Some utilities
+     */
+public:
     /**
      * @brief get_current_time_sec gives the current time in double and in
      * seconds
@@ -212,7 +210,7 @@ namespace real_time_tools {
      */
     static double get_current_time_ms()
     {
-      return 1e3 * get_current_time_sec();
+        return 1e3 * get_current_time_sec();
     }
 
     /**
@@ -222,7 +220,7 @@ namespace real_time_tools {
      * @return 0 on success, error code otherwise
      */
     static int sleep_microseconds(int sleep_duration_us);
-    
+
     /**
      * @brief sleep_sec puts the current thread to sleep for the duration
      * of "sleep_time_sec" seconds.
@@ -237,7 +235,7 @@ namespace real_time_tools {
      */
     static void sleep_ms(const double& sleep_time_ms)
     {
-      sleep_sec(1e-3 * sleep_time_ms);
+        sleep_sec(1e-3 * sleep_time_ms);
     }
 
     /**
@@ -262,20 +260,17 @@ namespace real_time_tools {
      * @param[in] date_sec is the time in sec to be converted.
      * @param[out] date_spec is the converted structure.
      */
-    static void sec_to_timespec(double date_sec,
-                                struct timespec& date_spec);
+    static void sec_to_timespec(double date_sec, struct timespec& date_spec);
 
-#endif // MAC_OS
+#endif  // MAC_OS
 
     /**
-     * @brief get_current_date_str get the current date and format it in a string
-     * with "year_month_day_hour_minute_sec"
+     * @brief get_current_date_str get the current date and format it in a
+     * string with "year_month_day_hour_minute_sec"
      */
     static std::string get_current_date_str();
+};
 
-  };
+}  // namespace real_time_tools
 
-} // namespace real_time_tools
-
-
-#endif // TIMER_HPP
+#endif  // TIMER_HPP
