@@ -35,4 +35,4 @@ private:
     double period_ms_;
     double previous_time_ms_;
 };
-}
+}  // namespace real_time_tools

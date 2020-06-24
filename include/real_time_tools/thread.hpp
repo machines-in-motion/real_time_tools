@@ -2,102 +2,106 @@
  * @file thread.hpp
  * @author Maximilien Naveau (mnaveau@tue.mpg.de)
  * license License BSD-3-Clause
- * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
+ * @copyright Copyright (c) 2019, New York University and Max Planck
+ * Gesellschaft.
  * @date 2019-11-21
  */
 
 #ifndef REALTIME_THREAD_CREATION_HPP
 #define REALTIME_THREAD_CREATION_HPP
 
+#include <functional>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <functional>
 
 #ifdef XENOMAI
-  // you MAY need to happend "static" upon declaration
-  #define THREAD_FUNCTION_RETURN_TYPE void
-  #define THREAD_FUNCTION_RETURN_VALUE
-  #include <native/task.h>
-  #include <native/timer.h>
-  #include <native/sem.h>
-  #include <native/cond.h>
-  #include <native/pipe.h>
-  #include <native/mutex.h>
-  #include <sys/mman.h>
-  #include <rtdk.h>
+// you MAY need to happend "static" upon declaration
+#define THREAD_FUNCTION_RETURN_TYPE void
+#define THREAD_FUNCTION_RETURN_VALUE
+#include <native/cond.h>
+#include <native/mutex.h>
+#include <native/pipe.h>
+#include <native/sem.h>
+#include <native/task.h>
+#include <native/timer.h>
+#include <rtdk.h>
+#include <sys/mman.h>
 
 #elif defined NON_REAL_TIME
-  #include <thread>
-  #include <iostream>
-  // you need to happend "static" upon declaration
-  #define THREAD_FUNCTION_RETURN_TYPE void*
-  #define THREAD_FUNCTION_RETURN_VALUE nullptr
+#include <iostream>
+#include <thread>
+// you need to happend "static" upon declaration
+#define THREAD_FUNCTION_RETURN_TYPE void*
+#define THREAD_FUNCTION_RETURN_VALUE nullptr
 
-  #define rt_printf printf
+#define rt_printf printf
 
 #elif defined RT_PREEMPT
-  #include <pthread.h>
-  #include <limits.h>
-  #include <sched.h>
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <sys/mman.h>
-  #include <unistd.h>
-  // you need to happend "static" upon declaration
-  #define THREAD_FUNCTION_RETURN_TYPE void*
-  #define THREAD_FUNCTION_RETURN_VALUE nullptr
+#include <limits.h>
+#include <pthread.h>
+#include <sched.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <unistd.h>
+// you need to happend "static" upon declaration
+#define THREAD_FUNCTION_RETURN_TYPE void*
+#define THREAD_FUNCTION_RETURN_VALUE nullptr
 
-  #define rt_printf printf
+#define rt_printf printf
 
 #endif
 
-namespace real_time_tools {
-
-  /**
-   * @brief This class is a data structure allowing the user to share
-   * configurations among threads. These parameter allows you to generate
-   * real threads in xenomai and rt_preempt. The same code is compatible with
-   * Mac and ubuntu but will run non-real time threads.
-   * 
-   * warning : initial version, copy pasted from :
-   * https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
-   * I did not study things now, so this likely needs improvement (alternative:
-   * https://rt.wiki.kernel.org/index.php/Threaded_RT-application_with_memory_locking_and_stack_handling_example)
-   * note: if failed as mlockall, run executable with sudo or be part of the
-   * real_time group or xenomai group.
-   */
-  class RealTimeThreadParameters
-  {
-  public:
+namespace real_time_tools
+{
+/**
+ * @brief This class is a data structure allowing the user to share
+ * configurations among threads. These parameter allows you to generate
+ * real threads in xenomai and rt_preempt. The same code is compatible with
+ * Mac and ubuntu but will run non-real time threads.
+ *
+ * warning : initial version, copy pasted from :
+ * https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
+ * I did not study things now, so this likely needs improvement (alternative:
+ * https://rt.wiki.kernel.org/index.php/Threaded_RT-application_with_memory_locking_and_stack_handling_example)
+ * note: if failed as mlockall, run executable with sudo or be part of the
+ * real_time group or xenomai group.
+ */
+class RealTimeThreadParameters
+{
+public:
     /**
      * @brief Construct a new RealTimeThreadParameters object
      */
-    RealTimeThreadParameters(){
-      keyword_ = "real_time_thread";
-      priority_ = 80;
-#ifdef  XENOMAI
-      // see: 
-      //https://xenomai.org/documentation/xenomai-2.6/html/api/group__task.html#ga520e6fad1decc5beff58b394ff443265
-      stack_size_ = 2000000;
-      dedicated_cpu_id_=-1;
-      priority_=75; // not too high to avoid competition with SL
+    RealTimeThreadParameters()
+    {
+        keyword_ = "real_time_thread";
+        priority_ = 80;
+#ifdef XENOMAI
+        // see:
+        // https://xenomai.org/documentation/xenomai-2.6/html/api/group__task.html#ga520e6fad1decc5beff58b394ff443265
+        stack_size_ = 2000000;
+        dedicated_cpu_id_ = -1;
+        priority_ = 75;  // not too high to avoid competition with SL
 #elif defined NON_REAL_TIME
-      stack_size_ = -1;
+        stack_size_ = -1;
 #elif defined RT_PREEMPT
-      stack_size_ = 50*PTHREAD_STACK_MIN;
+        stack_size_ = 50 * PTHREAD_STACK_MIN;
 #endif
-      cpu_id_.clear();
-      delay_ns_ = 0;
-      block_memory_ = true;
-      cpu_dma_latency_ = 0;
+        cpu_id_.clear();
+        delay_ns_ = 0;
+        block_memory_ = true;
+        cpu_dma_latency_ = 0;
     }
     /**
      * @brief Destroy the RealTimeThreadParameters object
      */
-    ~RealTimeThreadParameters(){}
+    ~RealTimeThreadParameters()
+    {
+    }
 
-  public:
+public:
     /**
      * @brief Used in xenomai to define the thread id
      */
@@ -131,22 +135,21 @@ namespace real_time_tools {
     bool block_memory_;
 
     /**
-     * @brief Maximum desired latency of the CPU in microseconds. Set to 0 to get best real-time 
-     * performance. Set to any negative value if you do not want the thread to change the 
-     * CPU latency.
-     * 
+     * @brief Maximum desired latency of the CPU in microseconds. Set to 0 to
+     * get best real-time performance. Set to any negative value if you do not
+     * want the thread to change the CPU latency.
+     *
      */
     int cpu_dma_latency_;
-  };
+};
 
-
-  /**
-   * @brief This class allows you to spawn thread. Its parameter are defined
-   * above.
-   */
-  class RealTimeThread
-  {
-  public:
+/**
+ * @brief This class allows you to spawn thread. Its parameter are defined
+ * above.
+ */
+class RealTimeThread
+{
+public:
     /**
      * @brief Construct a new ThreadInfo object
      */
@@ -162,21 +165,21 @@ namespace real_time_tools {
      */
     ~RealTimeThread();
 
-    /**
-     * @brief create_realtime_thread spawns a real time thread if the OS allows
-     * it.
-     * @param[in] thread_function: the executing function for the thread.
-     * @param[in] args: arguments to be passed to the thread.
-     * @return the error code.
-     */
-    #ifdef XENOMAI
-    int create_realtime_thread(void(*thread_function)(void*),
+/**
+ * @brief create_realtime_thread spawns a real time thread if the OS allows
+ * it.
+ * @param[in] thread_function: the executing function for the thread.
+ * @param[in] args: arguments to be passed to the thread.
+ * @return the error code.
+ */
+#ifdef XENOMAI
+    int create_realtime_thread(void (*thread_function)(void*),
                                void* args = nullptr);
-    #else
-    int create_realtime_thread(void*(*thread_function)(void*),
+#else
+    int create_realtime_thread(void* (*thread_function)(void*),
                                void* args = nullptr);
-    #endif
-    
+#endif
+
     /**
      * @brief join join the real time thread
      * @return the error code.
@@ -185,7 +188,8 @@ namespace real_time_tools {
 
     /**
      * @brief block_memory block the current and futur memory pages.
-     * see https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory#memory-locking
+     * see
+     * https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory#memory-locking
      * for further explanation.
      */
     void block_memory();
@@ -195,7 +199,7 @@ namespace real_time_tools {
      */
     RealTimeThreadParameters parameters_;
 
-  private:
+private:
 #if defined(XENOMAI)
     RT_TASK thread_;
 #elif defined(NON_REAL_TIME)
@@ -203,7 +207,7 @@ namespace real_time_tools {
 #elif defined(RT_PREEMPT)
     std::unique_ptr<pthread_t> thread_;
 #endif
-  };
-} // namespace real_time_tools
+};
+}  // namespace real_time_tools
 
-#endif // REALTIME_THREAD_CREATION_HPP
+#endif  // REALTIME_THREAD_CREATION_HPP

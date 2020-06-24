@@ -2,26 +2,27 @@
  * @file spinner.hpp
  * @author Maximilien Naveau (maximilien.naveau@gmail.com)
  * license License BSD-3-Clause
- * @copyright Copyright (c) 2019, New York University and Max Planck Gesellschaft.
+ * @copyright Copyright (c) 2019, New York University and Max Planck
+ * Gesellschaft.
  * @date 2019-05-22
- * 
+ *
  * @brief Tools for maintaining the timing on a while loop.
  */
 
 #ifndef SPINNER_HPP
 #define SPINNER_HPP
 
-#include <chrono>
 #include <unistd.h>
+#include <chrono>
 
-namespace real_time_tools {
-  /**
-   * @brief Class to have threads / loops running at a desired frequency
-   */
-  class Spinner {
-
-  public :
-
+namespace real_time_tools
+{
+/**
+ * @brief Class to have threads / loops running at a desired frequency
+ */
+class Spinner
+{
+public:
     // create a spinner for the desired frequency
     Spinner();
 
@@ -31,17 +32,17 @@ namespace real_time_tools {
      */
     void set_period(double period)
     {
-      period_sec_ = period;
+        period_sec_ = period;
     }
 
     /**
      * @brief Set the frequency of the loop [Hz]
-     * 
-     * @param frequency 
+     *
+     * @param frequency
      */
     void set_frequency(double frequency)
     {
-      period_sec_ = 1.0/frequency;
+        period_sec_ = 1.0 / frequency;
     }
 
     /**
@@ -61,8 +62,7 @@ namespace real_time_tools {
      */
     double predict_sleeping_time();
 
-  private:
-
+private:
     /**
      * @brief period_sec_ is the period of the loop in seconds
      */
@@ -72,8 +72,8 @@ namespace real_time_tools {
      * @brief next_date_sec_ is the date when the loop needs to wake up.
      */
     double next_date_sec_;
-  };
+};
 
-}
+}  // namespace real_time_tools
 
-#endif // SPINNER_HPP
+#endif  // SPINNER_HPP

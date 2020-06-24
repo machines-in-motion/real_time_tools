@@ -15,7 +15,6 @@
 #include <real_time_tools/checkpoint_timer.hpp>
 #include <real_time_tools/timer.hpp>
 
-
 //! @brief Dummy function
 void init()
 {

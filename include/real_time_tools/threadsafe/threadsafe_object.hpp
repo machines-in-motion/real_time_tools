@@ -5,41 +5,41 @@
  * @brief This file declares templated container for data buffering
  * @version 0.1
  * @date 2018-11-27
- * 
+ *
  * @copyright Copyright (c) 2018
- * 
+ *
  */
 
 #pragma once
 
 #include <array>
-#include <tuple>
-#include <memory>
 #include <map>
+#include <memory>
+#include <tuple>
 #include <vector>
 
 #include "real_time_tools/timer.hpp"
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
-namespace real_time_tools{
-
+namespace real_time_tools
+{
 /**
- * @brief This is a template abstract interface class that define a data history.
- * This re-writting of the vector style class is thread safe. So it allows the
- * user to use the object without having to deal with mutexes nor condition
- * variables. This class is not used so far.
- * 
+ * @brief This is a template abstract interface class that define a data
+ * history. This re-writting of the vector style class is thread safe. So it
+ * allows the user to use the object without having to deal with mutexes nor
+ * condition variables. This class is not used so far.
+ *
  * @tparam Type is the type of the data to store.
  */
-template<typename Type>
+template <typename Type>
 class ThreadsafeHistoryInterface
 {
     /**
      * @brief Get the element after the one with the given id. if there is no
      * newer element, then wait until one arrives.
-     * 
+     *
      * @param id is the index of the element in the buffer.
      * @return Type the next element.
      */
@@ -51,7 +51,7 @@ class ThreadsafeHistoryInterface
 
     /**
      * @brief Get the newest value, this function waits if it is empty.
-     * 
+     *
      * @return Type the newest element.
      */
     virtual Type get_newest() const
@@ -61,16 +61,16 @@ class ThreadsafeHistoryInterface
 
     /**
      * @brief get_newest_id
-     * 
-     * @return size_t 
+     *
+     * @return size_t
      */
     virtual size_t get_newest_id() const = 0;
 
     /**
      * @brief Get the value whith a specific id.
-     * 
-     * @param id 
-     * @return Type 
+     *
+     * @param id
+     * @return Type
      */
     virtual Type get(size_t id) const = 0;
 
@@ -82,13 +82,13 @@ class ThreadsafeHistoryInterface
 };
 
 /**
- * @brief The SingletypeThreadsafeObject is a thread safe object 
- * 
+ * @brief The SingletypeThreadsafeObject is a thread safe object
+ *
  * @tparam Type is the data type to store in the buffer.
  * @tparam SIZE is the size of the buffer. It is better to know it at compile
  * time to be 100% real time safe.
  */
-template<typename Type, size_t SIZE>
+template <typename Type, size_t SIZE>
 class SingletypeThreadsafeObject
 {
 public:
@@ -99,22 +99,22 @@ public:
 
     /**
      * @brief Construct a new SingletypeThreadsafeObject object
-     * 
-     * @param names 
+     *
+     * @param names
      */
     SingletypeThreadsafeObject(const std::vector<std::string>& names);
 
     /**
      * @brief Wait until the data at the given index is modified.
-     * 
-     * @param index 
+     *
+     * @param index
      */
     void wait_for_update(const size_t& index) const;
 
     /**
      * @brief Wait until the data at the given name is modified.
-     * 
-     * @param name 
+     *
+     * @param name
      */
     void wait_for_update(const std::string& name) const
     {
@@ -123,8 +123,8 @@ public:
 
     /**
      * @brief Wait unitl any data has been changed and return its index.
-     * 
-     * @return size_t 
+     *
+     * @return size_t
      */
     size_t wait_for_update() const;
 
@@ -134,8 +134,8 @@ public:
 
     /**
      * @brief get size.
-     * 
-     * @return size_t 
+     *
+     * @return size_t
      */
     size_t size()
     {
@@ -144,9 +144,9 @@ public:
 
     /**
      * @brief Get the data by its index in the buffer.
-     * 
-     * @param index 
-     * @return Type 
+     *
+     * @param index
+     * @return Type
      */
     Type get(const size_t& index = 0) const
     {
@@ -156,9 +156,9 @@ public:
 
     /**
      * @brief Get the data by its name in the buffer.
-     * 
-     * @param name 
-     * @return Type 
+     *
+     * @param name
+     * @return Type
      */
     Type get(const std::string& name) const
     {
@@ -168,11 +168,12 @@ public:
     /**
      * @brief Get the data by its index in the buffer. Index is solved during
      * compile time
-     * 
-     * @tparam INDEX=0 
-     * @return Type 
+     *
+     * @tparam INDEX=0
+     * @return Type
      */
-    template<int INDEX=0> Type get() const
+    template <int INDEX = 0>
+    Type get() const
     {
         return get(INDEX);
     }
@@ -183,9 +184,9 @@ public:
 
     /**
      * @brief Set one element at a designated index.
-     * 
-     * @param datum 
-     * @param index 
+     *
+     * @param datum
+     * @param index
      */
     void set(const Type& datum, const size_t& index = 0);
 
@@ -194,11 +195,12 @@ public:
      * Warning the index is resolved at compile time.
      * This is used for backward comaptibility.
      * \todo "This is used for backward comaptibility.", Manuel Which bakward?
-     * 
-     * @tparam INDEX=0 
-     * @param datum 
+     *
+     * @tparam INDEX=0
+     * @param datum
      */
-    template<int INDEX=0> void set(Type datum)
+    template <int INDEX = 0>
+    void set(Type datum)
     {
         set(datum, INDEX);
     }
@@ -206,9 +208,9 @@ public:
     /**
      * @brief Set one element using at a designated name. Internally this name
      * is map to an index.
-     * 
-     * @param datum 
-     * @param name 
+     *
+     * @param datum
+     * @param name
      */
     void set(const Type& datum, const std::string& name)
     {
@@ -219,7 +221,7 @@ private:
     /**
      * @brief This is the data buffer.
      */
-    std::shared_ptr<std::array<Type, SIZE> > data_;
+    std::shared_ptr<std::array<Type, SIZE>> data_;
     /**
      * @brief This is counting the data modification occurences for each
      * individual buffers.
@@ -256,23 +258,23 @@ private:
 /**
  * @brief This object can have several types depending on what ones want to
  * store.
- * 
- * @tparam Types 
+ *
+ * @tparam Types
  */
-template<typename ...Types>
+template <typename... Types>
 class ThreadsafeObject
 {
 public:
     /**
      * @brief Define a specific "Type" which permit a more readable code.
-     * 
-     * @tparam INDEX 
+     *
+     * @tparam INDEX
      */
-    template<int INDEX> using Type
-    = typename std::tuple_element<INDEX, std::tuple<Types...>>::type;
+    template <int INDEX>
+    using Type = typename std::tuple_element<INDEX, std::tuple<Types...>>::type;
 
     /**
-     * @brief Define the size of the different types. 
+     * @brief Define the size of the different types.
      */
     static const std::size_t SIZE = sizeof...(Types);
 
@@ -283,25 +285,26 @@ public:
 
     /**
      * @brief Wait until the data with the deignated index is changed.
-     * 
-     * @param index 
+     *
+     * @param index
      */
     void wait_for_update(unsigned index) const;
 
     /**
      * @brief Wait until the data with the designated index is changed.
-     * 
-     * @tparam INDEX=0 
+     *
+     * @tparam INDEX=0
      */
-    template< unsigned INDEX=0> void wait_for_update() const
+    template <unsigned INDEX = 0>
+    void wait_for_update() const
     {
         wait_for_update(INDEX);
     }
 
     /**
      * @brief Wait until any data has been changed.
-     * 
-     * @return size_t 
+     *
+     * @return size_t
      */
     size_t wait_for_update() const;
 
@@ -312,12 +315,13 @@ public:
     /**
      * @brief Get the data with the designated index. The index is resolved at
      * compile time.
-     * 
-     * @tparam INDEX=0 
-     * @return Type<INDEX> 
+     *
+     * @tparam INDEX=0
+     * @return Type<INDEX>
      */
-    template<int INDEX=0> Type<INDEX> get() const;
-    
+    template <int INDEX = 0>
+    Type<INDEX> get() const;
+
     /**
      * Setters
      */
@@ -325,17 +329,18 @@ public:
     /**
      * @brief Set the data with the designated index. The index is resolved at
      * compile time.
-     * 
-     * @tparam INDEX=0 
-     * @param datum 
+     *
+     * @tparam INDEX=0
+     * @param datum
      */
-    template<int INDEX=0> void set(Type<INDEX> datum);
+    template <int INDEX = 0>
+    void set(Type<INDEX> datum);
 
 private:
     /**
      * @brief the actual data buffers.
      */
-    std::shared_ptr<std::tuple<Types ...> > data_;
+    std::shared_ptr<std::tuple<Types...>> data_;
     /**
      * @brief a condition variable that allow to wait until one data has been
      * changed in the buffer.
@@ -355,7 +360,7 @@ private:
      * buffer.
      * /todo Can't we just some the modification_counts_ array whenever needed?
      */
-    std::shared_ptr<size_t> total_modification_count_;  
+    std::shared_ptr<size_t> total_modification_count_;
     /**
      * @brief These are the individual mutexes of each data upon setting and
      * getting.
@@ -363,6 +368,6 @@ private:
     std::shared_ptr<std::array<std::mutex, SIZE>> data_mutexes_;
 };
 
-}
+}  // namespace real_time_tools
 
 #include "real_time_tools/threadsafe/threadsafe_object.hxx"
