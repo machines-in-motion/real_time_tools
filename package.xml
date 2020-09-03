@@ -1,24 +1,41 @@
 <?xml version="1.0"?>
-<package format="2">
-  <name>real_time_tools</name>
-  <version>1.0.0</version>
-  <description>This package is a wrapper around different linux OS. It provide APIs over
-    real time OSs such as Xenomai (not fully operational) and RT-PREEMPT. It also
-    allows you to get the same fonctionnality (at the cost of real time) with non-real
-    time OSs such as Ubuntu and MacOs (not fully fonctionnal).
-  </description>
-  <license>BSD 3-Clause</license>
-  <author email="vberenz@tuebingen.mpg.de">Vincent Berenz</author>
-  <maintainer email="vberenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
+<?xml-model
+   href="http://download.ros.org/schema/package_format3.xsd"
+   schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
 
-  <buildtool_depend>catkin</buildtool_depend>
+    <name>real_time_tools</name>
+    <version>1.0.0</version>
+    
+    <description>
+        This package is a wrapper around different linux OS. It provide APIs
+        over real time OSs such as Xenomai (not fully operational) and
+        RT-PREEMPT. It also allows you to get the same fonctionnality (at the
+        cost of real time) with non-real time OSs such as Ubuntu (std supported)
+        and MacOs (not fully fonctionnal).
+    </description>
 
-  <!-- CMake module containing helper to find the OS, boost, python, etc. -->
-  <depend>mpi_cmake_modules</depend>
-  <depend>pybind11_catkin</depend>
-  <depend>boost</depend>
-  <depend>eigen</depend>
+    <author email="vberenz@tuebingen.mpg.de">Vincent Berenz</author>
+    <maintainer email="vberenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
 
-  <export>
-  </export>
+    <license>BSD 3-clause</license>
+
+    <buildtool_depend>ament_cmake</buildtool_depend>
+    <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+    <!-- CMake module containing helper to find the OS, boost, python, etc. -->
+    <depend>mpi_cmake_modules</depend>
+    <depend>pybind11_catkin</depend>
+    <depend>Boost</depend>
+    <depend>Eigen3</depend>
+    <depend>Threads</depend>
+
+    <test_depend>ament_lint_auto</test_depend>
+    <test_depend>ament_lint_common</test_depend>
+    <test_depend>ament_cmake_gtest</test_depend>
+
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
+
 </package>

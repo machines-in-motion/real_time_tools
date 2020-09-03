@@ -1,41 +1,53 @@
-cmake_minimum_required(VERSION 3.1)
+#
+# Copyright (c) 2019, New York University and Max Planck Gesellschaft.
+#
+# License BSD-3 clause
+#
+
+#
+# set up the project
+#
+cmake_minimum_required(VERSION 3.10.2)
+
 project(real_time_tools)
 
-# required to use std::shared_ptr in code and to link the python bindings
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-as-needed")
-endif()
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+#
+# Dependencies
+#
 
-# Use C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
+# depend on ament macros
+find_package(ament_cmake REQUIRED)
+# find_package(ament_python REQUIRED)
 
-find_package(catkin REQUIRED COMPONENTS
-  mpi_cmake_modules
-  pybind11_catkin
-)
+# Usual dependencies
+find_package(mpi_cmake_modules REQUIRED)
+find_package(pybind11_catkin REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(
+  Boost "1.65" REQUIRED COMPONENTS filesystem system thread program_options
+                                   unit_test_framework)
+find_package(Threads REQUIRED)
 
-search_for_eigen()
-set(BOOST_COMPONENTS filesystem)
-search_for_boost()
-search_for_pthread()
+# export de dependencies
+ament_export_dependencies(Boost Threads)
 
-set(LIBRARY_NAME ${PROJECT_NAME})
-catkin_package(
-  LIBRARIES ${LIBRARY_NAME}
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS mpi_cmake_modules
-  DEPENDS Boost
-)
+#
+# Setup the environment from dependencies
+#
 
 # This macro sets the C++ preprocessor flags "XENOMAI", "RT_PREEMPT", or
 # "UBUNTU" according to the current operating system.
-DEFINE_OS()
+define_os()
+set(all_targets)
+set(all_target_exports)
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+#
+# Add the main library
+#
 
-add_library(${LIBRARY_NAME}
+# Create the CMake target
+add_library(
+  ${PROJECT_NAME}
   src/realtime_check.cpp
   src/thread.cpp
   src/spinner.cpp
@@ -43,90 +55,126 @@ add_library(${LIBRARY_NAME}
   src/iostream.cpp
   src/usb_stream.cpp
   src/process_manager.cpp
-  src/frequency_manager.cpp
-)
+  src/frequency_manager.cpp)
+# save the name for installation
+set(all_targets ${all_targets} ${PROJECT_NAME})
+# Add the include dependencies
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                         $<INSTALL_INTERFACE:include>)
+# Link the dependencies
+ament_target_dependencies(${PROJECT_NAME} Boost)
+ament_target_dependencies(${PROJECT_NAME} Threads)
+# Xenomai libs could be empty. But this is needed in case the OS is Xenomai
+target_link_libraries(${PROJECT_NAME} ${Xenomai_LIBS})
+# Export the target.
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+# For the installation
+set(all_target_exports ${all_target_exports} export_${PROJECT_NAME})
 
-target_link_libraries(${LIBRARY_NAME}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-  ${Xenomai_LIBS}
-)
-
-
-#########
-# DEMOS #
-#########
-macro(add_real_time_tools_demo source_file)
-  add_executable(${source_file} demos/${source_file}.cpp)
-  target_link_libraries(${source_file} ${LIBRARY_NAME})
-endmacro(add_real_time_tools_demo source_file)
+#
+# Demos.
+#
+macro(add_real_time_tools_demo target_name)
+  # add the executable.
+  add_executable(${target_name} demos/${target_name}.cpp)
+  # save the name for installation
+  set(all_targets ${all_targets} ${target_name})
+  # dependencies
+  target_include_directories(
+    ${target_name} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                          $<INSTALL_INTERFACE:include>)
+  target_link_libraries(${target_name} ${PROJECT_NAME})
+  # export executable
+#   ament_export_interfaces(export_${target_name})
+#   set(all_target_exports ${all_target_exports} export_${target_name})
+endmacro(add_real_time_tools_demo target_name)
 
 add_real_time_tools_demo(demo_realtime_check)
 add_real_time_tools_demo(demo_realtime_strict_check)
 add_real_time_tools_demo(demo_spinner)
 add_real_time_tools_demo(demo_timing)
 add_real_time_tools_demo(demo_thread)
-# add_real_time_tools_demo(demo_segfault)
 add_real_time_tools_demo(demo_usb_stream_imu_3DM_GX3_25)
 add_real_time_tools_demo(demo_checkpoint_timer)
 
-###############
-# EXECUTABLES #
-###############
-#set(EXE1 realtime_test)
-#add_executable(${EXE1} src/bin/realtime_test.cpp)
-#target_link_libraries(${EXE1} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+#
+# Executables.
+#
 
-#set(EXE2 realtime_test_display)
-#add_executable(${EXE2} src/bin/realtime_test_display.cpp)
-#target_link_libraries(${EXE2} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+# set(EXE1 realtime_test) add_executable(${EXE1} src/bin/realtime_test.cpp)
+# target_link_libraries(${EXE1} ${PROJECT_NAME} ${catkin_LIBRARIES})
 
-##################
-# Python wrapper #
-##################
+# set(EXE2 realtime_test_display) add_executable(${EXE2}
+# src/bin/realtime_test_display.cpp) target_link_libraries(${EXE2}
+# ${PROJECT_NAME} ${catkin_LIBRARIES})
 
+#
+# Python wrapper
+#
 pybind11_add_module(real_time_tools_py srcpy/wrappers.cpp)
-target_link_libraries(real_time_tools_py PRIVATE real_time_tools ${catkin_LIBRARIES})
-set_target_properties(real_time_tools_py PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}
-  OUTPUT_NAME real_time_tools)
-install(TARGETS real_time_tools_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
+target_link_libraries(real_time_tools_py PRIVATE real_time_tools)
+set_target_properties(real_time_tools_py PROPERTIES OUTPUT_NAME real_time_tools)
+target_include_directories(
+  real_time_tools_py
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include> SYSTEM
+  PUBLIC ${PYTHON_INCLUDE_DIRS} )
 
-###################################################
-## Set a general config folder path for all tests #
-###################################################
-set(TEST_CONFIG_PATH ${PROJECT_SOURCE_DIR}/tests/config/)
+# install(TARGETS real_time_tools_py DESTINATION ${lib})
 
-###################
-## add unit tests #
-###################
+#
+# add unit tests #
+#
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  find_package(ament_lint_common REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_gtest)
 
-# create the executable
-catkin_add_gtest(test_real_time_tools
-  tests/main.cpp
-  tests/test_real_time_tools.cpp
-  tests/threadsafe_object_test.cpp
-  tests/threadsafe_timeseries_test.cpp
-)
-# link the dependecies to it
-if (TARGET test_real_time_tools)
-  target_link_libraries(test_real_time_tools
-    ${LIBRARY_NAME}
-    ${catkin_LIBRARIES}
-   	${Boost_LIBRARIES}
-	)
+  # Set a general config folder path for all tests
+  set(TEST_CONFIG_PATH ${PROJECT_SOURCE_DIR}/tests/config/)
 
-  # add some preprocessor variable
-  target_compile_definitions(test_real_time_tools PUBLIC
-    TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}"
-  )
+  ament_add_gtest(
+    test_real_time_tools tests/main.cpp tests/test_real_time_tools.cpp
+    tests/threadsafe_object_test.cpp tests/threadsafe_timeseries_test.cpp)
+
+  # Link the dependecies to it.
+  if(TARGET test_real_time_tools)
+    target_link_libraries(test_real_time_tools ${PROJECT_NAME})
+    target_include_directories(
+      real_time_tools_py
+      PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+             $<INSTALL_INTERFACE:include> SYSTEM
+      PUBLIC ${PYTHON_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+    # add some preprocessor variable
+    target_compile_definitions(test_real_time_tools
+                               PUBLIC TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}")
+  endif()
 endif()
 
-catkin_install_python(PROGRAMS
-  src/bin/compute_statistics
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+#
+# Install the package
+#
+install(DIRECTORY include/ DESTINATION include)
 
-##########################
-# building documentation #
-##########################
-build_doxygen_documentation()
+message(WARNING "all_targets ${all_targets}")
+message(WARNING "all_target_exports ${all_target_exports}")
+install(
+  TARGETS ${all_targets}
+  EXPORT ${all_target_exports}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include)
+
+#
+# Building documentation.
+#
+add_documentation()
+
+#
+# Export as an ament_package
+#
+ament_package()
