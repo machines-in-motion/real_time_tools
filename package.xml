@@ -15,7 +15,6 @@
         and MacOs (not fully fonctionnal).
     </description>
 
-    <author email="vberenz@tuebingen.mpg.de">Vincent Berenz</author>
     <maintainer email="vberenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
 
     <license>BSD 3-clause</license>
