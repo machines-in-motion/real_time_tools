@@ -118,18 +118,16 @@ add_library(${PROJECT_NAME}_cpp_bindings MODULE srcpy/real_time_tools.cpp)
 target_link_libraries(${PROJECT_NAME}_cpp_bindings PRIVATE pybind11::module)
 target_link_libraries(${PROJECT_NAME}_cpp_bindings PRIVATE ${PYTHON_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_cpp_bindings PRIVATE ${PROJECT_NAME})
-set_target_properties(
-  ${PROJECT_NAME}_cpp_bindings
-  PROPERTIES PREFIX ""
-             SUFFIX "${PYTHON_MODULE_EXTENSION}")
+set_target_properties(${PROJECT_NAME}_cpp_bindings
+                      PROPERTIES PREFIX "" SUFFIX "${PYTHON_MODULE_EXTENSION}")
 target_include_directories(
   ${PROJECT_NAME}_cpp_bindings
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include> SYSTEM
   PUBLIC ${PYTHON_INCLUDE_DIRS})
 _ament_cmake_python_get_python_install_dir()
-install(TARGETS ${PROJECT_NAME}_cpp_bindings
-        DESTINATION ${PYTHON_INSTALL_DIR})
+install(TARGETS ${PROJECT_NAME}_cpp_bindings DESTINATION ${PYTHON_INSTALL_DIR})
+install(FILES srcpy/__init__.py DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME})
 
 #
 # add unit tests #
@@ -148,17 +146,15 @@ if(BUILD_TESTING)
     tests/threadsafe_object_test.cpp tests/threadsafe_timeseries_test.cpp)
 
   # Link the dependecies to it.
-  if(TARGET test_real_time_tools)
-    target_link_libraries(test_real_time_tools ${PROJECT_NAME})
-    target_include_directories(
-      test_real_time_tools
-      PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-             $<INSTALL_INTERFACE:include> SYSTEM
-      PUBLIC ${PYTHON_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
-    # add some preprocessor variable
-    target_compile_definitions(test_real_time_tools
-                               PUBLIC TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}")
-  endif()
+  target_link_libraries(test_real_time_tools ${PROJECT_NAME})
+  target_include_directories(
+    test_real_time_tools
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+           $<INSTALL_INTERFACE:include> SYSTEM
+    PUBLIC ${PYTHON_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+  # add some preprocessor variable
+  target_compile_definitions(test_real_time_tools
+                             PUBLIC TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}")
 endif()
 
 #
