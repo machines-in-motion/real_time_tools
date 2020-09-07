@@ -17,11 +17,12 @@ project(real_time_tools)
 
 # depend on ament macros
 find_package(ament_cmake REQUIRED)
-# find_package(ament_python REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 
 # Usual dependencies
 find_package(mpi_cmake_modules REQUIRED)
-find_package(pybind11_catkin REQUIRED)
+find_package(pybind11_vendor REQUIRED)
+find_package(pybind11 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(
   Boost "1.65" REQUIRED COMPONENTS filesystem system thread program_options
@@ -47,7 +48,7 @@ set(all_target_exports)
 
 # Create the CMake target
 add_library(
-  ${PROJECT_NAME}
+  ${PROJECT_NAME} SHARED
   src/realtime_check.cpp
   src/thread.cpp
   src/spinner.cpp
@@ -75,19 +76,20 @@ set(all_target_exports ${all_target_exports} export_${PROJECT_NAME})
 #
 # Demos.
 #
-macro(add_real_time_tools_demo target_name)
+macro(add_real_time_tools_demo demo_name)
+  set(demo_target_name ${PROJECT_NAME}_${demo_name})
   # add the executable.
-  add_executable(${target_name} demos/${target_name}.cpp)
+  add_executable(${demo_target_name} demos/${demo_name}.cpp)
   # save the name for installation
-  set(all_targets ${all_targets} ${target_name})
+  set(all_targets ${all_targets} ${demo_target_name})
   # dependencies
   target_include_directories(
-    ${target_name} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                          $<INSTALL_INTERFACE:include>)
-  target_link_libraries(${target_name} ${PROJECT_NAME})
-  # export executable
-#   ament_export_interfaces(export_${target_name})
-#   set(all_target_exports ${all_target_exports} export_${target_name})
+    ${demo_target_name}
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+           $<INSTALL_INTERFACE:include>)
+  target_link_libraries(${demo_target_name} ${PROJECT_NAME})
+  # export executable ament_export_interfaces(export_${demo_name})
+  # set(all_target_exports ${all_target_exports} export_${demo_name})
 endmacro(add_real_time_tools_demo target_name)
 
 add_real_time_tools_demo(demo_realtime_check)
@@ -112,16 +114,22 @@ add_real_time_tools_demo(demo_checkpoint_timer)
 #
 # Python wrapper
 #
-pybind11_add_module(real_time_tools_py srcpy/wrappers.cpp)
-target_link_libraries(real_time_tools_py PRIVATE real_time_tools)
-set_target_properties(real_time_tools_py PROPERTIES OUTPUT_NAME real_time_tools)
+add_library(${PROJECT_NAME}_cpp_bindings MODULE srcpy/real_time_tools.cpp)
+target_link_libraries(${PROJECT_NAME}_cpp_bindings PRIVATE pybind11::module)
+target_link_libraries(${PROJECT_NAME}_cpp_bindings PRIVATE ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_cpp_bindings PRIVATE ${PROJECT_NAME})
+set_target_properties(
+  ${PROJECT_NAME}_cpp_bindings
+  PROPERTIES PREFIX ""
+             SUFFIX "${PYTHON_MODULE_EXTENSION}")
 target_include_directories(
-  real_time_tools_py
+  ${PROJECT_NAME}_cpp_bindings
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include> SYSTEM
-  PUBLIC ${PYTHON_INCLUDE_DIRS} )
-
-# install(TARGETS real_time_tools_py DESTINATION ${lib})
+  PUBLIC ${PYTHON_INCLUDE_DIRS})
+_ament_cmake_python_get_python_install_dir()
+install(TARGETS ${PROJECT_NAME}_cpp_bindings
+        DESTINATION ${PYTHON_INSTALL_DIR})
 
 #
 # add unit tests #
@@ -143,7 +151,7 @@ if(BUILD_TESTING)
   if(TARGET test_real_time_tools)
     target_link_libraries(test_real_time_tools ${PROJECT_NAME})
     target_include_directories(
-      real_time_tools_py
+      test_real_time_tools
       PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
              $<INSTALL_INTERFACE:include> SYSTEM
       PUBLIC ${PYTHON_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
@@ -158,8 +166,6 @@ endif()
 #
 install(DIRECTORY include/ DESTINATION include)
 
-message(WARNING "all_targets ${all_targets}")
-message(WARNING "all_target_exports ${all_target_exports}")
 install(
   TARGETS ${all_targets}
   EXPORT ${all_target_exports}
