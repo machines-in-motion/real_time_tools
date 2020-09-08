@@ -11,6 +11,14 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project(real_time_tools)
 
+# Using C++17
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
 #
 # Dependencies
 #
@@ -30,7 +38,7 @@ find_package(
 find_package(Threads REQUIRED)
 
 # export de dependencies
-ament_export_dependencies(Boost Threads)
+ament_export_dependencies(Boost Threads pybind11)
 
 #
 # Setup the environment from dependencies
@@ -133,9 +141,6 @@ install(FILES srcpy/__init__.py DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME
 # add unit tests #
 #
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  find_package(ament_lint_common REQUIRED)
-  ament_lint_auto_find_test_dependencies()
   find_package(ament_cmake_gtest)
 
   # Set a general config folder path for all tests
