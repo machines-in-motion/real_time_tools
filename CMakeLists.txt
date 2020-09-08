@@ -32,9 +32,7 @@ find_package(mpi_cmake_modules REQUIRED)
 find_package(pybind11_vendor REQUIRED)
 find_package(pybind11 REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(
-  Boost "1.65" REQUIRED COMPONENTS filesystem system thread program_options
-                                   unit_test_framework)
+find_package(Boost "1.65" REQUIRED COMPONENTS filesystem system thread)
 find_package(Threads REQUIRED)
 
 # export de dependencies
@@ -65,8 +63,6 @@ add_library(
   src/usb_stream.cpp
   src/process_manager.cpp
   src/frequency_manager.cpp)
-# save the name for installation
-set(all_targets ${all_targets} ${PROJECT_NAME})
 # Add the include dependencies
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -79,13 +75,15 @@ target_link_libraries(${PROJECT_NAME} ${Xenomai_LIBS})
 # Export the target.
 ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 # For the installation
-set(all_target_exports ${all_target_exports} export_${PROJECT_NAME})
+list(APPEND all_targets ${PROJECT_NAME})
+list(APPEND all_target_exports export_${PROJECT_NAME})
 
 #
 # Demos.
 #
 macro(add_real_time_tools_demo demo_name)
-  set(demo_target_name ${PROJECT_NAME}_${demo_name})
+  # set(demo_target_name ${PROJECT_NAME}_${demo_name})
+  set(demo_target_name ${demo_name})
   # add the executable.
   add_executable(${demo_target_name} demos/${demo_name}.cpp)
   # save the name for installation
@@ -96,8 +94,6 @@ macro(add_real_time_tools_demo demo_name)
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<INSTALL_INTERFACE:include>)
   target_link_libraries(${demo_target_name} ${PROJECT_NAME})
-  # export executable ament_export_interfaces(export_${demo_name})
-  # set(all_target_exports ${all_target_exports} export_${demo_name})
 endmacro(add_real_time_tools_demo target_name)
 
 add_real_time_tools_demo(demo_realtime_check)
@@ -135,7 +131,8 @@ target_include_directories(
   PUBLIC ${PYTHON_INCLUDE_DIRS})
 _ament_cmake_python_get_python_install_dir()
 install(TARGETS ${PROJECT_NAME}_cpp_bindings DESTINATION ${PYTHON_INSTALL_DIR})
-install(FILES srcpy/__init__.py DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME})
+install(FILES srcpy/__init__.py
+        DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME})
 
 #
 # add unit tests #
