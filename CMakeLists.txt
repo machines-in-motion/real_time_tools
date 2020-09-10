@@ -32,7 +32,7 @@ find_package(mpi_cmake_modules REQUIRED)
 find_package(pybind11_vendor REQUIRED)
 find_package(pybind11 REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Boost "1.65" REQUIRED COMPONENTS filesystem system thread)
+find_package(Boost REQUIRED COMPONENTS filesystem system thread)
 find_package(Threads REQUIRED)
 
 # export de dependencies
