@@ -116,7 +116,7 @@ add_real_time_tools_demo(demo_checkpoint_timer)
 # ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 #
-# Python wrapper
+# Python wrapper.
 #
 add_library(${PROJECT_NAME}_cpp_bindings MODULE srcpy/real_time_tools.cpp)
 target_link_libraries(${PROJECT_NAME}_cpp_bindings PRIVATE pybind11::module)
@@ -135,7 +135,7 @@ install(FILES srcpy/__init__.py
         DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME})
 
 #
-# add unit tests #
+# Add unit tests.
 #
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest)
