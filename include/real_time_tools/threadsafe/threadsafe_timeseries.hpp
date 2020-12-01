@@ -33,9 +33,11 @@ namespace real_time_tools
  * newest\} \f$,
  * - a length \f$length\f$
  * - and a maximum length \f$maxlength\f$
+ *
+ * \deprecated Use the implementation from the time_series package instead.
  */
 template <typename Type = int>
-class ThreadsafeTimeseries
+class [[deprecated]] ThreadsafeTimeseries
 {
 public:
     /**
