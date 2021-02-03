@@ -144,7 +144,7 @@ if(BUILD_TESTING)
 
   ament_add_gtest(
     test_real_time_tools tests/main.cpp tests/test_real_time_tools.cpp
-    tests/threadsafe_object_test.cpp tests/threadsafe_timeseries_test.cpp)
+    tests/threadsafe_object_test.cpp)
 
   # Link the dependecies to it.
   target_link_libraries(test_real_time_tools ${PROJECT_NAME})
