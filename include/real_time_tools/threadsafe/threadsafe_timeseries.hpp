@@ -37,8 +37,7 @@ namespace real_time_tools
  * \deprecated Use the implementation from the time_series package instead.
  */
 template <typename Type = int>
-class [[deprecated]] ThreadsafeTimeseries
-{
+class [[deprecated]] ThreadsafeTimeseries {
 public:
     /**
      * @brief Alias for the index type.
@@ -100,8 +99,8 @@ public:
      */
     virtual bool wait_for_timeindex(
         const Index &timeindex,
-        const double &max_duration_s =
-            std::numeric_limits<double>::quiet_NaN()) const;
+        const double &max_duration_s = std::numeric_limits<double>::quiet_NaN())
+        const;
 
     /*! \brief returns the length of the timeseries, i.e. \f$0\f$ if it is
      * empty, otherwise \f$newest - oldest +1 \f$.
