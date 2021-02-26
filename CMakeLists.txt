@@ -9,7 +9,7 @@
 #
 cmake_minimum_required(VERSION 3.10.2)
 
-project(real_time_tools)
+project(real_time_tools VERSION 2.0.0)
 
 # Using C++17
 if(NOT CMAKE_C_STANDARD)
