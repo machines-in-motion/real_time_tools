@@ -5,10 +5,16 @@ include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
 include(CMakeFindDependencyMacro)
 
 # we do not add the other dependencies because these are header files lib
-find_dependency(pybind11 REQUIRED)
-find_dependency(Eigen3 REQUIRED)
-find_dependency(Boost REQUIRED COMPONENTS filesystem system thread)
-find_dependency(Threads REQUIRED)
-
+if(${CMAKE_VERSION} VERSION_LESS "3.15.0")
+  find_package(pybind11 REQUIRED)
+  find_package(Eigen3 REQUIRED)
+  find_package(Boost REQUIRED COMPONENTS filesystem system thread)
+  find_package(Threads REQUIRED)
+else()
+  find_dependency(pybind11 REQUIRED)
+  find_dependency(Eigen3 REQUIRED)
+  find_dependency(Boost REQUIRED COMPONENTS filesystem system thread)
+  find_dependency(Threads REQUIRED)
+endif()
 
 check_required_components(@PROJECT_NAME@)
