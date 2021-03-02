@@ -9,7 +9,7 @@
 #
 cmake_minimum_required(VERSION 3.10.2)
 
-project(real_time_tools)
+project(real_time_tools VERSION 2.0.0)
 
 # Using C++17
 if(NOT CMAKE_C_STANDARD)
@@ -23,19 +23,12 @@ endif()
 # Dependencies
 #
 
-# depend on ament macros
-find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_python REQUIRED)
-
 # Usual dependencies
 find_package(mpi_cmake_modules REQUIRED)
 find_package(pybind11 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system thread)
 find_package(Threads REQUIRED)
-
-# export de dependencies
-ament_export_dependencies(Boost Threads pybind11)
 
 #
 # Setup the environment from dependencies
@@ -45,7 +38,6 @@ ament_export_dependencies(Boost Threads pybind11)
 # "UBUNTU" according to the current operating system.
 define_os()
 set(all_targets)
-set(all_target_exports)
 
 #
 # Add the main library
@@ -67,15 +59,13 @@ target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:include>)
 # Link the dependencies
-ament_target_dependencies(${PROJECT_NAME} Boost)
-ament_target_dependencies(${PROJECT_NAME} Threads)
+target_link_libraries(${PROJECT_NAME} Boost::boost Boost::filesystem
+                      Boost::system Boost::thread)
+target_link_libraries(${PROJECT_NAME} Threads::Threads)
 # Xenomai libs could be empty. But this is needed in case the OS is Xenomai
 target_link_libraries(${PROJECT_NAME} ${Xenomai_LIBS})
-# Export the target.
-ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 # For the installation
 list(APPEND all_targets ${PROJECT_NAME})
-list(APPEND all_target_exports export_${PROJECT_NAME})
 
 #
 # Demos.
@@ -128,56 +118,58 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include> SYSTEM
   PUBLIC ${PYTHON_INCLUDE_DIRS})
-_ament_cmake_python_get_python_install_dir()
-install(TARGETS ${PROJECT_NAME}_cpp_bindings DESTINATION ${PYTHON_INSTALL_DIR})
+get_python_install_dir(python_install_dir)
+install(TARGETS ${PROJECT_NAME}_cpp_bindings DESTINATION ${python_install_dir})
 install(FILES srcpy/__init__.py
-        DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME})
+        DESTINATION ${python_install_dir}/${PROJECT_NAME})
 
 #
 # Add unit tests.
 #
+include(CTest)
 if(BUILD_TESTING)
-  find_package(ament_cmake_gtest)
-
-  # Set a general config folder path for all tests
-  set(TEST_CONFIG_PATH ${PROJECT_SOURCE_DIR}/tests/config/)
-
-  ament_add_gtest(
-    test_real_time_tools tests/main.cpp tests/test_real_time_tools.cpp
-    tests/threadsafe_object_test.cpp tests/threadsafe_timeseries_test.cpp)
-
-  # Link the dependecies to it.
-  target_link_libraries(test_real_time_tools ${PROJECT_NAME})
-  target_include_directories(
+  # C++ unit-tests framework used.
+  find_package(GTest CONFIG REQUIRED)
+  include(GoogleTest)
+  # Config folder
+  get_filename_component(CONFIG_PATH config ABSOLUTE)
+  # create the executable
+  add_executable(
     test_real_time_tools
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:include> SYSTEM
-    PUBLIC ${PYTHON_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
-  # add some preprocessor variable
-  target_compile_definitions(test_real_time_tools
-                             PUBLIC TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}")
+    tests/main.cpp tests/test_real_time_tools.cpp
+    tests/threadsafe_object_test.cpp tests/threadsafe_timeseries_test.cpp)
+  # link to the created librairies and its dependencies
+  target_link_libraries(test_real_time_tools ${PROJECT_NAME} GTest::gtest)
+  # create 2 macro: the path to the config file and the path to the data file
+  target_compile_definitions(
+    test_real_time_tools
+    PUBLIC
+    PUBLIC TEST_CONFIG_FOLDER="${TEST_CONFIG_PATH}")
+  # declare the test as gtest
+  gtest_add_tests(TARGET test_real_time_tools)
 endif()
+
+#
+# building documentation
+#
+add_documentation()
 
 #
 # Install the package
 #
+
+# install the include directory
 install(DIRECTORY include/ DESTINATION include)
 
+# command to install the library and binaries
 install(
   TARGETS ${all_targets}
-  EXPORT ${all_target_exports}
+  EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
   INCLUDES
   DESTINATION include)
 
-#
-# Building documentation.
-#
-add_documentation()
-
-#
-# Export as an ament_package
-#
-ament_package()
+# Export this package as a cmake package.
+generate_cmake_package()
