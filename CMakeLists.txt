@@ -137,7 +137,7 @@ if(BUILD_TESTING)
   add_executable(
     test_real_time_tools
     tests/main.cpp tests/test_real_time_tools.cpp
-    tests/threadsafe_object_test.cpp tests/threadsafe_timeseries_test.cpp)
+    tests/threadsafe_object_test.cpp)
   # link to the created librairies and its dependencies
   target_link_libraries(test_real_time_tools ${PROJECT_NAME} GTest::gtest)
   # create 2 macro: the path to the config file and the path to the data file
