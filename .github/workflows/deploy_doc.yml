@@ -69,7 +69,7 @@ jobs:
 
           # Execute the unit-tests.
           env CTEST_OUTPUT_ON_FAILURE=1 ctest -C $BUILD_TYPE
-          
+
           # Get the code coverage.
           cd $BUILD_FOLDER
           gcovr -r ${{github.workspace}} $BUILD_FOLDER
@@ -101,7 +101,7 @@ jobs:
           mkdir -p $code_doc_dir
           mv $BUILD_FOLDER/share/docs/sphinx/html $code_doc_dir/documentation
           mv $BUILD_FOLDER/coverage $code_doc_dir/
-          
+
           # Update the doc repo main page.
           cd $DEVEL_FOLDER/machines-in-motion.github.io
           make
