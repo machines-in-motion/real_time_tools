@@ -1,0 +1,110 @@
+name: check_main_branch_and_deploy_doc
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_FOLDER: ${{github.workspace}}/../build
+  DEVEL_FOLDER: ${{github.workspace}}/../devel
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally
+    # well on Windows or Mac.  You can convert this to a matrix build if you need
+    # cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-18.04
+
+    steps:
+      #
+      # Setup the machines and build environment
+      #
+      - name: Setup Ubuntu18.04.
+        uses: machines-in-motion/mim_github_actions/setup_ubuntu18_04@main
+
+      #
+      # Checkout the current package locally
+      #
+      - name: Checkout current repo.
+        uses: actions/checkout@v2
+
+      #
+      # Activate the secret ssh key
+      #
+      - name: Spawn ssh-agent
+        uses: webfactory/ssh-agent@v0.5.2
+        with:
+          ssh-private-key: ${{ secrets.GA_SSH_PRIVATE_KEY }}
+
+      #
+      # Clone the dependencies that needs to be built.
+      #
+      - name: Clone dependencies and build them.
+        id: clone_and_build_dep
+        uses: machines-in-motion/mim_github_actions/treep_clone_and_build@main
+        with:
+          treep_configurations: |
+            git@github.com:machines-in-motion/treep_machines_in_motion.git
+          projects_or_repos: |
+            REAL_TIME_TOOLS_DEPENDENCIES
+
+      #
+      # Build and test the current package.
+      #
+      - name: Build and run CTest.
+        shell: bash
+        run: |
+          mkdir -p $BUILD_FOLDER
+          cd $BUILD_FOLDER
+          echo Source environment.
+          source ${{ steps.clone_and_build_dep.outputs.setup_file }}
+
+          # build the package
+          cmake_args="-DGENERATE_DOCUMENTATION=ON -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_SHARED_LINKER_FLAGS=--coverage -DCMAKE_EXE_LINKER_FLAGS=--coverage -DCMAKE_BUILD_TYPE=Debug -DPYTHON_EXECUTABLE=/usr/bin/python3"
+          cmake ${{github.workspace}} $cmake_args
+          cmake --build . --config Debug
+
+          # Execute the unit-tests.
+          env CTEST_OUTPUT_ON_FAILURE=1 ctest -C $BUILD_TYPE
+
+          # Get the code coverage.
+          cd $BUILD_FOLDER
+          gcovr -r ${{github.workspace}} $BUILD_FOLDER
+          mkdir coverage
+          gcovr -r ${{github.workspace}} --html --html-details -o coverage/index.html $BUILD_FOLDER
+
+      #
+      # Copy the compiled documentation to the github page of the group.
+      #
+      - name: Copy the documentation and upload it.
+        shell: bash
+        run: |
+          # Get repository name
+          cd ${{github.workspace}}
+          REPOSITORY_NAME="${PWD##*/}"
+          echo "repository_name=$REPOSITORY_NAME"
+
+          # Clone the doc repo
+          cd $DEVEL_FOLDER
+          git clone git@github.com:machines-in-motion/machines-in-motion.github.io
+
+          # Remove the doc if already existing.
+          code_doc_dir=$DEVEL_FOLDER/machines-in-motion.github.io/code_documentation/$REPOSITORY_NAME
+          if [ -d "$code_doc_dir" ]; then
+            rm -r $code_doc_dir
+          fi
+
+          # Copy the generated doc and coverage in the doc repo.
+          mkdir -p $code_doc_dir
+          mv $BUILD_FOLDER/share/docs/sphinx/html $code_doc_dir/documentation
+          mv $BUILD_FOLDER/coverage $code_doc_dir/
+
+          # Update the doc repo main page.
+          cd $DEVEL_FOLDER/machines-in-motion.github.io
+          make
+          git add --all
+          git commit -am "[Github action $REPOSITORY_NAME] update doc"
+          git push origin master
