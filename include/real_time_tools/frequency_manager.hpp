@@ -24,6 +24,18 @@ public:
     // create a manager for the desired frequency
     FrequencyManager(double frequency);
 
+    // default constructor
+    FrequencyManager();
+
+    // Set the frequency.
+    void set_frequency(double frequency);
+
+    // Set the period in seconds.
+    void set_period(double period_s);
+
+    // predict the next sleeping time.
+    double predict_sleeping_time() const;
+
     /**
      * @brief waits for the time such that successive calls to wait
      * will result in wait being called at the desired frequency

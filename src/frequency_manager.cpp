@@ -9,6 +9,31 @@ FrequencyManager::FrequencyManager(double frequency)
 {
 }
 
+FrequencyManager::FrequencyManager()
+    : period_ms_(0.0), previous_time_ms_(-1)
+{
+}
+
+void FrequencyManager::set_frequency(double frequency)
+{
+    period_ms_ = (1.0 / frequency) * 1000.0;
+}
+
+void FrequencyManager::set_period(double period)
+{
+    period_ms_ = period * 1000.0;
+}
+
+double FrequencyManager::predict_sleeping_time() const
+{
+    double t = Timer::get_current_time_ms();
+    if (previous_time_ms_ < 0)
+    {
+        return 0.0;
+    }
+    return (t - previous_time_ms_);
+}
+
 bool FrequencyManager::wait()
 {
     double t = Timer::get_current_time_ms();
