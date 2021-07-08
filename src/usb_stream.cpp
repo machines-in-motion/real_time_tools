@@ -345,7 +345,6 @@ bool UsbStream::close_device()
         file_id_ = 0;
     }
 #endif
-    real_time_tools::Timer::sleep_sec(5);
     return true;
 }
 
