@@ -60,5 +60,5 @@ jobs:
           echo Source environment.
           source ${{ steps.clone_and_build_dep.outputs.setup_file }}
           cmake ${{github.workspace}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DGENERATE_DOCUMENTATION=ON
-          cmake --build . --config $BUILD_TYPE -DGENERATE_DOCUMENTATION=ON
+          cmake --build . --config $BUILD_TYPE
           env CTEST_OUTPUT_ON_FAILURE=1 ctest -C $BUILD_TYPE
