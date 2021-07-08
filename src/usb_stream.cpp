@@ -385,7 +385,7 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
                                 &timeout_posix_,  // timeout
                                 nullptr);         // sigmask
 
-        // an error occured during the ressource access
+        // an error occured during the resource access
         if (return_value_ == -1)
         {
             int errsv = errno;
@@ -420,6 +420,10 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
     else
     {
         return_value_ = read(file_id_, buffer_.data(), msg.size());
+        // try to read again if bytes requested != bytes received 
+        if (return_value_ != static_cast<ssize_t>(msg.size())){  // changed
+            return_value_ += read(file_id_, buffer_.data()+return_value_, msg.size()-return_value_);
+        }
     }
 #endif
     /**
