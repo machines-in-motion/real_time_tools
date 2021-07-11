@@ -26,6 +26,9 @@ bool fix_current_process_to_cpu(std::vector<int>& cpu_affinities, int pid)
 {
 #ifdef XENOMAI
     return false;
+#elif __APPLE__
+    // Apple does not support pinning a process.
+    return false;
 #elif defined(NON_REAL_TIME) || defined(RT_PREEMPT)
     if (cpu_affinities.size() > 0)
     {
