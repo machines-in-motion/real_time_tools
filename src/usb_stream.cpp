@@ -421,8 +421,8 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
     {
         return_value_ = read(file_id_, buffer_.data(), msg.size());
         // try to read again if bytes requested != bytes received 
-        if (return_value_ != static_cast<ssize_t>(msg.size())){  // changed
-            return_value_ += read(file_id_, buffer_.data()+return_value_, msg.size()-return_value_);
+        if (return_value_ != static_cast<ssize_t>(msg.size())){
+            return_value_ += read(file_id_, buffer_.data() + return_value_, msg.size() - return_value_);
         }
     }
 #endif
