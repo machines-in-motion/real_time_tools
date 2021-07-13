@@ -27,7 +27,7 @@ endif()
 find_package(mpi_cmake_modules REQUIRED)
 find_package(pybind11 REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem system thread)
+find_package(Boost REQUIRED COMPONENTS filesystem)
 find_package(Threads REQUIRED)
 
 #
@@ -59,8 +59,7 @@ target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:include>)
 # Link the dependencies
-target_link_libraries(${PROJECT_NAME} Boost::boost Boost::filesystem
-                      Boost::system Boost::thread)
+target_link_libraries(${PROJECT_NAME} Boost::boost Boost::filesystem)
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
 # Xenomai libs could be empty. But this is needed in case the OS is Xenomai
 target_link_libraries(${PROJECT_NAME} ${Xenomai_LIBS})
