@@ -186,7 +186,7 @@ void Timer::sec_to_timespec(double date_sec, struct timespec& date_spec)
 double Timer::get_current_time_sec()
 {
 #ifdef MAC_OS
-    throw return std::nan();
+    throw;
 #else
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
@@ -198,8 +198,8 @@ double Timer::get_current_time_sec()
 int Timer::sleep_microseconds(int sleep_duration_us)
 {
 #ifdef MAC_OS
-    throw
-#elseif XENOMAI
+    throw;
+#elif XENOMAI
         return rt_task_sleep(sleep_duration_us * 1e3);
 #else
     usleep(sleep_duration_us);
@@ -210,7 +210,7 @@ int Timer::sleep_microseconds(int sleep_duration_us)
 void Timer::sleep_sec(const double& sleep_duration_sec)
 {
 #ifdef MAC_OS
-    throw
+    throw;
 #else
     struct timespec abs_target_time;
     clock_gettime(CLOCK_REALTIME, &abs_target_time);
@@ -222,7 +222,7 @@ void Timer::sleep_sec(const double& sleep_duration_sec)
 void Timer::sleep_until_sec(const double& date_sec)
 {
 #ifdef MAC_OS
-    throw
+    throw;
 #else
     struct timespec abs_target_time;
     sec_to_timespec(date_sec, abs_target_time);

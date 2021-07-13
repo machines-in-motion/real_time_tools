@@ -176,7 +176,7 @@ ThreadsafeObject<Types...>::ThreadsafeObject()
 
 template <class... Types>
 template <int INDEX>
-ThreadsafeObject<Types...>::Type<INDEX> ThreadsafeObject<Types...>::get() const
+typename ThreadsafeObject<Types...>::template Type<INDEX> ThreadsafeObject<Types...>::get() const
 {
     std::unique_lock<std::mutex> lock((*data_mutexes_)[INDEX]);
     return std::get<INDEX>(*data_);
