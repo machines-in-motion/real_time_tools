@@ -123,7 +123,7 @@ public:
     bool close_device();
 
     /**
-     * @brief Read the port or the file.
+     * @brief Read the port or the file. Reports error if read bytes is not equal to expected bytes.
      *
      * @param msg is the command sent before this command was executed.
      * @param stream_on define if we just read on the fly or we wait until we
@@ -132,6 +132,20 @@ public:
      * @return false
      */
     bool read_device(std::vector<uint8_t>& msg, const bool stream_on = true);
+
+    /**
+     * @brief Read the port or the file. Does not check if read bytes is equal to expected bytes.
+     *
+     * @param msg is the command sent before this command was executed.
+     * @param stream_on define if we just read on the fly or we wait until we
+     * get the correct amount of data.
+     * @param start_location is the index in msg that we want to start reading to. 
+     * This is for when you want to keep a portion of the already existing data:
+     * For example, when you are have read a partial message and need to get the rest
+     * while keeping the first part.
+     * @return Number of bytes read or -1 if failure.
+     */
+    ssize_t read_maybe_device(std::vector<uint8_t>& msg, const bool stream_on = true, const size_t start_location = 0);
 
     /**
      * @brief Write msg in the port or the file.

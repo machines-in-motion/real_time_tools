@@ -350,9 +350,51 @@ bool UsbStream::close_device()
 
 bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
 {
+    // read device and then store number of bytes read
+    return_value_ = UsbStream::read_maybe_device(msg, stream_on);
+    /**
+     * Check the potential error:
+     *
+     * - First we check if the port could be read at all.
+     * - Then we check if the port was read before the timeout
+     * - Then we check the validity of the message FIXME where is validity checking?
+     */
+
+    // Port reading failure
+    if (return_value_ < 0)
+    {
+        int errsv = errno;
+        rt_printf(
+            "UsbStream::read_device: "
+            "Failed to read port %s with error\n\t%s\n",
+            file_name_.c_str(),
+            strerror(errsv));
+        return false;
+    }
+    // Timeout failure
+    else if (return_value_ != static_cast<ssize_t>(msg.size()))
+    {
+        rt_printf(
+            "UsbStream::read_device: "
+            "Failed to read port %s. Requested %ld bytes and "
+            "received %ld bytes: %s\n",
+            file_name_.c_str(),
+            msg.size(),
+            return_value_,
+            msg_debug_string(buffer_, return_value_).c_str());
+        return false;
+    }
+    // Here we copy the message inside the buffer in order to use a bigger
+    // memory buffer than the message itself
+    std::copy_n(buffer_.begin(), msg.size(), msg.begin());
+    return true;
+}
+
+ssize_t UsbStream::read_maybe_device(std::vector<uint8_t>& msg, const bool stream_on, const size_t start_location)
+{
     // We make sure that the internal buffer is big enough, while avoiding too
     // many resize. Theoretically the default size is good enough.
-    if (msg.size() > buffer_.size())
+    if (msg.size() - start_location > buffer_.size())
     {
         rt_printf(
             "UsbStream::read_device: Warning internal buffer needs resizing,"
@@ -394,7 +436,7 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
                 "Failed to access port %s with error\n\t%s\n",
                 file_name_.c_str(),
                 strerror(errsv));
-            return false;
+            return -1; // return_value_ == -1
         }
         // the timeout has expired
         else if (return_value_ == 0)
@@ -406,12 +448,12 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
                 "error\n\t%s\n",
                 file_name_.c_str(),
                 strerror(errsv));
-            return false;
+            return 0; // return_value == 0
         }
         // Nothing wrong happened: access the data.
         else
         {
-            return_value_ = read(file_id_, buffer_.data(), msg.size());
+            return_value_ = read(file_id_, buffer_.data(), msg.size() - start_location);
         }
     }
     /**
@@ -419,50 +461,13 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
      */
     else
     {
-        return_value_ = read(file_id_, buffer_.data(), msg.size());
-        // try to read again if bytes requested != bytes received 
-        if (return_value_ != static_cast<ssize_t>(msg.size())){
-            return_value_ += read(file_id_, buffer_.data() + return_value_, msg.size() - return_value_);
-        }
+        return_value_ = read(file_id_, buffer_.data(), msg.size() - start_location);
     }
 #endif
-    /**
-     * Check the potential error:
-     *
-     * - First we check if the port could be read at all.
-     * - Then we check if the port was read before the timeout
-     * - Then we check the validity of the message
-     */
-
-    // Port reading failure
-    if (return_value_ < 0)
-    {
-        int errsv = errno;
-        rt_printf(
-            "UsbStream::read_device: "
-            "Failed to read port %s with error\n\t%s\n",
-            file_name_.c_str(),
-            strerror(errsv));
-        return false;
-    }
-    // Timeout failure
-    else if (return_value_ != static_cast<ssize_t>(msg.size()))
-    {
-        rt_printf(
-            "UsbStream::read_device: "
-            "Failed to read port %s. Requested %ld bytes and "
-            "received %ld bytes: %s\n",
-            file_name_.c_str(),
-            msg.size(),
-            return_value_,
-            msg_debug_string(buffer_, return_value_).c_str());
-        return false;
-    }
-    // Here we copy the message inside the buffer in order to use a bigger
-    // memory buffer than the message itself
-    std::copy_n(buffer_.begin(), msg.size(), msg.begin());
-    return true;
+    std::copy_n(buffer_.begin(), msg.size() - start_location, msg.begin() + start_location);
+    return return_value_;
 }
+
 
 bool UsbStream::write_device(const std::vector<uint8_t>& msg)
 {
