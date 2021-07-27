@@ -350,78 +350,8 @@ bool UsbStream::close_device()
 
 bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
 {
-    // We make sure that the internal buffer is big enough, while avoiding too
-    // many resize. Theoretically the default size is good enough.
-    if (msg.size() > buffer_.size())
-    {
-        rt_printf(
-            "UsbStream::read_device: Warning internal buffer needs resizing,"
-            "This operation is not real-time safe");
-        buffer_.resize(10 * msg.size());
-    }
-    // inefficient but safer
-    std::fill(buffer_.begin(), buffer_.end(), 0);
-
-#if defined(XENOMAI)
-    return_value_ = rt_dev_read(file_id_, buffer_.data(), msg.size());
-#elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
-    /**
-     * Poll Mode
-     */
-    if (!stream_on)
-    {
-        if (!timeout_set_)
-        {
-            throw std::runtime_error(
-                "UsbStream::read_device : Poll mode requested "
-                "but no timeout set. Please use "
-                "UsbStream::set_poll_mode_timeout");
-        }
-        // here we acquire the port access.
-        return_value_ = pselect(file_id_ + 1,
-                                &file_id_set_,    // writefds
-                                nullptr,          // readfds
-                                nullptr,          // exceptfds
-                                &timeout_posix_,  // timeout
-                                nullptr);         // sigmask
-
-        // an error occured during the ressource access
-        if (return_value_ == -1)
-        {
-            int errsv = errno;
-            rt_printf(
-                "UsbStream::read_device: "
-                "Failed to access port %s with error\n\t%s\n",
-                file_name_.c_str(),
-                strerror(errsv));
-            return false;
-        }
-        // the timeout has expired
-        else if (return_value_ == 0)
-        {
-            int errsv = errno;
-            rt_printf(
-                "UsbStream::read_device: "
-                "Failed to access port %s before timeout with "
-                "error\n\t%s\n",
-                file_name_.c_str(),
-                strerror(errsv));
-            return false;
-        }
-        // Nothing wrong happened: access the data.
-        else
-        {
-            return_value_ = read(file_id_, buffer_.data(), msg.size());
-        }
-    }
-    /**
-     * Stream Mode
-     */
-    else
-    {
-        return_value_ = read(file_id_, buffer_.data(), msg.size());
-    }
-#endif
+    // read device and then store number of bytes read
+    return_value_ = UsbStream::read_device_raw(msg, stream_on);
     /**
      * Check the potential error:
      *
@@ -459,6 +389,85 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
     std::copy_n(buffer_.begin(), msg.size(), msg.begin());
     return true;
 }
+
+ssize_t UsbStream::read_device_raw(std::vector<uint8_t>& msg, const bool stream_on, const size_t start_location)
+{
+    // We make sure that the internal buffer is big enough, while avoiding too
+    // many resizes. Theoretically the default size is good enough.
+    if (msg.size() - start_location > buffer_.size())
+    {
+        rt_printf(
+            "UsbStream::read_device: Warning internal buffer needs resizing,"
+            "This operation is not real-time safe");
+        buffer_.resize(10 * msg.size());
+    }
+    // inefficient but safer
+    std::fill(buffer_.begin(), buffer_.end(), 0);
+
+#if defined(XENOMAI)
+    return_value_ = rt_dev_read(file_id_, buffer_.data(), msg.size());
+#elif defined(RT_PREEMPT) || defined(NON_REAL_TIME)
+    /**
+     * Poll Mode
+     */
+    if (!stream_on)
+    {
+        if (!timeout_set_)
+        {
+            throw std::runtime_error(
+                "UsbStream::read_device : Poll mode requested "
+                "but no timeout set. Please use "
+                "UsbStream::set_poll_mode_timeout");
+        }
+        // here we acquire the port access.
+        return_value_ = pselect(file_id_ + 1,
+                                &file_id_set_,    // writefds
+                                nullptr,          // readfds
+                                nullptr,          // exceptfds
+                                &timeout_posix_,  // timeout
+                                nullptr);         // sigmask
+
+        // an error occured during the resource access
+        if (return_value_ == -1)
+        {
+            int errsv = errno;
+            rt_printf(
+                "UsbStream::read_device: "
+                "Failed to access port %s with error\n\t%s\n",
+                file_name_.c_str(),
+                strerror(errsv));
+            return -1; // return_value_ == -1
+        }
+        // the timeout has expired
+        else if (return_value_ == 0)
+        {
+            int errsv = errno;
+            rt_printf(
+                "UsbStream::read_device: "
+                "Failed to access port %s before timeout with "
+                "error\n\t%s\n",
+                file_name_.c_str(),
+                strerror(errsv));
+            return 0; // return_value == 0
+        }
+        // Nothing wrong happened: access the data.
+        else
+        {
+            return_value_ = read(file_id_, buffer_.data(), msg.size() - start_location);
+        }
+    }
+    /**
+     * Stream Mode
+     */
+    else
+    {
+        return_value_ = read(file_id_, buffer_.data(), msg.size() - start_location);
+    }
+#endif
+    std::copy_n(buffer_.begin(), msg.size() - start_location, msg.begin() + start_location);
+    return return_value_;
+}
+
 
 bool UsbStream::write_device(const std::vector<uint8_t>& msg)
 {
