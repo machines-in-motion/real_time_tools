@@ -357,7 +357,6 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
      *
      * - First we check if the port could be read at all.
      * - Then we check if the port was read before the timeout
-     * - Then we check the validity of the message
      */
 
     // Port reading failure
