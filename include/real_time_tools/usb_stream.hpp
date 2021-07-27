@@ -145,7 +145,7 @@ public:
      * while keeping the first part.
      * @return Number of bytes read or -1 if failure.
      */
-    ssize_t read_maybe_device(std::vector<uint8_t>& msg, const bool stream_on = true, const size_t start_location = 0);
+    ssize_t read_device_raw(std::vector<uint8_t>& msg, const bool stream_on = true, const size_t start_location = 0);
 
     /**
      * @brief Write msg in the port or the file.

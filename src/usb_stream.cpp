@@ -351,7 +351,7 @@ bool UsbStream::close_device()
 bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
 {
     // read device and then store number of bytes read
-    return_value_ = UsbStream::read_maybe_device(msg, stream_on);
+    return_value_ = UsbStream::read_device_raw(msg, stream_on);
     /**
      * Check the potential error:
      *
@@ -390,10 +390,10 @@ bool UsbStream::read_device(std::vector<uint8_t>& msg, const bool stream_on)
     return true;
 }
 
-ssize_t UsbStream::read_maybe_device(std::vector<uint8_t>& msg, const bool stream_on, const size_t start_location)
+ssize_t UsbStream::read_device_raw(std::vector<uint8_t>& msg, const bool stream_on, const size_t start_location)
 {
     // We make sure that the internal buffer is big enough, while avoiding too
-    // many resize. Theoretically the default size is good enough.
+    // many resizes. Theoretically the default size is good enough.
     if (msg.size() - start_location > buffer_.size())
     {
         rt_printf(
