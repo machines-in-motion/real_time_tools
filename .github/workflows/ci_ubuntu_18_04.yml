@@ -1,21 +1,21 @@
-name: ci_ubuntu_18_04_debug
+name: ci_ubuntu_18_04
 
-on: [pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Debug
   BUILD_FOLDER: ${{github.workspace}}/../build
   DEVEL_FOLDER: ${{github.workspace}}/../devel
 
 jobs:
-  build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  build-linux:
     runs-on: ubuntu-18.04
-
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
     steps:
       #
       # Setup the machines and build environment
@@ -59,6 +59,6 @@ jobs:
           cd $BUILD_FOLDER
           echo Source environment.
           source ${{ steps.clone_and_build_dep.outputs.setup_file }}
-          cmake ${{github.workspace}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DGENERATE_DOCUMENTATION=ON
-          cmake --build . --config $BUILD_TYPE
+          cmake ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DGENERATE_DOCUMENTATION=ON
+          cmake --build . --config ${{matrix.build_type}}
           env CTEST_OUTPUT_ON_FAILURE=1 ctest -C $BUILD_TYPE
