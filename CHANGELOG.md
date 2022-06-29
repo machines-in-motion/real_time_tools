@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Remove sleep in `UsbStream::close_device`.
-- Changes in `UsbStream` (#31).
+- Add safety checks during the reading of serial port (usb) messages (#31).
 
 ### Removed
 - ThreadsafeTimeseries (use the time_series package instead).
