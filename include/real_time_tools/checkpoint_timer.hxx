@@ -6,6 +6,7 @@
  *
  * @brief Implementation of the CheckpointTimer class.
  */
+#include <string>
 
 template <size_t NUM_CHECKPOINTS, bool ENABLED>
 CheckpointTimer<NUM_CHECKPOINTS, ENABLED>::CheckpointTimer()
@@ -28,7 +29,7 @@ void CheckpointTimer<NUM_CHECKPOINTS, ENABLED>::start()
 
 template <size_t NUM_CHECKPOINTS, bool ENABLED>
 void CheckpointTimer<NUM_CHECKPOINTS, ENABLED>::checkpoint(
-    const std::string &checkpoint_name)
+    std::string_view checkpoint_name)
 {
     if (ENABLED)
     {
@@ -40,9 +41,10 @@ void CheckpointTimer<NUM_CHECKPOINTS, ENABLED>::checkpoint(
         }
         else if (checkpoint_names_[current_checkpoint_] != checkpoint_name)
         {
-            throw std::runtime_error("Wrong checkpoint called (expected '" +
-                                     checkpoint_names_[current_checkpoint_] +
-                                     "' but got '" + checkpoint_name + "').");
+            throw std::runtime_error(
+                "Wrong checkpoint called (expected '" +
+                std::string(checkpoint_names_[current_checkpoint_]) +
+                "' but got '" + std::string(checkpoint_name) + "').");
         }
 
         current_checkpoint_++;

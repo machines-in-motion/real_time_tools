@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
 ## [Unreleased]
+### Changed
+- CheckpointTimer: Use `string_view` instead of `string` for checkpoints names.
+  This avoids dynamic memory allocation for the strings and thus makes it more
+  suitable for real-time critical applications.
 
 ## [3.0.0] - 2022-06-29
 ### Added
