@@ -11,7 +11,7 @@
 
 #include <array>
 #include <iostream>
-#include <string>
+#include <string_view>
 
 #include "timer.hpp"
 
@@ -52,7 +52,7 @@ public:
      *
      * @param checkpoint_name Name of the checkpoint (used for printing results)
      */
-    void checkpoint(const std::string &checkpoint_name);
+    void checkpoint(std::string_view checkpoint_name);
 
     //! @brief Print results of time measurements.
     void print_statistics() const;
@@ -62,7 +62,7 @@ private:
     //!        the total duration.
     std::array<real_time_tools::Timer, NUM_CHECKPOINTS + 1> timers_;
     //! @brief Names of the checkpoints.
-    std::array<std::string, NUM_CHECKPOINTS + 1> checkpoint_names_;
+    std::array<std::string_view, NUM_CHECKPOINTS + 1> checkpoint_names_;
     //! @brief Index of the current checkpoint.
     size_t current_checkpoint_ = 1;
 };
