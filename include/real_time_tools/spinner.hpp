@@ -62,7 +62,7 @@ public:
      */
     double predict_sleeping_time();
 
-private:
+protected:
     /**
      * @brief period_sec_ is the period of the loop in seconds
      */
